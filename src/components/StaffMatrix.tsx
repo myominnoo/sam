@@ -1,10 +1,11 @@
-import { forwardRef, useMemo } from "react";
+import { forwardRef } from "react";
 import type { Staff, Project, Assignment } from "../db";
 import { MONTH_NAMES, type TimelineMonth } from "../constants";
 import { getHeatmapClass } from "../utils/styleHelpers";
 import { RoleBadge } from "./common/RoleBadge";
 import { BaseMatrix } from "./common/BaseMatrix";
 import { ThresholdBadge } from "./common/ThresholdBadge";
+import { MatrixSuperHeader } from "./common/MatrixSuperHeader";
 
 interface StaffMatrixProps {
   staffMembers: Staff[];
@@ -29,27 +30,6 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
     },
     ref,
   ) => {
-    const yearGroups = useMemo(() => {
-      if (!Array.isArray(timelineMonths) || timelineMonths.length === 0) {
-        return [];
-      }
-
-      return timelineMonths.reduce<{ year: number; count: number }[]>(
-        (acc, m) => {
-          if (!m || typeof m.year !== "number") return acc;
-
-          const lastGroup = acc[acc.length - 1];
-          if (lastGroup && lastGroup.year === m.year) {
-            lastGroup.count += 1;
-          } else {
-            acc.push({ year: m.year, count: 1 });
-          }
-          return acc;
-        },
-        [],
-      );
-    }, [timelineMonths]);
-
     const leftMetadataSpan = 3 + maxDynamicCols + 1;
 
     return (
@@ -59,26 +39,12 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
         countLabel={`${staffMembers.length} Staff Members`}
       >
         <thead>
-          {/* Row 1: Super Header Category Grouping */}
-          <tr className="bg-slate-100 border-b border-slate-200 text-xs font-bold text-slate-700 h-8">
-            <th
-              colSpan={leftMetadataSpan}
-              className="sticky top-0 z-10 bg-slate-100 border-r border-slate-200 px-3 py-1.5"
-            />
-            {yearGroups.map((g, idx) => (
-              <th
-                key={`${g.year}-${idx}`}
-                colSpan={g.count}
-                className="sticky top-0 z-10 bg-slate-100 border-r border-slate-200 text-center font-bold text-slate-700 tracking-wider uppercase px-2 py-1.5 align-middle"
-              >
-                {g.year}
-              </th>
-            ))}
-          </tr>
+          <MatrixSuperHeader
+            timelineMonths={timelineMonths}
+            leftMetadataSpan={leftMetadataSpan}
+          />
 
-          {/* Row 2: Column Headers */}
           <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-700 h-10">
-            {/* STICKY TOP-8 & LEFT-0 WITH CONTROLLED Z-INDEX */}
             <th className="sticky top-8 left-0 z-20 bg-slate-50 border-r border-slate-200 text-left px-3 py-2 w-48 min-w-[192px] max-w-[192px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)] align-middle">
               Staff
             </th>
@@ -89,7 +55,6 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
               FTE
             </th>
 
-            {/* Dynamic Project Headers */}
             {Array.from({ length: maxDynamicCols }).map((_, idx) => {
               const proj = projects[idx];
               return (
@@ -105,12 +70,10 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
               );
             })}
 
-            {/* # Project Column Header */}
             <th className="sticky top-8 z-10 bg-slate-50 border-r border-slate-200 text-center px-2 py-2 w-20 min-w-[80px] max-w-[80px] align-middle">
               # Project
             </th>
 
-            {/* Timeline Month Headers */}
             {timelineMonths.map((m) => (
               <th
                 key={m.key}
@@ -122,7 +85,6 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
           </tr>
         </thead>
 
-        {/* Standardized Table Body Typography: text-xs, font-medium, text-slate-700 */}
         <tbody className="divide-y divide-slate-200 text-xs font-medium text-slate-700 bg-white">
           {staffMembers.map((staff) => {
             const staffAssignments = assignments.filter(
@@ -135,7 +97,6 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                 key={staff.id}
                 className="group h-10 hover:bg-indigo-50/40 transition-colors duration-150"
               >
-                {/* Staff Name */}
                 <td className="sticky left-0 z-10 bg-white group-hover:bg-slate-50 px-3 py-2 border-r border-slate-200 w-48 min-w-[192px] max-w-[192px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)] transition-colors">
                   <span
                     className="line-clamp-1 truncate block"
@@ -145,17 +106,14 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                   </span>
                 </td>
 
-                {/* Designation */}
                 <td className="px-2 py-2 border-r border-slate-200 text-center w-20 min-w-[80px] max-w-[80px] truncate transition-colors">
                   {staff.designation}
                 </td>
 
-                {/* FTE */}
                 <td className="px-1.5 py-2 border-r border-slate-200 text-center w-14 min-w-[56px] max-w-[56px] transition-colors">
                   {staff.fte}
                 </td>
 
-                {/* Dynamic Role Badges */}
                 {Array.from({ length: maxDynamicCols }).map((_, idx) => {
                   const proj = projects[idx];
                   if (!proj) {
@@ -177,7 +135,6 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                   );
                 })}
 
-                {/* Threshold Badge */}
                 <td className="px-2 py-1.5 border-r border-slate-200 text-center w-20 min-w-[80px] max-w-[80px] transition-colors">
                   <div className="flex items-center justify-center">
                     <ThresholdBadge
@@ -188,7 +145,6 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                   </div>
                 </td>
 
-                {/* Timeline Heatmap Capacity Cells */}
                 {timelineMonths.map((m) => {
                   const monthIdx = MONTH_NAMES.indexOf(m.month);
                   const monthNum = String(monthIdx + 1).padStart(2, "0");

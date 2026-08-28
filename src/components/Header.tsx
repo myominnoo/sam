@@ -29,26 +29,37 @@ export const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
             </div>
           </div>
 
-          {/* Floating Translucent Tab Navigation */}
-          <nav className="flex items-center bg-slate-100/90 p-1 rounded-full border border-slate-300/60 shadow-inner w-full sm:w-auto justify-center">
+          {/* Smooth Pure CSS Tab Navigation */}
+          <nav className="relative flex items-center bg-slate-100/90 p-1 rounded-full border border-slate-300/60 shadow-inner w-full sm:w-auto justify-center">
+            {/* Sliding Pill Indicator */}
+            <span
+              className={`absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-slate-900 rounded-full border-l-4 border-l-indigo-500 shadow-md shadow-slate-900/20 transition-transform duration-300 ease-out pointer-events-none ${
+                activeTab === "manage" ? "translate-x-full" : "translate-x-0"
+              }`}
+            />
+
+            {/* Dashboard Tab */}
             <button
+              type="button"
               onClick={() => setActiveTab("dashboard")}
-              className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
+              className={`relative z-10 flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 cursor-pointer ${
                 activeTab === "dashboard"
-                  ? "bg-slate-900 text-white shadow-md shadow-slate-900/20"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/70"
+                  ? "text-white"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <LayoutDashboard className="w-3.5 h-3.5" />
               <span>Dashboard</span>
             </button>
 
+            {/* Manage Data Tab */}
             <button
+              type="button"
               onClick={() => setActiveTab("manage")}
-              className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
+              className={`relative z-10 flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 cursor-pointer ${
                 activeTab === "manage"
-                  ? "bg-slate-900 text-white shadow-md shadow-slate-900/20"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/70"
+                  ? "text-white"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />

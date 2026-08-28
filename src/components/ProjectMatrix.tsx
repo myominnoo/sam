@@ -1,4 +1,4 @@
-import { forwardRef, useMemo } from "react";
+import { forwardRef } from "react";
 import { Check } from "lucide-react";
 import type { Staff, Project, Assignment } from "../db";
 import type { TimelineMonth } from "../constants";
@@ -6,6 +6,7 @@ import { RoleBadge } from "./common/RoleBadge";
 import { BaseMatrix } from "./common/BaseMatrix";
 import { MASTER_MONTH_OPTIONS } from "../constants";
 import { ThresholdBadge } from "./common/ThresholdBadge";
+import { MatrixSuperHeader } from "./common/MatrixSuperHeader";
 
 interface ProjectMatrixProps {
   staffMembers: Staff[];
@@ -43,27 +44,6 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
     },
     ref,
   ) => {
-    const yearGroups = useMemo(() => {
-      if (!Array.isArray(timelineMonths) || timelineMonths.length === 0) {
-        return [];
-      }
-
-      return timelineMonths.reduce<{ year: number; count: number }[]>(
-        (acc, m) => {
-          if (!m || typeof m.year !== "number") return acc;
-
-          const lastGroup = acc[acc.length - 1];
-          if (lastGroup && lastGroup.year === m.year) {
-            lastGroup.count += 1;
-          } else {
-            acc.push({ year: m.year, count: 1 });
-          }
-          return acc;
-        },
-        [],
-      );
-    }, [timelineMonths]);
-
     const leftMetadataSpan = 1 + maxDynamicCols + 1;
 
     return (
@@ -73,34 +53,18 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
         countLabel={`${projects.length} Projects`}
       >
         <thead>
-          {/* Row 1: Super Header Category Grouping */}
-          <tr className="bg-slate-100 border-b border-slate-200 text-xs font-bold text-slate-700 h-8">
-            <th
-              colSpan={leftMetadataSpan}
-              className="sticky top-0 z-10 bg-slate-100 border-r border-slate-200 px-3 py-1.5"
-            />
-            {yearGroups.map((g, idx) => (
-              <th
-                key={`${g.year}-${idx}`}
-                colSpan={g.count}
-                className="sticky top-0 z-10 bg-slate-100 border-r border-slate-200 text-center font-bold text-slate-700 tracking-wider uppercase px-2 py-1.5 align-middle"
-              >
-                {g.year}
-              </th>
-            ))}
-          </tr>
+          <MatrixSuperHeader
+            timelineMonths={timelineMonths}
+            leftMetadataSpan={leftMetadataSpan}
+          />
 
-          {/* Row 2: Column Headers */}
           <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-700 h-10">
-            {/* STICKY TOP-8 & LEFT-0 WITH MATCHED WIDTH 328px */}
             <th className="sticky top-8 left-0 z-20 bg-slate-50 border-r border-slate-200 text-left px-3 py-2 w-[328px] min-w-[328px] max-w-[328px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)] align-middle">
               Project Name
             </th>
 
-            {/* Dynamic Staff Column Headers */}
             {Array.from({ length: maxDynamicCols }).map((_, idx) => {
               const staff = staffMembers[idx];
-              const firstName = staff ? staff.name.split(" ")[0] : "";
               return (
                 <th
                   key={idx}
@@ -108,18 +72,16 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                   title={staff?.name || ""}
                 >
                   <span className="line-clamp-2 break-words leading-tight text-[11px] font-semibold text-slate-700 block">
-                    {firstName}
+                    {staff?.name || ""}
                   </span>
                 </th>
               );
             })}
 
-            {/* # Staff Column Header */}
             <th className="sticky top-8 z-10 bg-slate-50 border-r border-slate-200 text-center px-2 py-2 w-20 min-w-[80px] max-w-[80px] align-middle">
               # Staff
             </th>
 
-            {/* Timeline Month Headers */}
             {timelineMonths.map((m) => (
               <th
                 key={m.key}
