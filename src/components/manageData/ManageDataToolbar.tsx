@@ -16,6 +16,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { ActionCard } from "../common/ActionCard";
+import templateFileUrl from "../assets/staff_allocation_template.xlsx?url";
 
 interface ManageDataToolbarProps {
   fileInputRef: RefObject<HTMLInputElement | null>;
@@ -94,7 +95,7 @@ export const ManageDataToolbar = ({
 
             {/* Template - Emerald */}
             <a
-              href="/staff_allocation_template.xlsx"
+              href={templateFileUrl}
               download="staff_allocation_template.xlsx"
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/30 hover:text-white rounded-lg transition-colors duration-150"
