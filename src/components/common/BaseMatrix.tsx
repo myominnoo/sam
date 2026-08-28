@@ -6,11 +6,24 @@ interface BaseMatrixProps {
   countLabel: string;
   timelineMonths: TimelineMonth[];
   prefixColsSpan: number;
+  dynamicColsCount?: number; // Number of dynamic project/staff columns
+  groupLabel?: string; // Header label for dynamic columns ("Project" or "Staff")
   children: ReactNode;
 }
 
 export const BaseMatrix = forwardRef<HTMLDivElement, BaseMatrixProps>(
-  ({ title, countLabel, timelineMonths, prefixColsSpan, children }, ref) => {
+  (
+    {
+      title,
+      countLabel,
+      timelineMonths,
+      prefixColsSpan,
+      dynamicColsCount = 0,
+      groupLabel,
+      children,
+    },
+    ref,
+  ) => {
     // Group timeline months by year for top header row
     const yearGroups = timelineMonths.reduce<{ year: number; count: number }[]>(
       (acc, m) => {
@@ -37,14 +50,28 @@ export const BaseMatrix = forwardRef<HTMLDivElement, BaseMatrixProps>(
         <div className="overflow-x-auto" ref={ref}>
           <table className="text-xs border-collapse w-full min-w-max">
             <thead>
-              {/* ROW 1: YEAR HEADERS */}
+              {/* ROW 1: GROUP SUPER-HEADERS & YEAR HEADERS */}
               <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 h-6 text-[11px]">
-                {/* Fixed Blank Cell spanning all non-date prefix columns - SOLID OPAQUE BG */}
+                {/* Prefix columns (Staff/Role/FTE or Project Name) */}
                 <th
                   colSpan={prefixColsSpan}
-                  className="sticky left-0 z-30 bg-slate-100 border-r border-slate-200"
+                  className="bg-slate-100 border-r border-slate-200"
                 />
-                {/* Year Header Spans Over Month Columns Only - SOLID OPAQUE BG */}
+
+                {/* Spanning header over dynamic columns ("Project" or "Staff") */}
+                {dynamicColsCount > 0 && (
+                  <th
+                    colSpan={dynamicColsCount}
+                    className="p-1 border-r border-slate-200 text-center tracking-wider bg-slate-100 uppercase text-[10px] text-slate-600"
+                  >
+                    {groupLabel}
+                  </th>
+                )}
+
+                {/* # Project / # Staff spacer column */}
+                <th className="bg-slate-100 border-r border-slate-200" />
+
+                {/* Year Header Spans Over Month Columns */}
                 {yearGroups.map((g, idx) => (
                   <th
                     key={idx}

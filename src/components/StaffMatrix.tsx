@@ -26,8 +26,8 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
     },
     ref,
   ) => {
-    // 3 Fixed Columns (Staff Name, Role, FTE) + maxDynamicCols + 1 (# Project)
-    const prefixColsSpan = 3 + maxDynamicCols + 1;
+    // 3 Fixed Prefix Columns (Staff Name, Role, FTE)
+    const prefixColsSpan = 3;
 
     return (
       <BaseMatrix
@@ -36,6 +36,8 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
         countLabel={`${staffMembers.length} Staff Members`}
         timelineMonths={timelineMonths}
         prefixColsSpan={prefixColsSpan}
+        dynamicColsCount={maxDynamicCols}
+        groupLabel="Project"
       >
         <thead>
           <tr className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 h-7 text-[10px] tracking-wider">

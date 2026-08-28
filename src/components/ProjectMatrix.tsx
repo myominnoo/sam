@@ -40,8 +40,8 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
     },
     ref,
   ) => {
-    // 3 Fixed Columns (Project Name + 2 Empty Spacers for Role/FTE alignment) + maxDynamicCols + 1 (# Staff)
-    const prefixColsSpan = 3 + maxDynamicCols + 1;
+    // 1 Fixed Prefix Column (Project Name)
+    const prefixColsSpan = 1;
 
     return (
       <BaseMatrix
@@ -50,17 +50,16 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
         countLabel={`${projects.length} Projects`}
         timelineMonths={timelineMonths}
         prefixColsSpan={prefixColsSpan}
+        dynamicColsCount={maxDynamicCols}
+        groupLabel="Staff"
       >
         <thead>
           <tr className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 h-7 text-[10px] tracking-wider">
-            <th className="sticky left-0 z-30 bg-slate-50 p-2 border-r border-slate-200 text-left w-44 min-w-[176px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+            <th className="sticky left-0 z-30 bg-slate-50 p-2 border-r border-slate-200 text-left w-[304px] min-w-[304px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
               Project Name
             </th>
 
-            {/* SPACERS TO ALIGN WITH STAFF MATRIX ROLE + FTE COLUMNS */}
-            <th className="p-2 border-r border-slate-200 w-20 min-w-[80px]" />
-            <th className="p-2 border-r border-slate-200 w-12 min-w-[48px]" />
-
+            {/* DYNAMIC STAFF COLUMNS */}
             {Array.from({ length: maxDynamicCols }).map((_, idx) => {
               const staff = staffMembers[idx];
               const firstName = staff ? staff.name.split(" ")[0] : "";
@@ -75,10 +74,12 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
               );
             })}
 
+            {/* # STAFF COLUMN */}
             <th className="p-2 border-r border-slate-200 text-center w-16 min-w-[64px]">
               # Staff
             </th>
 
+            {/* TIMELINE MONTH COLUMNS */}
             {timelineMonths.map((m) => (
               <th
                 key={m.key}
@@ -99,13 +100,9 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
 
             return (
               <tr key={proj.id} className="hover:bg-slate-50 h-9">
-                <td className="sticky left-0 z-20 bg-white group-hover:bg-slate-50 p-2 border-r border-slate-200 font-semibold text-slate-800 truncate max-w-[176px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                <td className="sticky left-0 z-20 bg-white group-hover:bg-slate-50 p-2 border-r border-slate-200 font-semibold text-slate-800 truncate w-[304px] min-w-[304px] max-w-[304px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                   {proj.name}
                 </td>
-
-                {/* MATCHING SPACER CELLS */}
-                <td className="p-0 border-r border-slate-200 w-20 min-w-[80px] bg-slate-50/30" />
-                <td className="p-0 border-r border-slate-200 w-12 min-w-[48px] bg-slate-50/30" />
 
                 {/* DYNAMIC STAFF ASSIGNMENTS */}
                 {Array.from({ length: maxDynamicCols }).map((_, idx) => {
