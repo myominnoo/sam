@@ -12,15 +12,15 @@ FILE_PATH = os.path.join(PUBLIC_DIR, "staff_allocation_template.xlsx")
 # 1. BASE STAFF DEFINITIONS
 staff_base = [
     {"ID": 1, "Name": "Jordan Ellis", "Designation": "SRA", "FTE": 1.0},
-    {"ID": 2, "Name": "Morgan Vance", "Designation": "RA", "FTE": 0.5},
+    {"ID": 2, "Name": "Morgan Vance", "Designation": "RA", "FTE": 1.0},
     {"ID": 3, "Name": "Taylor Chen", "Designation": "ADE", "FTE": 1.0},
     {"ID": 4, "Name": "Alex Mercer", "Designation": "RA", "FTE": 1.0},
     {"ID": 5, "Name": "Riley Harper", "Designation": "DOR", "FTE": 1.0},
     {"ID": 6, "Name": "Samantha Reed", "Designation": "SRA", "FTE": 1.0},
-    {"ID": 7, "Name": "David Kim", "Designation": "RA", "FTE": 0.8},
+    {"ID": 7, "Name": "David Kim", "Designation": "RA", "FTE": 1.0},
     {"ID": 8, "Name": "Elena Rostova", "Designation": "ADE", "FTE": 1.0},
     {"ID": 9, "Name": "Marcus Thorne", "Designation": "RA", "FTE": 1.0},
-    {"ID": 10, "Name": "Priya Patel", "Designation": "SRA", "FTE": 0.5},
+    {"ID": 10, "Name": "Priya Patel", "Designation": "SRA", "FTE": 1.0},
 ]
 
 # 2. PROJECTS (Aug 2026 to Dec 2027)
@@ -35,45 +35,41 @@ project_data = [
     {"ID": 108, "Name": "Orion Data Pipeline", "Start Month": "2027-July", "End Month": "2027-December"},
 ]
 
-# 3. ASSIGNMENTS
+# 3. ASSIGNMENTS (Configured to produce 0%, 25%, 50%, 75%, and 100%)
 assignment_data = [
     # Project Polaris (2026-Aug to 2026-Dec)
-    {"Staff ID": 1, "Staff Name": "Jordan Ellis", "Project ID": 101, "Project Name": "Project Polaris", "Role": "PL"},
-    {"Staff ID": 2, "Staff Name": "Morgan Vance", "Project ID": 101, "Project Name": "Project Polaris", "Role": "M"},
-    {"Staff ID": 4, "Staff Name": "Alex Mercer", "Project ID": 101, "Project Name": "Project Polaris", "Role": "A"},
+    {"Staff ID": 1, "Staff Name": "Jordan Ellis", "Project ID": 101, "Project Name": "Project Polaris", "Role": "PL"},  # 50%
+    {"Staff ID": 2, "Staff Name": "Morgan Vance", "Project ID": 101, "Project Name": "Project Polaris", "Role": "M"},   # 25%
+    {"Staff ID": 4, "Staff Name": "Alex Mercer", "Project ID": 101, "Project Name": "Project Polaris", "Role": "A"},    # 25%
 
     # Aegis Core Modernization (2026-Aug to 2026-Oct)
-    {"Staff ID": 3, "Staff Name": "Taylor Chen", "Project ID": 102, "Project Name": "Aegis Core Modernization", "Role": "PL"},
-    {"Staff ID": 1, "Staff Name": "Jordan Ellis", "Project ID": 102, "Project Name": "Aegis Core Modernization", "Role": "M"},
-
-    # Helios Analytics Platform (2026-Oct to 2027-Mar)
-    {"Staff ID": 5, "Staff Name": "Riley Harper", "Project ID": 103, "Project Name": "Helios Analytics Platform", "Role": "PL"},
-    {"Staff ID": 3, "Staff Name": "Taylor Chen", "Project ID": 103, "Project Name": "Helios Analytics Platform", "Role": "M"},
-    {"Staff ID": 2, "Staff Name": "Morgan Vance", "Project ID": 103, "Project Name": "Helios Analytics Platform", "Role": "A"},
+    {"Staff ID": 1, "Staff Name": "Jordan Ellis", "Project ID": 102, "Project Name": "Aegis Core Modernization", "Role": "PL"}, # 50% + 50% = 100%
+    {"Staff ID": 3, "Staff Name": "Taylor Chen", "Project ID": 102, "Project Name": "Aegis Core Modernization", "Role": "M"},   # 25%
 
     # Vanguard Cloud Portal (2026-Aug to 2026-Nov)
-    {"Staff ID": 4, "Staff Name": "Alex Mercer", "Project ID": 104, "Project Name": "Vanguard Cloud Portal", "Role": "PL"},
-    {"Staff ID": 5, "Staff Name": "Riley Harper", "Project ID": 104, "Project Name": "Vanguard Cloud Portal", "Role": "M"},
+    {"Staff ID": 4, "Staff Name": "Alex Mercer", "Project ID": 104, "Project Name": "Vanguard Cloud Portal", "Role": "PL"},     # 25% + 50% = 75%
+    {"Staff ID": 5, "Staff Name": "Riley Harper", "Project ID": 104, "Project Name": "Vanguard Cloud Portal", "Role": "M"},     # 25%
+
+    # Helios Analytics Platform (2026-Oct to 2027-Mar)
+    {"Staff ID": 5, "Staff Name": "Riley Harper", "Project ID": 103, "Project Name": "Helios Analytics Platform", "Role": "PL"}, # 25% + 50% = 75%
+    {"Staff ID": 3, "Staff Name": "Taylor Chen", "Project ID": 103, "Project Name": "Helios Analytics Platform", "Role": "M"},   # 25%
 
     # Quantum AI Infrastructure (2027-Jan to 2027-Jun)
-    {"Staff ID": 6, "Staff Name": "Samantha Reed", "Project ID": 105, "Project Name": "Quantum AI Infrastructure", "Role": "PL"},
-    {"Staff ID": 8, "Staff Name": "Elena Rostova", "Project ID": 105, "Project Name": "Quantum AI Infrastructure", "Role": "M"},
-    {"Staff ID": 7, "Staff Name": "David Kim", "Project ID": 105, "Project Name": "Quantum AI Infrastructure", "Role": "A"},
+    {"Staff ID": 6, "Staff Name": "Samantha Reed", "Project ID": 105, "Project Name": "Quantum AI Infrastructure", "Role": "PL"}, # 50%
+    {"Staff ID": 8, "Staff Name": "Elena Rostova", "Project ID": 105, "Project Name": "Quantum AI Infrastructure", "Role": "M"},   # 25%
+    {"Staff ID": 7, "Staff Name": "David Kim", "Project ID": 105, "Project Name": "Quantum AI Infrastructure", "Role": "A"},       # 25%
 
     # Cyber Shield Hardening (2027-Mar to 2027-Aug)
-    {"Staff ID": 8, "Staff Name": "Elena Rostova", "Project ID": 106, "Project Name": "Cyber Shield Hardening", "Role": "PL"},
-    {"Staff ID": 9, "Staff Name": "Marcus Thorne", "Project ID": 106, "Project Name": "Cyber Shield Hardening", "Role": "M"},
-    {"Staff ID": 10, "Staff Name": "Priya Patel", "Project ID": 106, "Project Name": "Cyber Shield Hardening", "Role": "A"},
+    {"Staff ID": 8, "Staff Name": "Elena Rostova", "Project ID": 106, "Project Name": "Cyber Shield Hardening", "Role": "PL"},    # 25% + 50% = 75%
+    {"Staff ID": 9, "Staff Name": "Marcus Thorne", "Project ID": 106, "Project Name": "Cyber Shield Hardening", "Role": "M"},     # 25%
 
     # Apex Mobile Suite (2027-May to 2027-Nov)
-    {"Staff ID": 1, "Staff Name": "Jordan Ellis", "Project ID": 107, "Project Name": "Apex Mobile Suite", "Role": "PL"},
-    {"Staff ID": 7, "Staff Name": "David Kim", "Project ID": 107, "Project Name": "Apex Mobile Suite", "Role": "M"},
-    {"Staff ID": 9, "Staff Name": "Marcus Thorne", "Project ID": 107, "Project Name": "Apex Mobile Suite", "Role": "M"},
+    {"Staff ID": 6, "Staff Name": "Samantha Reed", "Project ID": 107, "Project Name": "Apex Mobile Suite", "Role": "PL"},        # 50% + 50% = 100%
+    {"Staff ID": 9, "Staff Name": "Marcus Thorne", "Project ID": 107, "Project Name": "Apex Mobile Suite", "Role": "PL"},        # 25% + 50% = 75%
 
     # Orion Data Pipeline (2027-Jul to 2027-Dec)
-    {"Staff ID": 10, "Staff Name": "Priya Patel", "Project ID": 108, "Project Name": "Orion Data Pipeline", "Role": "PL"},
-    {"Staff ID": 6, "Staff Name": "Samantha Reed", "Project ID": 108, "Project Name": "Orion Data Pipeline", "Role": "M"},
-    {"Staff ID": 3, "Staff Name": "Taylor Chen", "Project ID": 108, "Project Name": "Orion Data Pipeline", "Role": "A"},
+    {"Staff ID": 10, "Staff Name": "Priya Patel", "Project ID": 108, "Project Name": "Orion Data Pipeline", "Role": "PL"},       # 50%
+    {"Staff ID": 7, "Staff Name": "David Kim", "Project ID": 108, "Project Name": "Orion Data Pipeline", "Role": "M"},            # 25%
 ]
 
 # 4. TIMELINE RANGE SETUP (Full Month Names matching frontend keys)
@@ -84,7 +80,15 @@ MONTH_KEYS = [
 ]
 
 # Role allocation weights (% workload)
-ROLE_WEIGHTS = {"PL": 50, "M": 35, "A": 15}
+ROLE_WEIGHTS = {"PL": 50, "M": 25, "A": 25}
+
+def snap_to_25_increment(value: float, fte: float) -> int:
+    """Snaps calculated percentage to nearest 25% step (0, 25, 50, 75, 100), bounded by FTE limit."""
+    if value <= 0:
+        return 0
+    snapped = round(value / 25.0) * 25
+    max_allowed = int(100 * fte)
+    return min(snapped, max_allowed)
 
 # Map active month sets for each project
 project_active_months = {}
@@ -93,7 +97,7 @@ for p in project_data:
     e_idx = MONTH_KEYS.index(p["End Month"])
     project_active_months[p["ID"]] = set(MONTH_KEYS[s_idx : e_idx + 1])
 
-# Build staff dataset with EXACT timeline-aligned capacities
+# Build staff dataset with EXACT timeline-aligned capacities in 25% increments
 staff_data = []
 for s in staff_base:
     sid = s["ID"]
@@ -110,8 +114,8 @@ for s in staff_base:
             if m in project_active_months[pid]:
                 total_load += ROLE_WEIGHTS.get(role, 0)
 
-        # Scale workload by staff member's FTE
-        final_cap = min(round(total_load * fte), int(100 * fte)) if total_load > 0 else 0
+        # Snap workload scaled by staff FTE to 25% increments (0, 25, 50, 75, 100)
+        final_cap = snap_to_25_increment(total_load * fte, fte)
         monthly_allocations[m] = final_cap
 
     staff_record = {**s, **monthly_allocations}

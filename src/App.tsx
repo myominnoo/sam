@@ -387,7 +387,8 @@ export default function App() {
             onClearAllData={handleClearAllData}
             onOpenBulkCapacityModal={(staff) => setBulkCapacityStaff(staff)}
             onImportClick={() => fileInputRef.current?.click()}
-            onExport={() => exportToExcel(staffMembers, projects, getRole)}
+            /* UPDATED EXPORT HANDLER */
+            onExport={() => exportToExcel(staffMembers, projects, assignments)}
             fileInputRef={fileInputRef}
             onFileChange={importFromExcel}
           />
