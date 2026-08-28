@@ -1,8 +1,10 @@
 import { forwardRef } from "react";
+import { Check } from "lucide-react";
 import type { Staff, Project, Assignment } from "../db";
-import { getYearGroups } from "../constants";
 import type { TimelineMonth } from "../constants";
-import { getRoleBadgeClass } from "../utils/styleHelpers";
+import { RoleBadge } from "./common/RoleBadge";
+import { BaseMatrix } from "./common/BaseMatrix";
+import { MASTER_MONTH_OPTIONS } from "../constants";
 
 interface ProjectMatrixProps {
   staffMembers: Staff[];
@@ -13,29 +15,17 @@ interface ProjectMatrixProps {
   maxDynamicCols: number;
 }
 
-const parseMonthKeyToDate = (key: string): Date | null => {
-  if (!key) return null;
-  const [yearStr, monthStr] = key.split("-");
-  const year = parseInt(yearStr, 10);
-
-  const MONTH_NAMES = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const monthIdx = MONTH_NAMES.indexOf(monthStr);
-
-  if (isNaN(year) || monthIdx === -1) return null;
-  return new Date(year, monthIdx, 1);
+const isMonthInRange = (
+  targetKey: string,
+  startKey?: string,
+  endKey?: string,
+): boolean => {
+  if (!startKey || !endKey) return false;
+  const targetIdx = MASTER_MONTH_OPTIONS.findIndex((m) => m.key === targetKey);
+  const startIdx = MASTER_MONTH_OPTIONS.findIndex((m) => m.key === startKey);
+  const endIdx = MASTER_MONTH_OPTIONS.findIndex((m) => m.key === endKey);
+  if (targetIdx === -1 || startIdx === -1 || endIdx === -1) return false;
+  return targetIdx >= startIdx && targetIdx <= endIdx;
 };
 
 export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
@@ -50,156 +40,126 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
     },
     ref,
   ) => {
-    const padCols = Math.max(0, maxDynamicCols - staffMembers.length);
-    const leftSideWidth = 345 + maxDynamicCols * 90;
-    const totalMinWidth = leftSideWidth + timelineMonths.length * 60;
-    const yearGroups = getYearGroups(timelineMonths);
-
-    const isMonthActive = (proj: Project, currentMonthKey: string): boolean => {
-      if (!proj.startMonth || !proj.endMonth) return false;
-
-      const projStart = parseMonthKeyToDate(proj.startMonth);
-      const projEnd = parseMonthKeyToDate(proj.endMonth);
-      const current = parseMonthKeyToDate(currentMonthKey);
-
-      if (!projStart || !projEnd || !current) return false;
-
-      return current >= projStart && current <= projEnd;
-    };
+    // 3 Fixed Columns (Project Name + 2 Empty Spacers for Role/FTE alignment) + maxDynamicCols + 1 (# Staff)
+    const prefixColsSpan = 3 + maxDynamicCols + 1;
 
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50">
-          <h2 className="font-semibold text-slate-800">
-            Project Timeline & Staffing
-          </h2>
-        </div>
+      <BaseMatrix
+        ref={ref}
+        title="Project Timeline & Staffing"
+        countLabel={`${projects.length} Projects`}
+        timelineMonths={timelineMonths}
+        prefixColsSpan={prefixColsSpan}
+      >
+        <thead>
+          <tr className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 h-7 text-[10px] tracking-wider">
+            <th className="sticky left-0 z-30 bg-slate-50 p-2 border-r border-slate-200 text-left w-44 min-w-[176px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+              Project Name
+            </th>
 
-        <div ref={ref} className="table-container overflow-x-auto">
-          <table
-            style={{ minWidth: `${totalMinWidth}px` }}
-            className="w-full text-left border-collapse text-xs table-fixed"
-          >
-            <thead>
-              <tr className="bg-slate-100/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
+            {/* SPACERS TO ALIGN WITH STAFF MATRIX ROLE + FTE COLUMNS */}
+            <th className="p-2 border-r border-slate-200 w-20 min-w-[80px]" />
+            <th className="p-2 border-r border-slate-200 w-12 min-w-[48px]" />
+
+            {Array.from({ length: maxDynamicCols }).map((_, idx) => {
+              const staff = staffMembers[idx];
+              const firstName = staff ? staff.name.split(" ")[0] : "";
+              return (
                 <th
-                  rowSpan={2}
-                  className="p-3 border-r border-slate-200 sticky left-0 bg-slate-100 z-20 w-[280px] align-middle"
+                  key={idx}
+                  className="p-2 border-r border-slate-200 text-center w-20 min-w-[80px] max-w-[80px] truncate"
+                  title={staff?.name || ""}
                 >
-                  Project Name
+                  {firstName}
                 </th>
+              );
+            })}
 
-                {staffMembers.map((s) => (
-                  <th
-                    key={s.id}
-                    rowSpan={2}
-                    className="p-2 border-r border-slate-200 text-center font-semibold text-slate-700 w-[90px] align-middle truncate"
-                    title={s.name}
-                  >
-                    {s.name.split(" ")[0]}
-                  </th>
-                ))}
+            <th className="p-2 border-r border-slate-200 text-center w-16 min-w-[64px]">
+              # Staff
+            </th>
 
-                {/* Spacer columns to match Staff Matrix header width */}
-                {Array.from({ length: padCols }).map((_, i) => (
-                  <th
-                    key={`pad-${i}`}
-                    rowSpan={2}
-                    className="w-[90px] border-r border-slate-200 bg-slate-100/40"
-                  />
-                ))}
+            {timelineMonths.map((m) => (
+              <th
+                key={m.key}
+                className="p-1 border-r border-slate-200 text-center w-[60px] min-w-[60px] uppercase"
+              >
+                {m.shortMonth}
+              </th>
+            ))}
+          </tr>
+        </thead>
 
-                <th
-                  rowSpan={2}
-                  className="p-3 border-r border-slate-200 text-center bg-slate-200/50 align-middle w-[65px]"
-                >
-                  # STAFF
-                </th>
+        <tbody className="divide-y divide-slate-200">
+          {projects.map((proj) => {
+            const projAssignments = assignments.filter(
+              (a) => a.projectId === proj.id,
+            );
+            const activeStaffCount = projAssignments.length;
 
-                {Object.entries(yearGroups).map(([year, count]) => (
-                  <th
-                    key={year}
-                    colSpan={count}
-                    className="p-1.5 border-r border-slate-300 text-center font-bold text-slate-800 bg-slate-200/60 border-b"
-                  >
-                    {year}
-                  </th>
-                ))}
-              </tr>
+            return (
+              <tr key={proj.id} className="hover:bg-slate-50 h-9">
+                <td className="sticky left-0 z-20 bg-white group-hover:bg-slate-50 p-2 border-r border-slate-200 font-semibold text-slate-800 truncate max-w-[176px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                  {proj.name}
+                </td>
 
-              <tr className="bg-slate-100 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
-                {timelineMonths.map((m) => (
-                  <th
-                    key={m.key}
-                    className="p-2 border-r border-slate-200 text-center font-semibold text-slate-700 w-[60px]"
-                    title={`${m.month} ${m.year}`}
-                  >
-                    {m.shortMonth}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+                {/* MATCHING SPACER CELLS */}
+                <td className="p-0 border-r border-slate-200 w-20 min-w-[80px] bg-slate-50/30" />
+                <td className="p-0 border-r border-slate-200 w-12 min-w-[48px] bg-slate-50/30" />
 
-            <tbody className="divide-y divide-slate-200">
-              {projects.map((proj) => {
-                const assignedStaffCount = assignments.filter(
-                  (a) => a.projectId === proj.id,
-                ).length;
-
-                return (
-                  <tr key={proj.id} className="hover:bg-slate-50 transition">
-                    <td className="p-3 border-r border-slate-200 font-semibold text-slate-900 sticky left-0 bg-white z-10 w-[280px] truncate">
-                      {proj.name}
-                    </td>
-
-                    {staffMembers.map((staff) => {
-                      const role = getRole(staff.id!, proj.id!);
-                      return (
-                        <td
-                          key={staff.id}
-                          className={`p-2 border-r border-slate-200 text-center w-[90px] ${getRoleBadgeClass(role)}`}
-                        >
-                          {role}
-                        </td>
-                      );
-                    })}
-
-                    {/* Spacer cells */}
-                    {Array.from({ length: padCols }).map((_, i) => (
+                {/* DYNAMIC STAFF ASSIGNMENTS */}
+                {Array.from({ length: maxDynamicCols }).map((_, idx) => {
+                  const staff = staffMembers[idx];
+                  if (!staff) {
+                    return (
                       <td
-                        key={`pad-td-${i}`}
-                        className="w-[90px] border-r border-slate-200 bg-slate-50/30"
+                        key={idx}
+                        className="p-0 border-r border-slate-200 text-center w-20 min-w-[80px] bg-slate-50/50"
                       />
-                    ))}
-
-                    <td className="p-3 border-r border-slate-200 text-center font-bold bg-slate-50 w-[65px]">
-                      {assignedStaffCount}
+                    );
+                  }
+                  const role = getRole(staff.id!, proj.id!);
+                  return (
+                    <td
+                      key={idx}
+                      className="p-0 border-r border-slate-200 text-center w-20 min-w-[80px] h-9"
+                    >
+                      <RoleBadge role={role} fullCell />
                     </td>
+                  );
+                })}
 
-                    {timelineMonths.map((m) => {
-                      const active = isMonthActive(proj, m.key);
-                      return (
-                        <td
-                          key={m.key}
-                          className="p-1.5 border-r border-slate-200 text-center align-middle w-[60px]"
-                        >
-                          {active ? (
-                            <div className="h-5 rounded-md bg-slate-800 shadow-sm flex items-center justify-center text-[10px] text-slate-100 font-bold">
-                              ✓
-                            </div>
-                          ) : (
-                            <div className="h-5" />
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                <td className="p-2 border-r border-slate-200 text-center font-bold text-slate-700 w-16 min-w-[64px]">
+                  {activeStaffCount}
+                </td>
+
+                {/* PROJECT ACTIVE TIMELINE INDICATOR */}
+                {timelineMonths.map((m) => {
+                  const active = isMonthInRange(
+                    m.key,
+                    proj.startMonth,
+                    proj.endMonth,
+                  );
+                  return (
+                    <td
+                      key={m.key}
+                      className={`p-0 border-r border-slate-200 text-center w-[60px] min-w-[60px] h-9 ${
+                        active ? "bg-slate-900 text-white" : "bg-white"
+                      }`}
+                    >
+                      {active && (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Check className="w-4 h-4 text-white stroke-[2.5]" />
+                        </div>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </BaseMatrix>
     );
   },
 );

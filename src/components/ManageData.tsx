@@ -16,12 +16,15 @@ import {
   Sliders,
   Upload,
   Download,
+  AlertTriangle,
+  FileSpreadsheet,
 } from "lucide-react";
 import type { Staff, Project, Assignment } from "../db";
 import type { TimelineMonth } from "../constants";
 import { MASTER_MONTH_OPTIONS } from "../constants";
 import { RoleBadge } from "./common/RoleBadge";
 import { FormSelect, FormInput } from "./common/FormControls";
+import { Modal } from "./common/Modal";
 
 interface ManageDataProps {
   staffMembers: Staff[];
@@ -51,6 +54,7 @@ interface ManageDataProps {
     endMonth?: string,
   ) => Promise<void>;
   onDeleteProject: (id: number) => Promise<void>;
+  onClearAllData: () => Promise<void>;
   onOpenBulkCapacityModal: (staff: Staff) => void;
   onImportClick: () => void;
   onExport: () => void;
@@ -75,22 +79,26 @@ export const ManageData = ({
   onAddProject,
   onUpdateProject,
   onDeleteProject,
+  onClearAllData,
   onOpenBulkCapacityModal,
   onImportClick,
   onExport,
   fileInputRef,
   onFileChange,
 }: ManageDataProps) => {
-  // Form state
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  // Staff Form State
   const [newStaffName, setNewStaffName] = useState("");
   const [newStaffRole, setNewStaffRole] = useState("RA");
-  const [newStaffFte, setNewStaffFte] = useState(1.0);
+  const [newStaffFte, setNewStaffFte] = useState<number | "">(1.0);
   const [editingStaffId, setEditingStaffId] = useState<number | null>(null);
   const [editStaffName, setEditStaffName] = useState("");
   const [editStaffRole, setEditStaffRole] = useState("RA");
   const [editStaffFte, setEditStaffFte] = useState(1.0);
   const [editStaffProjectIds, setEditStaffProjectIds] = useState<number[]>([]);
 
+  // Project Form State
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjStart, setNewProjStart] = useState("");
   const [newProjEnd, setNewProjEnd] = useState("");
@@ -103,13 +111,20 @@ export const ManageData = ({
     { staffId: number; role: "M" | "A" }[]
   >([]);
 
-  // Staff handlers
+  // Handlers
+  const handleConfirmClear = async () => {
+    await onClearAllData();
+    setShowClearConfirm(false);
+  };
+
   const handleAddStaff = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newStaffName.trim()) return;
-    await onAddStaff(newStaffName, newStaffRole, newStaffFte);
+    const fteValue = typeof newStaffFte === "number" ? newStaffFte : 1.0;
+    await onAddStaff(newStaffName, newStaffRole, fteValue);
     setNewStaffName("");
     setNewStaffRole("RA");
+    setNewStaffFte(1.0);
   };
 
   const startEditStaff = (staff: Staff) => {
@@ -145,7 +160,6 @@ export const ManageData = ({
     setEditingStaffId(null);
   };
 
-  // Project handlers
   const handleAddProject = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newProjectName.trim()) return;
@@ -199,22 +213,45 @@ export const ManageData = ({
             Directory Operations
           </h2>
           <p className="text-xs text-slate-500">
-            Import or export your system database in Excel format.
+            Import or export your system database in Excel format, or download
+            the sample template.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* DOWNLOAD TEMPLATE BUTTON */}
+          <a
+            href="/staff_allocation_template.xlsx"
+            download="staff_allocation_template.xlsx"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium text-xs rounded-xl border border-emerald-200/80 transition cursor-pointer"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />{" "}
+            Download Template
+          </a>
+
+          {/* IMPORT BUTTON */}
           <button
             onClick={onImportClick}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100/80 hover:bg-slate-200/70 text-slate-700 font-medium text-xs rounded-xl border border-slate-200/60 transition cursor-pointer"
           >
             <Upload className="w-3.5 h-3.5 text-slate-500" /> Import
           </button>
+
+          {/* EXPORT BUTTON */}
           <button
             onClick={onExport}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100/80 hover:bg-slate-200/70 text-slate-700 font-medium text-xs rounded-xl border border-slate-200/60 transition cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-slate-500" /> Export
           </button>
+
+          {/* CLEAR ALL DATA BUTTON */}
+          <button
+            onClick={() => setShowClearConfirm(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-medium text-xs rounded-xl border border-rose-200/80 transition cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-rose-500" /> Clear All Data
+          </button>
+
           <input
             type="file"
             ref={fileInputRef}
@@ -225,7 +262,37 @@ export const ManageData = ({
         </div>
       </div>
 
-      {/* STACKED DIRECTORIES CONTAINER (SINGLE COLUMN) */}
+      {/* CONFIRM CLEAR DATA MODAL */}
+      <Modal
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        title="Confirm Clear All Data"
+        icon={<AlertTriangle className="w-5 h-5 text-rose-600" />}
+      >
+        <div className="space-y-4 text-xs">
+          <p className="text-slate-600 leading-relaxed">
+            Are you sure you want to clear all data? This action will
+            permanently remove all staff members, projects, and assignments from
+            your local database.
+          </p>
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+            <button
+              onClick={() => setShowClearConfirm(false)}
+              className="px-3.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmClear}
+              className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Clear All Data
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* STACKED DIRECTORIES CONTAINER */}
       <div className="flex flex-col gap-8 w-full">
         {/* STAFF DIRECTORY */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
@@ -242,11 +309,11 @@ export const ManageData = ({
           </div>
 
           <div className="p-6 space-y-6">
+            {/* ADD STAFF FORM */}
             <form
               onSubmit={handleAddStaff}
               className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-wrap lg:flex-nowrap items-center gap-2.5 w-full"
             >
-              {/* STAFF NAME INPUT */}
               <div className="flex-1 min-w-[200px]">
                 <FormInput
                   placeholder="Staff Name..."
@@ -256,7 +323,6 @@ export const ManageData = ({
                 />
               </div>
 
-              {/* ROLE SELECT */}
               <div className="w-full sm:w-auto min-w-[120px]">
                 <FormSelect
                   value={newStaffRole}
@@ -266,7 +332,6 @@ export const ManageData = ({
                 />
               </div>
 
-              {/* FTE INPUT + INLINE LABEL GROUP */}
               <div className="w-full sm:w-auto flex items-center gap-1.5">
                 <FormInput
                   type="number"
@@ -274,8 +339,12 @@ export const ManageData = ({
                   min="0.1"
                   max="1.0"
                   placeholder="1.0"
-                  value={newStaffFte || ""}
-                  onChange={(e) => setNewStaffFte(Number(e.target.value))}
+                  value={newStaffFte}
+                  onChange={(e) =>
+                    setNewStaffFte(
+                      e.target.value === "" ? "" : Number(e.target.value),
+                    )
+                  }
                   className="w-20 bg-white text-center font-mono"
                 />
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider select-none shrink-0 pr-1">
@@ -283,7 +352,6 @@ export const ManageData = ({
                 </span>
               </div>
 
-              {/* ADD BUTTON */}
               <button
                 type="submit"
                 className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center gap-1 transition cursor-pointer shrink-0 w-full sm:w-auto"
@@ -344,7 +412,7 @@ export const ManageData = ({
                                 onChange={(e) =>
                                   setEditStaffFte(Number(e.target.value))
                                 }
-                                className="w-14 text-center"
+                                className="w-14 text-center font-mono"
                               />
                             </td>
                             <td className="p-2">
@@ -353,6 +421,7 @@ export const ManageData = ({
                                 onChange={(e) => {
                                   const val = Number(e.target.value);
                                   if (val) handleToggleStaffProject(val);
+                                  e.target.value = "";
                                 }}
                                 options={[
                                   { label: "+ Add Project...", value: "" },
@@ -489,11 +558,11 @@ export const ManageData = ({
           </div>
 
           <div className="p-6 space-y-6">
+            {/* ADD PROJECT FORM */}
             <form
               onSubmit={handleAddProject}
               className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-wrap lg:flex-nowrap items-center gap-2.5 w-full"
             >
-              {/* PROJECT NAME INPUT */}
               <div className="flex-1 min-w-[200px]">
                 <FormInput
                   placeholder="New Project Name..."
@@ -503,7 +572,6 @@ export const ManageData = ({
                 />
               </div>
 
-              {/* START MONTH SELECT */}
               <div className="w-full sm:w-auto min-w-[140px]">
                 <FormSelect
                   value={newProjStart}
@@ -519,7 +587,6 @@ export const ManageData = ({
                 />
               </div>
 
-              {/* END MONTH SELECT */}
               <div className="w-full sm:w-auto min-w-[140px]">
                 <FormSelect
                   value={newProjEnd}
@@ -535,7 +602,6 @@ export const ManageData = ({
                 />
               </div>
 
-              {/* ADD BUTTON */}
               <button
                 type="submit"
                 className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center gap-1 transition cursor-pointer shrink-0 w-full sm:w-auto"
@@ -634,81 +700,101 @@ export const ManageData = ({
                               />
                             </td>
                             <td className="p-2">
-                              <FormSelect
-                                value=""
-                                onChange={(e) => {
-                                  const val = Number(e.target.value);
-                                  if (
-                                    val &&
-                                    !editTeamMembers.some(
-                                      (t) => t.staffId === val,
-                                    )
-                                  ) {
-                                    setEditTeamMembers((prev) => [
-                                      ...prev,
-                                      { staffId: val, role: "M" },
-                                    ]);
-                                  }
-                                }}
-                                options={[
-                                  { label: "+ Add Team Member...", value: "" },
-                                  ...staffMembers
-                                    .filter((s) => s.id !== editPlStaffId)
-                                    .map((s) => ({
-                                      label: s.name,
-                                      value: s.id!,
-                                      disabled: editTeamMembers.some(
-                                        (t) => t.staffId === s.id,
-                                      ),
-                                    })),
-                                ]}
-                              />
-                              <div className="flex flex-wrap gap-1 mt-1.5">
-                                {editTeamMembers.map((item) => {
-                                  const s = staffMembers.find(
-                                    (staff) => staff.id === item.staffId,
-                                  );
-                                  return s ? (
-                                    <span
-                                      key={item.staffId}
-                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-800 text-[11px] font-medium"
-                                    >
-                                      <span>{s.name}</span>
-                                      <RoleBadge
-                                        role={item.role}
-                                        onClick={() =>
-                                          setEditTeamMembers((prev) =>
-                                            prev.map((t) =>
-                                              t.staffId === item.staffId
-                                                ? {
-                                                    ...t,
-                                                    role:
-                                                      t.role === "M"
-                                                        ? "A"
-                                                        : "M",
-                                                  }
-                                                : t,
-                                            ),
-                                          )
-                                        }
-                                        title="Click to toggle Member (M) / Assisting (A)"
-                                      />
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          setEditTeamMembers((prev) =>
-                                            prev.filter(
-                                              (t) => t.staffId !== item.staffId,
-                                            ),
-                                          )
-                                        }
-                                        className="text-slate-400 hover:text-red-600 cursor-pointer font-bold ml-0.5"
+                              <div className="space-y-1.5">
+                                <FormSelect
+                                  value=""
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (!val) return;
+                                    const [staffIdStr, role] = val.split("-");
+                                    const staffId = Number(staffIdStr);
+                                    if (
+                                      staffId &&
+                                      (role === "M" || role === "A")
+                                    ) {
+                                      setEditTeamMembers((prev) => [
+                                        ...prev.filter(
+                                          (t) => t.staffId !== staffId,
+                                        ),
+                                        { staffId, role: role as "M" | "A" },
+                                      ]);
+                                    }
+                                    e.target.value = "";
+                                  }}
+                                  options={[
+                                    {
+                                      label: "+ Add Team Member...",
+                                      value: "",
+                                    },
+                                    ...staffMembers
+                                      .filter((s) => s.id !== editPlStaffId)
+                                      .flatMap((s) => {
+                                        const isAssigned = editTeamMembers.some(
+                                          (t) => t.staffId === s.id,
+                                        );
+                                        return [
+                                          {
+                                            label: `+ ${s.name} (Member - M)`,
+                                            value: `${s.id}-M`,
+                                            disabled: isAssigned,
+                                          },
+                                          {
+                                            label: `+ ${s.name} (Assisting - A)`,
+                                            value: `${s.id}-A`,
+                                            disabled: isAssigned,
+                                          },
+                                        ];
+                                      }),
+                                  ]}
+                                />
+                                <div className="flex flex-wrap gap-1">
+                                  {editTeamMembers.map((item) => {
+                                    const s = staffMembers.find(
+                                      (staff) => staff.id === item.staffId,
+                                    );
+                                    return s ? (
+                                      <span
+                                        key={item.staffId}
+                                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-800 text-[11px] font-medium"
                                       >
-                                        ×
-                                      </button>
-                                    </span>
-                                  ) : null;
-                                })}
+                                        <span>{s.name}</span>
+                                        <RoleBadge
+                                          role={item.role}
+                                          onClick={() =>
+                                            setEditTeamMembers((prev) =>
+                                              prev.map((t) =>
+                                                t.staffId === item.staffId
+                                                  ? {
+                                                      ...t,
+                                                      role:
+                                                        t.role === "M"
+                                                          ? "A"
+                                                          : "M",
+                                                    }
+                                                  : t,
+                                              ),
+                                            )
+                                          }
+                                          title="Click to toggle Member (M) / Assisting (A)"
+                                        />
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setEditTeamMembers((prev) =>
+                                              prev.filter(
+                                                (t) =>
+                                                  t.staffId !== item.staffId,
+                                              ),
+                                            )
+                                          }
+                                          className="text-slate-400 hover:text-red-600 font-bold cursor-pointer"
+                                        >
+                                          ×
+                                        </button>
+                                      </span>
+                                    ) : null;
+                                  })}
+                                </div>
                               </div>
                             </td>
                             <td className="p-2 text-right space-x-1">

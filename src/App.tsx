@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, type FormEvent } from "react";
+import { useState, useRef, useMemo, useEffect, type ChangeEvent } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   LayoutDashboard,
@@ -20,13 +20,25 @@ import {
   getDefaultEndKey,
   MASTER_MONTH_OPTIONS,
 } from "./constants";
-import { exportToExcel, importFromExcel } from "./utils/excel";
+import { exportToExcel, processExcelImport } from "./utils/excel";
+
+const TAB_STORAGE_KEY = "staff_alloc_active_tab";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "manage">(
-    "dashboard",
-  );
+  // PERSISTENT TAB STATE
+  const [activeTab, setActiveTab] = useState<"dashboard" | "manage">(() => {
+    const savedTab = localStorage.getItem(TAB_STORAGE_KEY);
+    return savedTab === "manage" || savedTab === "dashboard"
+      ? savedTab
+      : "dashboard";
+  });
 
+  // Sync state changes to localStorage
+  useEffect(() => {
+    localStorage.setItem(TAB_STORAGE_KEY, activeTab);
+  }, [activeTab]);
+
+  // Initial Timeline Range Setup
   const initialStartKey = `${new Date().getFullYear()}-${
     [
       "January",
@@ -198,9 +210,40 @@ export default function App() {
     );
   };
 
+  const handleClearAllData = async () => {
+    await db.transaction(
+      "rw",
+      db.staff,
+      db.projects,
+      db.assignments,
+      async () => {
+        await db.staff.clear();
+        await db.projects.clear();
+        await db.assignments.clear();
+      },
+    );
+  };
+
+  const importFromExcel = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      await processExcelImport(file);
+      alert("Data successfully imported from template!");
+    } catch (error: any) {
+      console.error("Failed to import Excel file:", error);
+      alert(
+        error.message || "An error occurred while importing the Excel file.",
+      );
+    } finally {
+      e.target.value = ""; // Reset file input
+    }
+  };
+
   return (
     <div className="bg-slate-50 text-slate-800 px-4 sm:px-6 pb-8 font-sans min-h-screen relative">
-      {/* FLOATING TAB PANEL */}
+      {/* FLOATING TRANSLUCENT TAB PANEL */}
       <div className="sticky top-3 z-50 flex justify-center pointer-events-none mb-3">
         <div className="pointer-events-auto inline-flex items-center p-1 bg-white/70 backdrop-blur-md rounded-full ring-1 ring-slate-900/5 shadow-md shadow-slate-900/5 transition-all">
           <button
@@ -300,6 +343,7 @@ export default function App() {
             onAddProject={handleAddProject}
             onUpdateProject={handleUpdateProject}
             onDeleteProject={handleDeleteProject}
+            onClearAllData={handleClearAllData}
             onOpenBulkCapacityModal={(staff) => setBulkCapacityStaff(staff)}
             onImportClick={() => fileInputRef.current?.click()}
             onExport={() => exportToExcel(staffMembers, projects, getRole)}

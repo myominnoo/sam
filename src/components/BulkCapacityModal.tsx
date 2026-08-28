@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect } from "react";
+import type { FormEvent } from "react";
 import { Sliders, Check } from "lucide-react";
 import type { Staff } from "../db";
 import type { TimelineMonth } from "../constants";
@@ -23,9 +24,13 @@ export const BulkCapacityModal = ({
   onClose,
   onSave,
 }: BulkCapacityModalProps) => {
-  if (!staff) return null;
+  // Return early before initializing hooks or rendering when staff is null
+  if (!isOpen || !staff) return null;
 
-  const defaultCapacityPct = Math.round(staff.fte * 100);
+  // Local alias ensures TypeScript retains type narrowing (Staff & { id: number })
+  const activeStaff = staff;
+
+  const defaultCapacityPct = Math.round((activeStaff.fte ?? 1.0) * 100);
   const [targetCapacity, setTargetCapacity] =
     useState<number>(defaultCapacityPct);
   const [startMonthKey, setStartMonthKey] = useState<string>(
@@ -34,19 +39,28 @@ export const BulkCapacityModal = ({
   const [endMonthKey, setEndMonthKey] = useState<string>(
     timelineMonths[timelineMonths.length - 1]?.key || "",
   );
-  const [applyToAll, setApplyToAll] = useState<boolean>(true);
+
+  // Default scope selection to false (Apply to custom date range)
+  const [applyToAll, setApplyToAll] = useState<boolean>(false);
+
+  // Sync state when active staff changes
+  useEffect(() => {
+    if (activeStaff) {
+      setTargetCapacity(Math.round((activeStaff.fte ?? 1.0) * 100));
+    }
+  }, [activeStaff]);
 
   const monthOptions = timelineMonths.map((m) => ({
     label: `${m.shortMonth} ${m.year}`,
     value: m.key,
   }));
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!staff.id) return;
+    if (!activeStaff.id) return;
 
     const updatedMap: Record<string, number> = {
-      ...(staff.monthlyCapacity || {}),
+      ...(activeStaff.monthlyCapacity || {}),
     };
 
     if (applyToAll) {
@@ -65,7 +79,7 @@ export const BulkCapacityModal = ({
       }
     }
 
-    await onSave(staff.id, updatedMap);
+    await onSave(activeStaff.id, updatedMap);
     onClose();
   };
 
@@ -73,7 +87,7 @@ export const BulkCapacityModal = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Bulk Set Capacity: ${staff.name}`}
+      title={`Bulk Set Capacity: ${activeStaff.name}`}
       icon={<Sliders className="w-4 h-4 text-indigo-600" />}
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -92,10 +106,10 @@ export const BulkCapacityModal = ({
             />
             <button
               type="button"
-              onClick={() => setTargetCapacity(defaultCapacityPct)}
-              className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-medium whitespace-nowrap cursor-pointer"
+              onClick={() => setTargetCapacity(0)}
+              className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-medium whitespace-nowrap cursor-pointer transition"
             >
-              Reset ({defaultCapacityPct}%)
+              Reset (0%)
             </button>
           </div>
         </div>
