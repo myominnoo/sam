@@ -1,12 +1,6 @@
 import { useState, useRef, useMemo, useEffect, type ChangeEvent } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import {
-  LayoutDashboard,
-  SlidersHorizontal,
-  Calendar,
-  ArrowRight,
-  Clock,
-} from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
 
 import { db, type Staff, type Project } from "./db";
 import { Header } from "./components/Header";
@@ -17,6 +11,7 @@ import { ManageData } from "./components/ManageData";
 import { BulkCapacityModal } from "./components/BulkCapacityModal";
 import { DesignationCategoryModal } from "./components/DesignationCategoryModal";
 import { ImportConfirmModal } from "./components/ImportConfirmModal";
+import { ThresholdSettingsModal } from "./components/ThresholdSettingsModal";
 import { RoleBadge } from "./components/common/RoleBadge";
 import { Toast, type ToastType } from "./components/common/Toast";
 import { useScrollSync } from "./hooks/useScrollSync";
@@ -77,6 +72,17 @@ export default function App() {
     null,
   );
   const [isDesignationModalOpen, setIsDesignationModalOpen] = useState(false);
+  const [isThresholdModalOpen, setIsThresholdModalOpen] = useState(false);
+
+  const [maxProjectsPerStaff, setMaxProjectsPerStaff] = useState<number>(() => {
+    const saved = localStorage.getItem("sam_max_projects_per_staff");
+    return saved ? parseInt(saved, 10) : 3;
+  });
+
+  const [maxStaffPerProject, setMaxStaffPerProject] = useState<number>(() => {
+    const saved = localStorage.getItem("sam_max_staff_per_project");
+    return saved ? parseInt(saved, 10) : 4;
+  });
 
   const [pendingImportData, setPendingImportData] =
     useState<ParsedImportData | null>(null);
@@ -158,6 +164,14 @@ export default function App() {
     activeProjects.length,
     activeStaffMembers.length,
   );
+
+  const handleSaveThresholds = (maxProjects: number, maxStaff: number) => {
+    setMaxProjectsPerStaff(maxProjects);
+    setMaxStaffPerProject(maxStaff);
+    localStorage.setItem("sam_max_projects_per_staff", maxProjects.toString());
+    localStorage.setItem("sam_max_staff_per_project", maxStaff.toString());
+    showToast("Threshold limits updated successfully.", "success");
+  };
 
   const handleAddDesignation = async (code: string, name: string) => {
     try {
@@ -417,47 +431,17 @@ export default function App() {
   return (
     <div className="bg-slate-50 text-slate-800 px-4 sm:px-6 pb-8 font-sans min-h-screen relative antialiased flex flex-col justify-between">
       <div className="space-y-6 max-w-full mx-auto w-full">
-        {/* Navigation Tabs */}
-        <div className="sticky top-3 z-50 flex justify-center pointer-events-none mb-3">
-          <div className="pointer-events-auto inline-flex items-center p-1 bg-white/80 backdrop-blur-md rounded-full ring-1 ring-slate-900/5 shadow-md shadow-slate-900/5 transition-all">
-            <button
-              onClick={() => setActiveTab("dashboard")}
-              className={`inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-full transition-all cursor-pointer ${
-                activeTab === "dashboard"
-                  ? "bg-slate-900 text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
-              }`}
-            >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>Dashboard</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("manage")}
-              className={`inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-full transition-all cursor-pointer ${
-                activeTab === "manage"
-                  ? "bg-slate-900 text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
-              }`}
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Manage Data</span>
-            </button>
-          </div>
-        </div>
-
-        <Header />
+        {/* Header */}
+        <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {activeTab === "dashboard" ? (
-          <>
+          <div className="space-y-6">
             {/* Planning Horizon Control Bar */}
             <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-indigo-50 border border-indigo-100/80 rounded-lg text-indigo-600">
-                  <Calendar className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-semibold text-slate-800">
-                  Planning Horizon
+                <Clock className="w-4 h-4 text-indigo-600" />
+                <span className="font-semibold text-slate-800 text-sm">
+                  Planning Period
                 </span>
               </div>
 
@@ -513,32 +497,35 @@ export default function App() {
               </div>
             </div>
 
-            {/* Role Legend */}
-            <div className="flex items-center justify-end gap-2 flex-wrap">
-              {PROJECT_ROLE_LEGEND.map((r) => (
-                <div
-                  key={r.code}
-                  className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200/80 rounded-lg"
-                >
-                  <RoleBadge role={r.code} title={r.name} />
-                  <span className="text-xs font-medium text-slate-600">
-                    {r.name}
-                  </span>
-                </div>
-              ))}
+            {/* Grouped Section: Role Legend + Staff Matrix */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-end gap-2 pr-1">
+                {PROJECT_ROLE_LEGEND.map((r) => (
+                  <div
+                    key={r.code}
+                    className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200/80 rounded-lg shadow-2xs"
+                  >
+                    <RoleBadge role={r.code} title={r.name} />
+                    <span className="text-xs font-medium text-slate-600">
+                      {r.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <StaffMatrix
+                ref={staffMatrixScrollRef}
+                staffMembers={activeStaffMembers}
+                projects={activeProjects}
+                assignments={assignments}
+                timelineMonths={timelineMonths}
+                getRole={getRole}
+                maxDynamicCols={maxDynamicCols}
+                maxProjectsPerStaff={maxProjectsPerStaff}
+              />
             </div>
 
-            {/* Matrix Views */}
-            <StaffMatrix
-              ref={staffMatrixScrollRef}
-              staffMembers={activeStaffMembers}
-              projects={activeProjects}
-              assignments={assignments}
-              timelineMonths={timelineMonths}
-              getRole={getRole}
-              maxDynamicCols={maxDynamicCols}
-            />
-
+            {/* Project Matrix */}
             <ProjectMatrix
               ref={projectMatrixScrollRef}
               staffMembers={activeStaffMembers}
@@ -547,8 +534,9 @@ export default function App() {
               timelineMonths={timelineMonths}
               getRole={getRole}
               maxDynamicCols={maxDynamicCols}
+              maxStaffPerProject={maxStaffPerProject}
             />
-          </>
+          </div>
         ) : (
           <ManageData
             staffMembers={allStaffMembers}
@@ -567,6 +555,7 @@ export default function App() {
             onClearAllData={handleClearAllData}
             onOpenBulkCapacityModal={(staff) => setBulkCapacityStaff(staff)}
             onOpenDesignationModal={() => setIsDesignationModalOpen(true)}
+            onOpenThresholdModal={() => setIsThresholdModalOpen(true)}
             onImportClick={() => fileInputRef.current?.click()}
             onExport={handleExportToExcel}
             fileInputRef={fileInputRef}
@@ -596,6 +585,14 @@ export default function App() {
         onAddDesignation={handleAddDesignation}
         onDeleteDesignation={handleDeleteDesignation}
         showToast={showToast}
+      />
+
+      <ThresholdSettingsModal
+        isOpen={isThresholdModalOpen}
+        maxProjectsPerStaff={maxProjectsPerStaff}
+        maxStaffPerProject={maxStaffPerProject}
+        onClose={() => setIsThresholdModalOpen(false)}
+        onSave={handleSaveThresholds}
       />
 
       <ImportConfirmModal

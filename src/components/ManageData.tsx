@@ -47,6 +47,7 @@ interface ManageDataProps {
   fileInputRef: RefObject<HTMLInputElement | null>;
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
   showToast: (message: string, type?: ToastType) => void;
+  onOpenThresholdModal: () => void;
 }
 
 export const ManageData = ({
@@ -70,6 +71,7 @@ export const ManageData = ({
   fileInputRef,
   onFileChange,
   showToast,
+  onOpenThresholdModal,
 }: ManageDataProps) => {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | null>(null);
@@ -116,6 +118,7 @@ export const ManageData = ({
         onExport={onExport}
         onFileChange={onFileChange}
         onRequestClearAll={() => setShowClearConfirm(true)}
+        onOpenThresholdModal={onOpenThresholdModal}
       />
 
       <div className="grid grid-cols-1 gap-6">

@@ -1,86 +1,33 @@
-import { forwardRef, useMemo, type ReactNode } from "react";
-import type { TimelineMonth } from "../../constants";
+import { forwardRef, type ReactNode } from "react";
 
 interface BaseMatrixProps {
   title: string;
   countLabel: string;
-  timelineMonths: TimelineMonth[];
-  prefixColsSpan: number;
-  dynamicColsCount?: number;
-  groupLabel?: string;
   children: ReactNode;
 }
 
 export const BaseMatrix = forwardRef<HTMLDivElement, BaseMatrixProps>(
-  (
-    {
-      title,
-      countLabel,
-      timelineMonths = [],
-      prefixColsSpan,
-      dynamicColsCount = 0,
-      groupLabel,
-      children,
-    },
-    ref,
-  ) => {
-    const yearGroups = useMemo(() => {
-      return timelineMonths.reduce<{ year: number; count: number }[]>(
-        (acc, m) => {
-          const last = acc[acc.length - 1];
-          if (last && last.year === m.year) {
-            last.count += 1;
-          } else {
-            acc.push({ year: m.year, count: 1 });
-          }
-          return acc;
-        },
-        [],
-      );
-    }, [timelineMonths]);
-
+  ({ title, countLabel, children }, ref) => {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-          <h2 className="font-semibold text-slate-800 text-sm">{title}</h2>
-          <span className="text-xs text-slate-500 font-medium">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden mb-8">
+        {/* Highlighted Header Banner */}
+        <div className="flex items-center justify-between px-6 py-3.5 bg-slate-900 border-b border-slate-800 border-l-4 border-l-indigo-500">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-sm font-bold text-white tracking-wide uppercase">
+              {title}
+            </h2>
+          </div>
+          <span className="text-xs font-semibold text-slate-300 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700/60 shadow-2xs">
             {countLabel}
           </span>
         </div>
 
-        <div className="overflow-x-auto" ref={ref}>
-          <table className="text-xs border-collapse w-full min-w-max">
-            <thead>
-              <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 h-6 text-[11px]">
-                {prefixColsSpan > 0 && (
-                  <th
-                    colSpan={prefixColsSpan}
-                    className="bg-slate-100 border-r border-slate-200"
-                  />
-                )}
-
-                {dynamicColsCount > 0 && (
-                  <th
-                    colSpan={dynamicColsCount}
-                    className="p-1 border-r border-slate-200 text-center tracking-wider bg-slate-100 uppercase text-[10px] text-slate-600"
-                  >
-                    {groupLabel}
-                  </th>
-                )}
-
-                <th className="bg-slate-100 border-r border-slate-200" />
-
-                {yearGroups.map((g, idx) => (
-                  <th
-                    key={`${g.year}-${idx}`}
-                    colSpan={g.count}
-                    className="p-1 border-r border-slate-200 text-center tracking-wider bg-slate-100"
-                  >
-                    {g.year}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+        {/* Scrollable Table Area */}
+        <div
+          ref={ref}
+          className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200"
+        >
+          <table className="w-full border-collapse text-left text-xs select-none min-w-max">
             {children}
           </table>
         </div>
