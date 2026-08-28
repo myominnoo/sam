@@ -6,6 +6,7 @@ import {
   Calendar,
   ArrowRight,
   Clock,
+  ShieldCheck,
 } from "lucide-react";
 
 import { db, type Staff } from "./db";
@@ -16,6 +17,7 @@ import { ManageData } from "./components/ManageData";
 import { BulkCapacityModal } from "./components/BulkCapacityModal";
 import { RoleCategoryModal } from "./components/RoleCategoryModal";
 import { ImportConfirmModal } from "./components/ImportConfirmModal";
+import { RoleBadge } from "./components/common/RoleBadge";
 import { Toast, type ToastType } from "./components/common/Toast";
 import { useScrollSync } from "./hooks/useScrollSync";
 
@@ -471,6 +473,27 @@ export default function App() {
                   </select>
                 </div>
               </div>
+            </div>
+
+            {/* Dynamic Role Legend Bar */}
+            <div className="flex items-center justify-end gap-2 flex-wrap">
+              {roles.length > 0 ? (
+                roles.map((r) => (
+                  <div
+                    key={r.id || r.code}
+                    className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200/80 rounded-lg"
+                  >
+                    <RoleBadge role={r.code} title={r.name} />
+                    <span className="text-xs font-medium text-slate-600">
+                      {r.name}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <span className="text-xs text-slate-400 italic">
+                  No roles defined.
+                </span>
+              )}
             </div>
 
             <StaffMatrix
