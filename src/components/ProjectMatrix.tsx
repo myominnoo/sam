@@ -43,12 +43,15 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
     },
     ref,
   ) => {
-    const prefixColsSpan = 1;
-
-    // Calculate multi-year groupings dynamically
     const yearGroups = useMemo(() => {
+      if (!Array.isArray(timelineMonths) || timelineMonths.length === 0) {
+        return [];
+      }
+
       return timelineMonths.reduce<{ year: number; count: number }[]>(
         (acc, m) => {
+          if (!m || typeof m.year !== "number") return acc;
+
           const lastGroup = acc[acc.length - 1];
           if (lastGroup && lastGroup.year === m.year) {
             lastGroup.count += 1;
@@ -61,67 +64,66 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
       );
     }, [timelineMonths]);
 
+    const leftMetadataSpan = 1 + maxDynamicCols + 1;
+
     return (
       <BaseMatrix
         ref={ref}
         title="Project Timeline & Staffing"
         countLabel={`${projects.length} Projects`}
       >
-        <thead className="sticky top-0 z-20 bg-slate-50 border-b border-slate-200">
+        <thead>
           {/* Row 1: Super Header Category Grouping */}
-          <tr className="bg-slate-100/80 border-b border-slate-200 h-8 text-xs font-bold text-slate-800">
+          <tr className="bg-slate-100 border-b border-slate-200 text-xs font-bold text-slate-700 h-8">
             <th
-              colSpan={prefixColsSpan}
-              className="p-2 border-r border-slate-200 bg-slate-50/50"
+              colSpan={leftMetadataSpan}
+              className="sticky top-0 z-10 bg-slate-100 border-r border-slate-200 px-3 py-1.5"
             />
-            <th
-              colSpan={maxDynamicCols}
-              className="p-2 border-r border-slate-200 text-center font-bold text-xs text-slate-800 tracking-wider uppercase bg-slate-100/80 align-middle"
-            >
-              STAFF
-            </th>
-            <th className="p-2 border-r border-slate-200 bg-slate-50/50" />
             {yearGroups.map((g, idx) => (
               <th
                 key={`${g.year}-${idx}`}
                 colSpan={g.count}
-                className="p-2 border-r border-slate-200 text-center font-bold text-xs text-slate-800 tracking-wider uppercase bg-slate-100/80 align-middle"
+                className="sticky top-0 z-10 bg-slate-100 border-r border-slate-200 text-center font-bold text-slate-700 tracking-wider uppercase px-2 py-1.5 align-middle"
               >
                 {g.year}
               </th>
             ))}
           </tr>
 
-          {/* Row 2: Specific Column Headers */}
-          <tr className="bg-slate-50 text-slate-800 font-bold border-b border-slate-200 h-8 text-xs">
-            <th className="sticky left-0 z-30 bg-slate-50 p-2 border-r border-slate-200 text-left font-bold text-slate-800 w-[304px] min-w-[304px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] align-middle">
+          {/* Row 2: Column Headers */}
+          <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-700 h-10">
+            {/* STICKY TOP-8 & LEFT-0 WITH MATCHED WIDTH 328px */}
+            <th className="sticky top-8 left-0 z-20 bg-slate-50 border-r border-slate-200 text-left px-3 py-2 w-[328px] min-w-[328px] max-w-[328px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)] align-middle">
               Project Name
             </th>
 
+            {/* Dynamic Staff Column Headers */}
             {Array.from({ length: maxDynamicCols }).map((_, idx) => {
               const staff = staffMembers[idx];
               const firstName = staff ? staff.name.split(" ")[0] : "";
               return (
                 <th
                   key={idx}
-                  className="p-2 border-r border-slate-200 text-center font-bold text-slate-800 w-20 min-w-[80px] max-w-[80px] align-middle"
+                  className="sticky top-8 z-10 bg-slate-50 border-r border-slate-200 text-center px-2 py-1.5 w-24 min-w-[96px] max-w-[96px] align-middle"
                   title={staff?.name || ""}
                 >
-                  <span className="line-clamp-2 break-words leading-tight block">
+                  <span className="line-clamp-2 break-words leading-tight text-[11px] font-semibold text-slate-700 block">
                     {firstName}
                   </span>
                 </th>
               );
             })}
 
-            <th className="p-2 border-r border-slate-200 text-center font-bold text-slate-800 w-20 min-w-[80px] max-w-[80px] align-middle">
+            {/* # Staff Column Header */}
+            <th className="sticky top-8 z-10 bg-slate-50 border-r border-slate-200 text-center px-2 py-2 w-20 min-w-[80px] max-w-[80px] align-middle">
               # Staff
             </th>
 
+            {/* Timeline Month Headers */}
             {timelineMonths.map((m) => (
               <th
                 key={m.key}
-                className="p-2 border-r border-slate-200 text-center font-bold text-slate-800 w-[60px] min-w-[60px] uppercase align-middle"
+                className="sticky top-8 z-10 bg-slate-50 border-r border-slate-200 text-center px-1 py-2 w-[60px] min-w-[60px] uppercase text-[11px] font-bold text-slate-600 align-middle"
               >
                 {m.shortMonth}
               </th>
@@ -129,7 +131,7 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-slate-200/80">
+        <tbody className="divide-y divide-slate-200 text-xs text-slate-700 bg-white">
           {projects.map((proj) => {
             const projAssignments = assignments.filter(
               (a) => a.projectId === proj.id,
@@ -139,12 +141,11 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
             return (
               <tr
                 key={proj.id}
-                className="group h-9 transition-colors duration-150 relative"
+                className="group h-10 hover:bg-indigo-50/40 transition-colors duration-150"
               >
-                <td className="sticky left-0 z-20 bg-white group-hover:bg-blue-100 p-2 border-r border-slate-200 font-semibold text-slate-800 group-hover:text-blue-950 w-[304px] min-w-[304px] max-w-[304px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] transition-colors relative">
-                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <td className="sticky left-0 z-10 bg-white group-hover:bg-slate-50 px-3 py-2 border-r border-slate-200 font-semibold text-slate-900 w-[328px] min-w-[328px] max-w-[328px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)] transition-colors">
                   <span
-                    className="line-clamp-2 break-words leading-snug block pl-1"
+                    className="line-clamp-1 truncate block font-medium text-slate-900"
                     title={proj.name}
                   >
                     {proj.name}
@@ -157,7 +158,7 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                     return (
                       <td
                         key={idx}
-                        className="p-0 border-r border-slate-200 text-center w-20 min-w-[80px] bg-slate-50 group-hover:bg-blue-50 transition-colors"
+                        className="p-0 border-r border-slate-200 text-center w-24 min-w-[96px] bg-slate-50/50 group-hover:bg-indigo-50/20 transition-colors"
                       />
                     );
                   }
@@ -165,14 +166,14 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                   return (
                     <td
                       key={idx}
-                      className="p-0 border-r border-slate-200 group-hover:bg-blue-100 text-center w-20 min-w-[80px] h-9 transition-colors"
+                      className="p-0 border-r border-slate-200 text-center w-24 min-w-[96px] h-10 transition-colors"
                     >
                       <RoleBadge role={role} fullCell />
                     </td>
                   );
                 })}
 
-                <td className="p-2 border-r border-slate-200 group-hover:bg-blue-100/70 text-center font-bold text-slate-700 group-hover:text-blue-950 w-20 min-w-[80px] max-w-[80px] transition-colors">
+                <td className="px-2 py-1.5 border-r border-slate-200 text-center font-bold text-slate-700 w-20 min-w-[80px] max-w-[80px] transition-colors">
                   <div className="flex items-center justify-center">
                     <ThresholdBadge
                       count={activeStaffCount}
@@ -191,15 +192,15 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                   return (
                     <td
                       key={m.key}
-                      className={`p-0 border-r border-slate-200 text-center w-[60px] min-w-[60px] h-9 transition-colors ${
+                      className={`p-0 border-r border-slate-200 text-center w-[60px] min-w-[60px] h-10 transition-colors ${
                         active
-                          ? "bg-slate-900 group-hover:bg-blue-900 text-white"
-                          : "bg-white group-hover:bg-blue-100"
+                          ? "bg-slate-900 text-white"
+                          : "bg-white group-hover:bg-indigo-50/30"
                       }`}
                     >
                       {active && (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Check className="w-4 h-4 text-white stroke-[2.5]" />
+                          <Check className="w-4 h-4 text-emerald-400 stroke-[2.5]" />
                         </div>
                       )}
                     </td>
