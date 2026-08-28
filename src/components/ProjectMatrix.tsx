@@ -28,6 +28,7 @@ const isMonthInRange = (
   return targetIdx >= startIdx && targetIdx <= endIdx;
 };
 
+// Ensure it uses a NAMED export: export const ProjectMatrix
 export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
   (
     {
@@ -40,7 +41,6 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
     },
     ref,
   ) => {
-    // 1 Fixed Prefix Column (Project Name)
     const prefixColsSpan = 1;
 
     return (
@@ -59,7 +59,6 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
               Project Name
             </th>
 
-            {/* DYNAMIC STAFF COLUMNS */}
             {Array.from({ length: maxDynamicCols }).map((_, idx) => {
               const staff = staffMembers[idx];
               const firstName = staff ? staff.name.split(" ")[0] : "";
@@ -74,12 +73,10 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
               );
             })}
 
-            {/* # STAFF COLUMN */}
             <th className="p-2 border-r border-slate-200 text-center w-16 min-w-[64px]">
               # Staff
             </th>
 
-            {/* TIMELINE MONTH COLUMNS */}
             {timelineMonths.map((m) => (
               <th
                 key={m.key}
@@ -104,7 +101,6 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                   {proj.name}
                 </td>
 
-                {/* DYNAMIC STAFF ASSIGNMENTS */}
                 {Array.from({ length: maxDynamicCols }).map((_, idx) => {
                   const staff = staffMembers[idx];
                   if (!staff) {
@@ -130,7 +126,6 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                   {activeStaffCount}
                 </td>
 
-                {/* PROJECT ACTIVE TIMELINE INDICATOR */}
                 {timelineMonths.map((m) => {
                   const active = isMonthInRange(
                     m.key,

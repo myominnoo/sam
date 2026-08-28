@@ -18,8 +18,9 @@ import {
   Download,
   AlertTriangle,
   FileSpreadsheet,
+  ShieldCheck,
 } from "lucide-react";
-import type { Staff, Project, Assignment } from "../db";
+import type { Staff, Project, Assignment, RoleCategory } from "../db";
 import type { TimelineMonth } from "../constants";
 import { MASTER_MONTH_OPTIONS } from "../constants";
 import { RoleBadge } from "./common/RoleBadge";
@@ -30,6 +31,7 @@ interface ManageDataProps {
   staffMembers: Staff[];
   projects: Project[];
   assignments: Assignment[];
+  roles: RoleCategory[];
   timelineMonths: TimelineMonth[];
   onAddStaff: (name: string, designation: string, fte: number) => Promise<void>;
   onUpdateStaff: (
@@ -56,23 +58,18 @@ interface ManageDataProps {
   onDeleteProject: (id: number) => Promise<void>;
   onClearAllData: () => Promise<void>;
   onOpenBulkCapacityModal: (staff: Staff) => void;
+  onOpenRoleModal: () => void;
   onImportClick: () => void;
   onExport: () => void;
   fileInputRef: RefObject<HTMLInputElement | null>;
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
-const ROLE_OPTIONS = [
-  { label: "RA", value: "RA" },
-  { label: "SRA", value: "SRA" },
-  { label: "ADE", value: "ADE" },
-  { label: "DOR", value: "DOR" },
-];
-
 export const ManageData = ({
   staffMembers,
   projects,
   assignments,
+  roles,
   onAddStaff,
   onUpdateStaff,
   onDeleteStaff,
@@ -81,6 +78,7 @@ export const ManageData = ({
   onDeleteProject,
   onClearAllData,
   onOpenBulkCapacityModal,
+  onOpenRoleModal,
   onImportClick,
   onExport,
   fileInputRef,
@@ -88,13 +86,19 @@ export const ManageData = ({
 }: ManageDataProps) => {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
+  // Dynamic Role Options derived from database
+  const roleOptions =
+    roles.length > 0
+      ? roles.map((r) => ({ label: r.name, value: r.name }))
+      : [{ label: "RA", value: "RA" }];
+
   // Staff Form State
   const [newStaffName, setNewStaffName] = useState("");
-  const [newStaffRole, setNewStaffRole] = useState("RA");
+  const [newStaffRole, setNewStaffRole] = useState(roleOptions[0].value);
   const [newStaffFte, setNewStaffFte] = useState<number | "">(1.0);
   const [editingStaffId, setEditingStaffId] = useState<number | null>(null);
   const [editStaffName, setEditStaffName] = useState("");
-  const [editStaffRole, setEditStaffRole] = useState("RA");
+  const [editStaffRole, setEditStaffRole] = useState(roleOptions[0].value);
   const [editStaffFte, setEditStaffFte] = useState(1.0);
   const [editStaffProjectIds, setEditStaffProjectIds] = useState<number[]>([]);
 
@@ -121,20 +125,20 @@ export const ManageData = ({
     e.preventDefault();
     if (!newStaffName.trim()) return;
     const fteValue = typeof newStaffFte === "number" ? newStaffFte : 1.0;
-    await onAddStaff(newStaffName, newStaffRole, fteValue);
+    await onAddStaff(
+      newStaffName,
+      newStaffRole || roleOptions[0].value,
+      fteValue,
+    );
     setNewStaffName("");
-    setNewStaffRole("RA");
+    setNewStaffRole(roleOptions[0].value);
     setNewStaffFte(1.0);
   };
 
   const startEditStaff = (staff: Staff) => {
     setEditingStaffId(staff.id!);
     setEditStaffName(staff.name);
-    setEditStaffRole(
-      ROLE_OPTIONS.some((r) => r.value === staff.designation)
-        ? staff.designation
-        : "RA",
-    );
+    setEditStaffRole(staff.designation || roleOptions[0].value);
     setEditStaffFte(staff.fte);
     setEditStaffProjectIds(
       assignments.filter((a) => a.staffId === staff.id).map((a) => a.projectId),
@@ -218,6 +222,14 @@ export const ManageData = ({
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          {/* UPDATE ROLE BUTTON */}
+          <button
+            onClick={onOpenRoleModal}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium text-xs rounded-xl border border-indigo-200/80 transition cursor-pointer"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" /> Update Roles
+          </button>
+
           {/* DOWNLOAD TEMPLATE BUTTON */}
           <a
             href="/staff_allocation_template.xlsx"
@@ -327,7 +339,7 @@ export const ManageData = ({
                 <FormSelect
                   value={newStaffRole}
                   onChange={(e) => setNewStaffRole(e.target.value)}
-                  options={ROLE_OPTIONS}
+                  options={roleOptions}
                   className="bg-white"
                 />
               </div>
@@ -400,8 +412,8 @@ export const ManageData = ({
                                 onChange={(e) =>
                                   setEditStaffRole(e.target.value)
                                 }
-                                options={ROLE_OPTIONS}
-                                className="w-20"
+                                options={roleOptions}
+                                className="w-24"
                               />
                             </td>
                             <td className="p-2 text-center">

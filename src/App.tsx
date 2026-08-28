@@ -13,6 +13,7 @@ import { StaffMatrix } from "./components/StaffMatrix";
 import { ProjectMatrix } from "./components/ProjectMatrix";
 import { ManageData } from "./components/ManageData";
 import { BulkCapacityModal } from "./components/BulkCapacityModal";
+import { RoleCategoryModal } from "./components/RoleCategoryModal";
 import { ImportConfirmModal } from "./components/ImportConfirmModal";
 import { Toast } from "./components/common/Toast";
 import { useScrollSync } from "./hooks/useScrollSync";
@@ -32,20 +33,22 @@ import {
 const TAB_STORAGE_KEY = "staff_alloc_active_tab";
 
 export default function App() {
-  // PERSISTENT TAB STATE
-  const [activeTab, setActiveTab] = useState<"dashboard" | "manage">(() => {
+  const [activeTab, setActiveTab] = useState<
+    | "dashboard"
+    | "manage text-white font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs font-semibold cursor-pointer stroke-[2.5]"
+    | "manage text-slate-600 hover:text-slate-900 font-semibold cursor-pointer"
+    | "manage"
+  >(() => {
     const savedTab = localStorage.getItem(TAB_STORAGE_KEY);
     return savedTab === "manage" || savedTab === "dashboard"
       ? savedTab
       : "dashboard";
   });
 
-  // Sync state changes to localStorage
   useEffect(() => {
     localStorage.setItem(TAB_STORAGE_KEY, activeTab);
   }, [activeTab]);
 
-  // Initial Timeline Range Setup
   const initialStartKey = `${new Date().getFullYear()}-${
     [
       "January",
@@ -70,8 +73,8 @@ export default function App() {
   const [bulkCapacityStaff, setBulkCapacityStaff] = useState<Staff | null>(
     null,
   );
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
-  // Import Modal & Toast Notification States
   const [pendingImportData, setPendingImportData] =
     useState<ParsedImportData | null>(null);
   const [toast, setToast] = useState<{
@@ -83,14 +86,12 @@ export default function App() {
   const staffMatrixScrollRef = useRef<HTMLDivElement>(null);
   const projectMatrixScrollRef = useRef<HTMLDivElement>(null);
 
-  // Synchronize twin matrix horizontal scroll
   useScrollSync(
     staffMatrixScrollRef,
     projectMatrixScrollRef,
     activeTab === "dashboard",
   );
 
-  // Timeline Handlers
   const handleStartMonthChange = (newStartKey: string) => {
     setStartMonthKey(newStartKey);
     setEndMonthKey(getDefaultEndKey(newStartKey));
@@ -109,12 +110,26 @@ export default function App() {
     [startMonthKey, endMonthKey],
   );
 
-  // Live Database Queries
+  // Live Queries
   const staffMembers = useLiveQuery(() => db.staff.toArray()) || [];
   const projects = useLiveQuery(() => db.projects.toArray()) || [];
   const assignments = useLiveQuery(() => db.assignments.toArray()) || [];
+  const roles = useLiveQuery(() => db.roles.toArray()) || [];
 
   const maxDynamicCols = Math.max(projects.length, staffMembers.length);
+
+  // Role Category CRUD Actions
+  const handleAddRole = async (name: string) => {
+    await db.roles.add({ name });
+  };
+
+  const handleUpdateRole = async (id: number, name: string) => {
+    await db.roles.update(id, { name });
+  };
+
+  const handleDeleteRole = async (id: number) => {
+    await db.roles.delete(id);
+  };
 
   // Staff Database Actions
   const handleAddStaff = async (
@@ -243,14 +258,13 @@ export default function App() {
     });
   };
 
-  // Excel File Parsing & Import Flow
   const importFromExcel = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
       const parsed = await parseExcelFile(file);
-      setPendingImportData(parsed); // Triggers confirmation modal dialog
+      setPendingImportData(parsed);
     } catch (error: any) {
       console.error("Failed to parse Excel file:", error);
       setToast({
@@ -258,7 +272,7 @@ export default function App() {
         type: "error",
       });
     } finally {
-      e.target.value = ""; // Reset input so re-selecting the same file works
+      e.target.value = "";
     }
   };
 
@@ -284,7 +298,6 @@ export default function App() {
 
   return (
     <div className="bg-slate-50 text-slate-800 px-4 sm:px-6 pb-8 font-sans min-h-screen relative">
-      {/* FLOATING TRANSLUCENT TAB PANEL */}
       <div className="sticky top-3 z-50 flex justify-center pointer-events-none mb-3">
         <div className="pointer-events-auto inline-flex items-center p-1 bg-white/70 backdrop-blur-md rounded-full ring-1 ring-slate-900/5 shadow-md shadow-slate-900/5 transition-all">
           <button
@@ -377,6 +390,7 @@ export default function App() {
             staffMembers={staffMembers}
             projects={projects}
             assignments={assignments}
+            roles={roles}
             timelineMonths={timelineMonths}
             onAddStaff={handleAddStaff}
             onUpdateStaff={handleUpdateStaff}
@@ -386,8 +400,8 @@ export default function App() {
             onDeleteProject={handleDeleteProject}
             onClearAllData={handleClearAllData}
             onOpenBulkCapacityModal={(staff) => setBulkCapacityStaff(staff)}
+            onOpenRoleModal={() => setIsRoleModalOpen(true)}
             onImportClick={() => fileInputRef.current?.click()}
-            /* UPDATED EXPORT HANDLER */
             onExport={() => exportToExcel(staffMembers, projects, assignments)}
             fileInputRef={fileInputRef}
             onFileChange={importFromExcel}
@@ -403,7 +417,15 @@ export default function App() {
         onSave={handleSaveBulkCapacity}
       />
 
-      {/* IMPORT CONFIRMATION MODAL */}
+      <RoleCategoryModal
+        isOpen={isRoleModalOpen}
+        roles={roles}
+        onClose={() => setIsRoleModalOpen(false)}
+        onAddRole={handleAddRole}
+        onUpdateRole={handleUpdateRole}
+        onDeleteRole={handleDeleteRole}
+      />
+
       <ImportConfirmModal
         isOpen={!!pendingImportData}
         parsedData={pendingImportData}
@@ -411,7 +433,6 @@ export default function App() {
         onConfirm={handleConfirmImport}
       />
 
-      {/* TOAST NOTIFICATION */}
       {toast && (
         <Toast
           message={toast.message}

@@ -6,15 +6,15 @@ export interface Staff {
   name: string;
   designation: string;
   fte: number;
-  capacity?: number; // Global default fallback
-  monthlyCapacity?: Record<string, number>; // Month key -> Capacity % override
+  capacity?: number;
+  monthlyCapacity?: Record<string, number>;
 }
 
 export interface Project {
   id?: number;
   name: string;
-  startMonth?: string; // e.g. "2026-August"
-  endMonth?: string; // e.g. "2026-December"
+  startMonth?: string;
+  endMonth?: string;
 }
 
 export interface Assignment {
@@ -24,17 +24,33 @@ export interface Assignment {
   role: "PL" | "M" | "A";
 }
 
+export interface RoleCategory {
+  id?: number;
+  name: string;
+}
+
 export class AllocationDatabase extends Dexie {
   staff!: Table<Staff>;
   projects!: Table<Project>;
   assignments!: Table<Assignment>;
+  roles!: Table<RoleCategory>;
 
   constructor() {
     super("StaffAllocationDB");
-    this.version(1).stores({
+    this.version(2).stores({
       staff: "++id, name, designation",
       projects: "++id, name",
       assignments: "++id, staffId, projectId, role",
+      roles: "++id, &name",
+    });
+
+    this.on("populate", () => {
+      this.roles.bulkAdd([
+        { name: "RA" },
+        { name: "SRA" },
+        { name: "ADE" },
+        { name: "DOR" },
+      ]);
     });
   }
 }
