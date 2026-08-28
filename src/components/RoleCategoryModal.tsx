@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { ShieldCheck, Plus, Trash2, Edit3, Check, X } from "lucide-react";
+import { ShieldCheck, Plus, Trash2 } from "lucide-react";
 import type { RoleCategory } from "../db";
 import { Modal } from "./common/Modal";
 import { FormInput } from "./common/FormControls";
@@ -8,143 +8,87 @@ interface RoleCategoryModalProps {
   isOpen: boolean;
   roles: RoleCategory[];
   onClose: () => void;
-  onAddRole: (name: string) => Promise<void>;
-  onUpdateRole: (id: number, name: string) => Promise<void>;
+  onAddRole: (code: string, name: string) => Promise<void>;
   onDeleteRole: (id: number) => Promise<void>;
 }
 
-export function RoleCategoryModal({
+export const RoleCategoryModal = ({
   isOpen,
   roles,
   onClose,
   onAddRole,
-  onUpdateRole,
   onDeleteRole,
-}: RoleCategoryModalProps) {
-  const [newRoleName, setNewRoleName] = useState("");
-  const [editingRoleId, setEditingRoleId] = useState<number | null>(null);
-  const [editRoleName, setEditRoleName] = useState("");
+}: RoleCategoryModalProps) => {
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
 
-  const handleAdd = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!newRoleName.trim()) return;
-    await onAddRole(newRoleName.trim().toUpperCase());
-    setNewRoleName("");
-  };
-
-  const handleStartEdit = (role: RoleCategory) => {
-    setEditingRoleId(role.id!);
-    setEditRoleName(role.name);
-  };
-
-  const handleSaveEdit = async (id: number) => {
-    if (!editRoleName.trim()) return;
-    await onUpdateRole(id, editRoleName.trim().toUpperCase());
-    setEditingRoleId(null);
+    if (!code.trim() || !name.trim()) return;
+    await onAddRole(code.trim().toUpperCase(), name.trim());
+    setCode("");
+    setName("");
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Manage Designation Roles"
+      title="Manage Dynamic Roles"
       icon={<ShieldCheck className="w-5 h-5 text-indigo-600" />}
+      maxWidthClass="max-w-lg"
     >
       <div className="space-y-4 text-xs">
-        <form onSubmit={handleAdd} className="flex gap-2">
+        <form
+          onSubmit={handleSubmit}
+          className="flex gap-2 items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200"
+        >
           <FormInput
-            placeholder="New Role Designation (e.g. PM, SDE)..."
-            value={newRoleName}
-            onChange={(e) => setNewRoleName(e.target.value)}
+            placeholder="Code (e.g. PL)"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            className="w-28 uppercase font-bold"
+          />
+          <FormInput
+            placeholder="Role Name (e.g. Project Lead)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="flex-1"
           />
           <button
             type="submit"
-            className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg flex items-center gap-1 cursor-pointer"
+            className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold flex items-center gap-1 cursor-pointer shrink-0 transition-colors"
           >
-            <Plus className="w-3.5 h-3.5" /> Add
+            <Plus className="w-4 h-4" /> Add Role
           </button>
         </form>
 
-        <div className="border border-slate-200 rounded-xl overflow-hidden max-h-60 overflow-y-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
-              <tr>
-                <th className="p-2.5">Designation</th>
-                <th className="p-2.5 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {roles.map((r) => {
-                const isEditing = editingRoleId === r.id;
-                return (
-                  <tr key={r.id} className="hover:bg-slate-50">
-                    {isEditing ? (
-                      <>
-                        <td className="p-2">
-                          <FormInput
-                            value={editRoleName}
-                            onChange={(e) => setEditRoleName(e.target.value)}
-                            className="uppercase font-semibold"
-                          />
-                        </td>
-                        <td className="p-2 text-right space-x-1">
-                          <button
-                            type="button"
-                            onClick={() => handleSaveEdit(r.id!)}
-                            className="p-1 text-emerald-600 hover:bg-emerald-50 rounded cursor-pointer"
-                          >
-                            <Check className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditingRoleId(null)}
-                            className="p-1 text-slate-400 hover:bg-slate-100 rounded cursor-pointer"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td className="p-2.5 font-bold text-slate-800">
-                          {r.name}
-                        </td>
-                        <td className="p-2.5 text-right space-x-1">
-                          <button
-                            type="button"
-                            onClick={() => handleStartEdit(r)}
-                            className="p-1 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded cursor-pointer"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onDeleteRole(r.id!)}
-                            className="p-1 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="flex justify-end pt-2 border-t border-slate-100">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer"
-          >
-            Done
-          </button>
+        <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
+          {roles.map((role) => (
+            <div
+              key={role.id}
+              className="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded font-bold uppercase text-[10px]">
+                  {role.code}
+                </span>
+                <span className="font-medium text-slate-700">{role.name}</span>
+              </div>
+              {role.id !== undefined && (
+                <button
+                  type="button"
+                  onClick={() => onDeleteRole(role.id!)}
+                  className="text-slate-400 hover:text-rose-600 p-1 rounded transition-colors"
+                  title="Delete Role"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </Modal>
   );
-}
+};

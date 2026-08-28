@@ -1,247 +1,198 @@
 import * as XLSX from "xlsx";
-import { db } from "../db";
-import type { Staff, Project, Assignment } from "../db";
+import {
+  type Staff,
+  type Project,
+  type Assignment,
+  type RoleCategory,
+  db,
+} from "../db";
 
 export interface ParsedImportData {
-  staff: {
-    id: number;
-    name: string;
-    designation: string;
-    fte: number;
-    monthlyCapacity: Record<string, number>;
-  }[];
-  projects: {
-    id: number;
-    name: string;
-    startMonth?: string;
-    endMonth?: string;
-  }[];
-  assignments: {
-    staffId: number;
-    projectId: number;
-    role: "PL" | "M" | "A";
-  }[];
+  staff: Staff[];
+  projects: Project[];
+  assignments: Assignment[];
+  roles: RoleCategory[];
 }
 
-const MONTH_SHORT_TO_FULL: Record<string, string> = {
-  Jan: "January",
-  Feb: "February",
-  Mar: "March",
-  Apr: "April",
-  May: "May",
-  Jun: "June",
-  Jul: "July",
-  Aug: "August",
-  Sep: "September",
-  Oct: "October",
-  Nov: "November",
-  Dec: "December",
+/**
+ * Helper to transform YYYY-Month text (e.g. "2026-August") to standard key format ("2026-08")
+ */
+const monthNameToKeyMap: Record<string, string> = {
+  January: "01",
+  February: "02",
+  March: "03",
+  April: "04",
+  May: "05",
+  June: "06",
+  July: "07",
+  August: "08",
+  September: "09",
+  October: "10",
+  November: "11",
+  December: "12",
 };
 
-/**
- * Parses staff, project, and assignment sheets from an uploaded template file.
- */
 export const parseExcelFile = async (file: File): Promise<ParsedImportData> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+  const data = await file.arrayBuffer();
+  const workbook = XLSX.read(data, { type: "array" });
 
-    reader.onload = (e) => {
-      try {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
+  const result: ParsedImportData = {
+    staff: [],
+    projects: [],
+    assignments: [],
+    roles: [],
+  };
 
-        const sheetNames = workbook.SheetNames;
-        if (
-          !sheetNames.includes("Staff") ||
-          !sheetNames.includes("Projects") ||
-          !sheetNames.includes("Assignments")
-        ) {
-          throw new Error(
-            "Invalid template format. File must contain 'Staff', 'Projects', and 'Assignments' sheets.",
-          );
+  // 1. Parse Roles Sheet
+  if (workbook.SheetNames.includes("Roles")) {
+    const rawRoles = XLSX.utils.sheet_to_json<any>(workbook.Sheets["Roles"]);
+    result.roles = rawRoles
+      .map((r) => ({
+        code: String(r["Role Code"] || r["code"] || "").trim(),
+        name: String(r["Role Name"] || r["name"] || "").trim(),
+      }))
+      .filter((r) => r.code || r.name);
+  }
+
+  // 2. Parse Staff Sheet (including monthly capacity columns)
+  if (workbook.SheetNames.includes("Staff")) {
+    const rawStaff = XLSX.utils.sheet_to_json<any>(workbook.Sheets["Staff"]);
+    result.staff = rawStaff.map((s) => {
+      const id = Number(s["ID"] || s["id"]);
+      const name = String(s["Name"] || s["name"] || "");
+      const designation = String(s["Designation"] || s["designation"] || "");
+      const fte = Number(s["FTE"] || s["fte"] || 1.0);
+
+      // Extract capacity columns (e.g., "2026-August")
+      const monthlyCapacity: Record<string, number> = {};
+      Object.keys(s).forEach((key) => {
+        if (key.includes("-")) {
+          const [year, monthName] = key.split("-");
+          const monthCode = monthNameToKeyMap[monthName] || monthName;
+          const formattedKey = `${year}-${monthCode}`;
+          monthlyCapacity[formattedKey] = Number(s[key]);
         }
+      });
 
-        // 1. Staff Sheet Parsing
-        const rawStaffRows: Record<string, any>[] = XLSX.utils.sheet_to_json(
-          workbook.Sheets["Staff"],
-        );
-        const staffToInsert: ParsedImportData["staff"] = [];
+      return { id, name, designation, fte, monthlyCapacity };
+    });
+  }
 
-        for (const row of rawStaffRows) {
-          const id = Number(row["ID"]);
-          const name = String(row["Name"] || "").trim();
-          const designation = String(row["Designation"] || "RA").trim();
-          const fte = Number(row["FTE"]) || 1.0;
+  // 3. Parse Projects Sheet
+  if (workbook.SheetNames.includes("Projects")) {
+    const rawProjects = XLSX.utils.sheet_to_json<any>(
+      workbook.Sheets["Projects"],
+    );
+    result.projects = rawProjects.map((p) => ({
+      id: Number(p["ID"] || p["id"]),
+      name: String(p["Name"] || p["name"] || ""),
+      startMonth: p["Start Month"] ? String(p["Start Month"]) : undefined,
+      endMonth: p["End Month"] ? String(p["End Month"]) : undefined,
+    }));
+  }
 
-          if (!id || !name) continue;
+  // 4. Parse Assignments Sheet
+  if (workbook.SheetNames.includes("Assignments")) {
+    const rawAssignments = XLSX.utils.sheet_to_json<any>(
+      workbook.Sheets["Assignments"],
+    );
+    result.assignments = rawAssignments.map((a) => ({
+      staffId: Number(a["Staff ID"] || a["staffId"]),
+      projectId: Number(a["Project ID"] || a["projectId"]),
+      role: String(a["Role"] || a["role"] || "M").trim(),
+    }));
+  }
 
-          const monthlyCapacity: Record<string, number> = {};
-
-          // Matches both short ("2026-Aug") and full month keys ("2026-August")
-          Object.keys(row).forEach((key) => {
-            const match = key.match(/^(\d{4})-([A-Za-z]+)$/);
-            if (match) {
-              const year = match[1];
-              const monthRaw = match[2];
-              const fullMonth = MONTH_SHORT_TO_FULL[monthRaw] || monthRaw;
-              const formattedKey = `${year}-${fullMonth}`;
-
-              const val = Number(row[key]);
-              if (!isNaN(val)) {
-                monthlyCapacity[formattedKey] = val;
-              }
-            }
-          });
-
-          staffToInsert.push({ id, name, designation, fte, monthlyCapacity });
-        }
-
-        // 2. Projects Sheet Parsing
-        const rawProjectRows: Record<string, any>[] = XLSX.utils.sheet_to_json(
-          workbook.Sheets["Projects"],
-        );
-        const projectsToInsert: ParsedImportData["projects"] = [];
-
-        for (const row of rawProjectRows) {
-          const id = Number(row["ID"]);
-          const name = String(row["Name"] || "").trim();
-          const startMonthRaw = row["Start Month"]
-            ? String(row["Start Month"]).trim()
-            : "";
-          const endMonthRaw = row["End Month"]
-            ? String(row["End Month"]).trim()
-            : "";
-
-          if (!id || !name) continue;
-
-          projectsToInsert.push({
-            id,
-            name,
-            startMonth: startMonthRaw || undefined,
-            endMonth: endMonthRaw || undefined,
-          });
-        }
-
-        // 3. Assignments Sheet Parsing
-        const rawAssignmentRows: Record<string, any>[] =
-          XLSX.utils.sheet_to_json(workbook.Sheets["Assignments"]);
-        const assignmentsToInsert: ParsedImportData["assignments"] = [];
-
-        for (const row of rawAssignmentRows) {
-          const staffId = Number(row["Staff ID"]);
-          const projectId = Number(row["Project ID"]);
-          const roleRaw = String(row["Role"] || "M")
-            .trim()
-            .toUpperCase();
-
-          if (!staffId || !projectId) continue;
-
-          const role: "PL" | "M" | "A" =
-            roleRaw === "PL" || roleRaw === "A" ? (roleRaw as "PL" | "A") : "M";
-
-          assignmentsToInsert.push({ staffId, projectId, role });
-        }
-
-        resolve({
-          staff: staffToInsert,
-          projects: projectsToInsert,
-          assignments: assignmentsToInsert,
-        });
-      } catch (err) {
-        reject(err);
-      }
-    };
-
-    reader.onerror = (err) => reject(err);
-    reader.readAsArrayBuffer(file);
-  });
+  return result;
 };
 
-/**
- * Replaces IndexedDB contents atomically with parsed data.
- */
-export const commitImportToDatabase = async (
-  parsedData: ParsedImportData,
-): Promise<void> => {
-  await db.transaction(
-    "rw",
-    db.staff,
-    db.projects,
-    db.assignments,
-    async () => {
-      await db.staff.clear();
-      await db.projects.clear();
-      await db.assignments.clear();
-
-      if (parsedData.staff.length > 0) {
-        await db.staff.bulkAdd(parsedData.staff as any);
-      }
-      if (parsedData.projects.length > 0) {
-        await db.projects.bulkAdd(parsedData.projects as any);
-      }
-      if (parsedData.assignments.length > 0) {
-        await db.assignments.bulkAdd(parsedData.assignments as any);
-      }
-    },
-  );
-};
-
-/**
- * Exports current staff, project, and assignment records to a multi-sheet Excel file.
- */
 export const exportToExcel = (
-  staffMembers: Staff[],
+  staff: Staff[],
   projects: Project[],
   assignments: Assignment[],
+  roles: RoleCategory[],
 ) => {
-  const workbook = XLSX.utils.book_new();
+  const wb = XLSX.utils.book_new();
 
-  // 1. STAFF SHEET EXPORT
-  const staffRows = staffMembers.map((s) => {
+  // 1. Export Staff Sheet
+  const staffRows = staff.map((s) => {
     const row: Record<string, any> = {
       ID: s.id,
       Name: s.name,
       Designation: s.designation,
       FTE: s.fte,
     };
-
     if (s.monthlyCapacity) {
-      Object.entries(s.monthlyCapacity).forEach(([monthKey, cap]) => {
-        row[monthKey] = cap;
+      Object.entries(s.monthlyCapacity).forEach(([mKey, cap]) => {
+        row[mKey] = cap;
       });
     }
-
     return row;
   });
-  const staffSheet = XLSX.utils.json_to_sheet(staffRows);
-  XLSX.utils.book_append_sheet(workbook, staffSheet, "Staff");
+  const staffWS = XLSX.utils.json_to_sheet(staffRows);
+  XLSX.utils.book_append_sheet(wb, staffWS, "Staff");
 
-  // 2. PROJECTS SHEET EXPORT
+  // 2. Export Projects Sheet
   const projectRows = projects.map((p) => ({
     ID: p.id,
     Name: p.name,
     "Start Month": p.startMonth || "",
     "End Month": p.endMonth || "",
   }));
-  const projectSheet = XLSX.utils.json_to_sheet(projectRows);
-  XLSX.utils.book_append_sheet(workbook, projectSheet, "Projects");
+  const projectsWS = XLSX.utils.json_to_sheet(projectRows);
+  XLSX.utils.book_append_sheet(wb, projectsWS, "Projects");
 
-  // 3. ASSIGNMENTS SHEET EXPORT
+  // 3. Export Assignments Sheet
   const assignmentRows = assignments.map((a) => {
-    const staff = staffMembers.find((s) => s.id === a.staffId);
-    const project = projects.find((p) => p.id === a.projectId);
+    const s = staff.find((st) => st.id === a.staffId);
+    const p = projects.find((pr) => pr.id === a.projectId);
     return {
       "Staff ID": a.staffId,
-      "Staff Name": staff?.name || "",
+      "Staff Name": s ? s.name : "",
       "Project ID": a.projectId,
-      "Project Name": project?.name || "",
+      "Project Name": p ? p.name : "",
       Role: a.role,
     };
   });
-  const assignmentSheet = XLSX.utils.json_to_sheet(assignmentRows);
-  XLSX.utils.book_append_sheet(workbook, assignmentSheet, "Assignments");
+  const assignmentsWS = XLSX.utils.json_to_sheet(assignmentRows);
+  XLSX.utils.book_append_sheet(wb, assignmentsWS, "Assignments");
+
+  // 4. Export Roles Sheet
+  const roleRows = roles.map((r) => ({
+    "Role Code": r.code,
+    "Role Name": r.name,
+  }));
+  const rolesWS = XLSX.utils.json_to_sheet(roleRows);
+  XLSX.utils.book_append_sheet(wb, rolesWS, "Roles");
 
   // Generate date-stamped filename
   const timestamp = new Date().toISOString().split("T")[0];
-  XLSX.writeFile(workbook, `staff_allocation_export_${timestamp}.xlsx`);
+  XLSX.writeFile(wb, `staff_allocation_export_${timestamp}.xlsx`);
+};
+
+// Add to excel.ts
+
+export const commitImportToDatabase = async (data: ParsedImportData) => {
+  await db.transaction(
+    "rw",
+    [db.staff, db.projects, db.assignments, db.roles],
+    async () => {
+      if (data.roles.length > 0) {
+        await db.roles.clear();
+        await db.roles.bulkAdd(data.roles);
+      }
+      if (data.staff.length > 0) {
+        await db.staff.clear();
+        await db.staff.bulkAdd(data.staff);
+      }
+      if (data.projects.length > 0) {
+        await db.projects.clear();
+        await db.projects.bulkAdd(data.projects);
+      }
+      if (data.assignments.length > 0) {
+        await db.assignments.clear();
+        await db.assignments.bulkAdd(data.assignments);
+      }
+    },
+  );
 };

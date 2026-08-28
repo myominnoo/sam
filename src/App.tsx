@@ -33,12 +33,7 @@ import {
 const TAB_STORAGE_KEY = "staff_alloc_active_tab";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<
-    | "dashboard"
-    | "manage text-white font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs font-semibold cursor-pointer stroke-[2.5]"
-    | "manage text-slate-600 hover:text-slate-900 font-semibold cursor-pointer"
-    | "manage"
-  >(() => {
+  const [activeTab, setActiveTab] = useState<"dashboard" | "manage">(() => {
     const savedTab = localStorage.getItem(TAB_STORAGE_KEY);
     return savedTab === "manage" || savedTab === "dashboard"
       ? savedTab
@@ -119,12 +114,8 @@ export default function App() {
   const maxDynamicCols = Math.max(projects.length, staffMembers.length);
 
   // Role Category CRUD Actions
-  const handleAddRole = async (name: string) => {
-    await db.roles.add({ name });
-  };
-
-  const handleUpdateRole = async (id: number, name: string) => {
-    await db.roles.update(id, { name });
+  const handleAddRole = async (code: string, name: string) => {
+    await db.roles.add({ code, name });
   };
 
   const handleDeleteRole = async (id: number) => {
@@ -402,7 +393,9 @@ export default function App() {
             onOpenBulkCapacityModal={(staff) => setBulkCapacityStaff(staff)}
             onOpenRoleModal={() => setIsRoleModalOpen(true)}
             onImportClick={() => fileInputRef.current?.click()}
-            onExport={() => exportToExcel(staffMembers, projects, assignments)}
+            onExport={() =>
+              exportToExcel(staffMembers, projects, assignments, roles)
+            }
             fileInputRef={fileInputRef}
             onFileChange={importFromExcel}
           />
@@ -422,7 +415,6 @@ export default function App() {
         roles={roles}
         onClose={() => setIsRoleModalOpen(false)}
         onAddRole={handleAddRole}
-        onUpdateRole={handleUpdateRole}
         onDeleteRole={handleDeleteRole}
       />
 

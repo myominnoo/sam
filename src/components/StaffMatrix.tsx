@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import type { Staff, Project, Assignment } from "../db";
-import type { TimelineMonth } from "../constants";
+import { MONTH_NAMES, type TimelineMonth } from "../constants";
 import { getHeatmapClass } from "../utils/styleHelpers";
 import { RoleBadge } from "./common/RoleBadge";
 import { BaseMatrix } from "./common/BaseMatrix";
@@ -127,8 +127,13 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
 
                 {/* CAPACITY HEATMAP */}
                 {timelineMonths.map((m) => {
-                  const shortKey = `${m.year}-${m.shortMonth}`;
+                  const monthIdx = MONTH_NAMES.indexOf(m.month);
+                  const monthNum = String(monthIdx + 1).padStart(2, "0");
+                  const numKey = `${m.year}-${monthNum}`; // Format: "2026-08"
+                  const shortKey = `${m.year}-${m.shortMonth}`; // Format: "2026-AUG"
+
                   const rawCapacity =
+                    staff.monthlyCapacity?.[numKey] ??
                     staff.monthlyCapacity?.[m.key] ??
                     staff.monthlyCapacity?.[shortKey] ??
                     (staff as any).capacity;
