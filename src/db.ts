@@ -13,7 +13,8 @@ export interface Staff {
 export interface Project {
   id?: number;
   name: string;
-  activeMonths?: string[];
+  startMonth?: string; // e.g. "2026-August"
+  endMonth?: string; // e.g. "2026-December"
 }
 
 export interface Assignment {

@@ -1,6 +1,6 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import type { Staff, Project, Assignment } from "../db";
-import { getYearGroups, getDynamicTableMinWidth } from "../constants";
+import { getYearGroups } from "../constants";
 import type { TimelineMonth } from "../constants";
 import { getRoleBadgeClass } from "../utils/styleHelpers";
 
@@ -10,17 +10,62 @@ interface ProjectMatrixProps {
   assignments: Assignment[];
   timelineMonths: TimelineMonth[];
   getRole: (staffId: number, projectId: number) => string;
+  leftSideWidth: number;
 }
 
+const parseMonthKeyToDate = (key: string): Date | null => {
+  if (!key) return null;
+  const [yearStr, monthStr] = key.split("-");
+  const year = parseInt(yearStr, 10);
+
+  const MONTH_NAMES = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const monthIdx = MONTH_NAMES.indexOf(monthStr);
+
+  if (isNaN(year) || monthIdx === -1) return null;
+  return new Date(year, monthIdx, 1);
+};
+
 export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
-  ({ staffMembers, projects, assignments, timelineMonths, getRole }, ref) => {
-    const dynamicMinWidth = getDynamicTableMinWidth(
-      345,
-      staffMembers.length * 90,
-      timelineMonths.length,
-      60,
-    );
+  (
+    {
+      staffMembers,
+      projects,
+      assignments,
+      timelineMonths,
+      getRole,
+      leftSideWidth,
+    },
+    ref,
+  ) => {
+    const currentLeftWidth = 345 + staffMembers.length * 90;
+    const paddingWidth = Math.max(0, leftSideWidth - currentLeftWidth);
+    const totalMinWidth = leftSideWidth + timelineMonths.length * 60;
     const yearGroups = getYearGroups(timelineMonths);
+
+    const isMonthActive = (proj: Project, currentMonthKey: string): boolean => {
+      if (!proj.startMonth || !proj.endMonth) return false;
+
+      const projStart = parseMonthKeyToDate(proj.startMonth);
+      const projEnd = parseMonthKeyToDate(proj.endMonth);
+      const current = parseMonthKeyToDate(currentMonthKey);
+
+      if (!projStart || !projEnd || !current) return false;
+
+      return current >= projStart && current <= projEnd;
+    };
 
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -32,7 +77,7 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
 
         <div ref={ref} className="table-container overflow-x-auto">
           <table
-            style={{ minWidth: dynamicMinWidth }}
+            style={{ minWidth: `${totalMinWidth}px` }}
             className="w-full text-left border-collapse text-xs table-fixed"
           >
             <thead>
@@ -62,6 +107,15 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                   # Staff
                 </th>
 
+                {/* Dynamic width balancer spacer column */}
+                {paddingWidth > 0 && (
+                  <th
+                    rowSpan={2}
+                    style={{ width: `${paddingWidth}px` }}
+                    className="border-r border-slate-200 bg-slate-100/40"
+                  />
+                )}
+
                 {Object.entries(yearGroups).map(([year, count]) => (
                   <th
                     key={year}
@@ -78,8 +132,9 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                   <th
                     key={m.key}
                     className="p-2 border-r border-slate-200 text-center font-semibold text-slate-700 w-[60px]"
+                    title={`${m.month} ${m.year}`}
                   >
-                    {m.month}
+                    {m.shortMonth}
                   </th>
                 ))}
               </tr>
@@ -90,7 +145,6 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                 const assignedStaffCount = assignments.filter(
                   (a) => a.projectId === proj.id,
                 ).length;
-                const activeMonths = proj.activeMonths || ["Aug", "Sep", "Oct"];
 
                 return (
                   <tr key={proj.id} className="hover:bg-slate-50 transition">
@@ -112,14 +166,22 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                       {assignedStaffCount}
                     </td>
 
+                    {/* Spacer cell matching header */}
+                    {paddingWidth > 0 && (
+                      <td
+                        style={{ width: `${paddingWidth}px` }}
+                        className="border-r border-slate-200 bg-slate-50/30"
+                      />
+                    )}
+
                     {timelineMonths.map((m) => {
-                      const isActive = activeMonths.includes(m.month);
+                      const active = isMonthActive(proj, m.key);
                       return (
                         <td
                           key={m.key}
                           className="p-1.5 border-r border-slate-200 text-center align-middle w-[60px]"
                         >
-                          {isActive ? (
+                          {active ? (
                             <div className="h-5 rounded-md bg-slate-800 shadow-sm flex items-center justify-center text-[10px] text-slate-100 font-bold">
                               ✓
                             </div>

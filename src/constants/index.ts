@@ -1,59 +1,101 @@
 export interface TimelineMonth {
-  key: string; // e.g. "2026-Aug"
-  month: string; // e.g. "Aug"
+  key: string; // e.g. "2026-August"
+  month: string; // e.g. "August"
+  shortMonth: string; // e.g. "Aug"
   year: number; // e.g. 2026
 }
 
-const MONTH_NAMES = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
+export const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
   "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
+// Master list of month options for selection dropdowns
+export const MASTER_MONTH_OPTIONS: TimelineMonth[] = (() => {
+  const options: TimelineMonth[] = [];
+  for (let year = 2025; year <= 2030; year++) {
+    MONTH_NAMES.forEach((month) => {
+      options.push({
+        key: `${year}-${month}`,
+        month,
+        shortMonth: month.slice(0, 3),
+        year,
+      });
+    });
+  }
+  return options;
+})();
+
 /**
- * Dynamically generates a timeline starting from the current month of today's date
- * @param startOffsetMonths Number of months prior to current month (default 0)
- * @param totalMonths Total month span to include (default 18 for 1.5 years)
+ * Returns a key 17 months after startKey (total 18 months = 1.5 years)
  */
-export const generateTimelineMonths = (
-  totalMonths: number = 18,
-  startOffsetMonths: number = 0,
+export const getDefaultEndKey = (startKey: string): string => {
+  const [yStr, mStr] = startKey.split("-");
+  const year = parseInt(yStr, 10);
+  const mIdx = MONTH_NAMES.indexOf(mStr);
+  if (isNaN(year) || mIdx === -1) return startKey;
+
+  const endDate = new Date(year, mIdx + 17, 1);
+  return `${endDate.getFullYear()}-${MONTH_NAMES[endDate.getMonth()]}`;
+};
+
+/**
+ * Generates an array of TimelineMonth objects between startKey and endKey
+ */
+export const generateTimelineMonthsRange = (
+  startKey: string,
+  endKey: string,
 ): TimelineMonth[] => {
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonthIdx = now.getMonth(); // 0-indexed (Aug = 7)
+  const [sY, sM] = startKey.split("-");
+  const [eY, eM] = endKey.split("-");
+
+  const startYear = parseInt(sY, 10);
+  const startMIdx = MONTH_NAMES.indexOf(sM);
+  const endYear = parseInt(eY, 10);
+  const endMIdx = MONTH_NAMES.indexOf(eM);
+
+  if (
+    isNaN(startYear) ||
+    startMIdx === -1 ||
+    isNaN(endYear) ||
+    endMIdx === -1
+  ) {
+    return [];
+  }
+
+  const startDate = new Date(startYear, startMIdx, 1);
+  const endDate = new Date(endYear, endMIdx, 1);
+
+  if (startDate > endDate) return [];
 
   const timeline: TimelineMonth[] = [];
-  const startIdx = currentMonthIdx - startOffsetMonths;
+  let curr = new Date(startDate.getTime());
 
-  for (let i = 0; i < totalMonths; i++) {
-    const targetIdx = startIdx + i;
-    const date = new Date(currentYear, targetIdx, 1);
-    const year = date.getFullYear();
-    const month = MONTH_NAMES[date.getMonth()];
-
+  while (curr <= endDate) {
+    const year = curr.getFullYear();
+    const month = MONTH_NAMES[curr.getMonth()];
     timeline.push({
       key: `${year}-${month}`,
       month,
+      shortMonth: month.slice(0, 3),
       year,
     });
+    curr.setMonth(curr.getMonth() + 1);
   }
 
   return timeline;
 };
 
-/**
- * Calculates dynamic year grouping for header colSpans
- */
 export const getYearGroups = (timelineMonths: TimelineMonth[]) => {
   return timelineMonths.reduce(
     (acc, m) => {
@@ -64,9 +106,6 @@ export const getYearGroups = (timelineMonths: TimelineMonth[]) => {
   );
 };
 
-/**
- * Calculates total minimum table width dynamically based on visible timeline length
- */
 export const getDynamicTableMinWidth = (
   leftSideWidthPx: number = 280,
   projectColsWidthPx: number = 0,

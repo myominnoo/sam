@@ -1,6 +1,6 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import type { Staff, Project, Assignment } from "../db";
-import { getYearGroups, getDynamicTableMinWidth } from "../constants";
+import { getYearGroups } from "../constants";
 import type { TimelineMonth } from "../constants";
 import { getRoleBadgeClass, getHeatmapClass } from "../utils/styleHelpers";
 
@@ -10,21 +10,29 @@ interface StaffMatrixProps {
   assignments: Assignment[];
   timelineMonths: TimelineMonth[];
   getRole: (staffId: number, projectId: number) => string;
+  leftSideWidth: number;
 }
 
 export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
-  ({ staffMembers, projects, assignments, timelineMonths, getRole }, ref) => {
-    const dynamicMinWidth = getDynamicTableMinWidth(
-      345,
-      projects.length * 90,
-      timelineMonths.length,
-      60,
-    );
+  (
+    {
+      staffMembers,
+      projects,
+      assignments,
+      timelineMonths,
+      getRole,
+      leftSideWidth,
+    },
+    ref,
+  ) => {
+    const currentLeftWidth = 345 + projects.length * 90;
+    const paddingWidth = Math.max(0, leftSideWidth - currentLeftWidth);
+    const totalMinWidth = leftSideWidth + timelineMonths.length * 60;
     const yearGroups = getYearGroups(timelineMonths);
 
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex justify-between items-center">
+        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex justify-between items-center flex-wrap gap-2">
           <h2 className="font-semibold text-slate-800">
             Staff Allocation & Capacity Matrix
           </h2>
@@ -46,7 +54,7 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
 
         <div ref={ref} className="table-container overflow-x-auto">
           <table
-            style={{ minWidth: dynamicMinWidth }}
+            style={{ minWidth: `${totalMinWidth}px` }}
             className="w-full text-left border-collapse text-xs table-fixed"
           >
             <thead>
@@ -86,6 +94,15 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                   # Proj
                 </th>
 
+                {/* Dynamic width balancer spacer column */}
+                {paddingWidth > 0 && (
+                  <th
+                    rowSpan={2}
+                    style={{ width: `${paddingWidth}px` }}
+                    className="border-r border-slate-200 bg-slate-100/40"
+                  />
+                )}
+
                 {Object.entries(yearGroups).map(([year, count]) => (
                   <th
                     key={year}
@@ -102,8 +119,9 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                   <th
                     key={m.key}
                     className="p-2 border-r border-slate-200 text-center font-semibold text-slate-700 w-[60px]"
+                    title={`${m.month} ${m.year}`}
                   >
-                    {m.month}
+                    {m.shortMonth}
                   </th>
                 ))}
               </tr>
@@ -139,6 +157,15 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                     <td className="p-3 border-r border-slate-200 text-center font-bold bg-slate-50 w-[65px]">
                       {activeProjCount}
                     </td>
+
+                    {/* Spacer cell matching header */}
+                    {paddingWidth > 0 && (
+                      <td
+                        style={{ width: `${paddingWidth}px` }}
+                        className="border-r border-slate-200 bg-slate-50/30"
+                      />
+                    )}
+
                     {timelineMonths.map((m) => (
                       <td
                         key={m.key}
