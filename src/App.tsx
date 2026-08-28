@@ -13,6 +13,8 @@ import { StaffMatrix } from "./components/StaffMatrix";
 import { ProjectMatrix } from "./components/ProjectMatrix";
 import { ManageData } from "./components/ManageData";
 import { BulkCapacityModal } from "./components/BulkCapacityModal";
+import { ImportConfirmModal } from "./components/ImportConfirmModal";
+import { Toast } from "./components/common/Toast";
 import { useScrollSync } from "./hooks/useScrollSync";
 
 import {
@@ -20,7 +22,12 @@ import {
   getDefaultEndKey,
   MASTER_MONTH_OPTIONS,
 } from "./constants";
-import { exportToExcel, processExcelImport } from "./utils/excel";
+import {
+  exportToExcel,
+  parseExcelFile,
+  commitImportToDatabase,
+  type ParsedImportData,
+} from "./utils/excel";
 
 const TAB_STORAGE_KEY = "staff_alloc_active_tab";
 
@@ -63,6 +70,14 @@ export default function App() {
   const [bulkCapacityStaff, setBulkCapacityStaff] = useState<Staff | null>(
     null,
   );
+
+  // Import Modal & Toast Notification States
+  const [pendingImportData, setPendingImportData] =
+    useState<ParsedImportData | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const staffMatrixScrollRef = useRef<HTMLDivElement>(null);
@@ -222,22 +237,48 @@ export default function App() {
         await db.assignments.clear();
       },
     );
+    setToast({
+      message: "All database records have been cleared.",
+      type: "success",
+    });
   };
 
+  // Excel File Parsing & Import Flow
   const importFromExcel = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
-      await processExcelImport(file);
-      alert("Data successfully imported from template!");
+      const parsed = await parseExcelFile(file);
+      setPendingImportData(parsed); // Triggers confirmation modal dialog
     } catch (error: any) {
-      console.error("Failed to import Excel file:", error);
-      alert(
-        error.message || "An error occurred while importing the Excel file.",
-      );
+      console.error("Failed to parse Excel file:", error);
+      setToast({
+        message: error.message || "Failed to parse the selected Excel file.",
+        type: "error",
+      });
     } finally {
-      e.target.value = ""; // Reset file input
+      e.target.value = ""; // Reset input so re-selecting the same file works
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    if (!pendingImportData) return;
+
+    try {
+      await commitImportToDatabase(pendingImportData);
+      setToast({
+        message: `Imported ${pendingImportData.staff.length} staff, ${pendingImportData.projects.length} projects, and ${pendingImportData.assignments.length} assignments!`,
+        type: "success",
+      });
+    } catch (error: any) {
+      console.error("Failed to import into database:", error);
+      setToast({
+        message: error.message || "An error occurred while importing data.",
+        type: "error",
+      });
+    } finally {
+      setPendingImportData(null);
     }
   };
 
@@ -360,6 +401,23 @@ export default function App() {
         onClose={() => setBulkCapacityStaff(null)}
         onSave={handleSaveBulkCapacity}
       />
+
+      {/* IMPORT CONFIRMATION MODAL */}
+      <ImportConfirmModal
+        isOpen={!!pendingImportData}
+        parsedData={pendingImportData}
+        onClose={() => setPendingImportData(null)}
+        onConfirm={handleConfirmImport}
+      />
+
+      {/* TOAST NOTIFICATION */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

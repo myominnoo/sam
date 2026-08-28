@@ -125,8 +125,12 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
 
                 {/* CAPACITY HEATMAP */}
                 {timelineMonths.map((m) => {
+                  const shortKey = `${m.year}-${m.shortMonth}`;
                   const rawCapacity =
-                    staff.monthlyCapacity?.[m.key] ?? (staff as any).capacity;
+                    staff.monthlyCapacity?.[m.key] ??
+                    staff.monthlyCapacity?.[shortKey] ??
+                    (staff as any).capacity;
+
                   const hasCapacity =
                     rawCapacity !== undefined && rawCapacity !== null;
 
@@ -134,13 +138,15 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                     <td
                       key={m.key}
                       className={`p-0 border-r border-slate-200 text-center w-[60px] min-w-[60px] h-9 font-mono ${
-                        hasCapacity
+                        hasCapacity && rawCapacity > 0
                           ? getHeatmapClass(rawCapacity)
                           : "bg-white text-slate-300"
                       }`}
                     >
                       <div className="w-full h-full flex items-center justify-center">
-                        {hasCapacity ? `${rawCapacity}%` : ""}
+                        {hasCapacity && rawCapacity > 0
+                          ? `${rawCapacity}%`
+                          : ""}
                       </div>
                     </td>
                   );
