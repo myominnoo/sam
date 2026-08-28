@@ -29,6 +29,8 @@ import { RoleBadge } from "./common/RoleBadge";
 import { FormSelect, FormInput } from "./common/FormControls";
 import { Modal } from "./common/Modal";
 
+import type { ToastType } from "./common/Toast";
+
 interface ManageDataProps {
   staffMembers: Staff[];
   projects: Project[];
@@ -65,6 +67,7 @@ interface ManageDataProps {
   onExport: () => void;
   fileInputRef: RefObject<HTMLInputElement | null>;
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  showToast: (message: string, type?: ToastType) => void;
 }
 
 export const ManageData = ({
@@ -85,6 +88,7 @@ export const ManageData = ({
   onExport,
   fileInputRef,
   onFileChange,
+  showToast,
 }: ManageDataProps) => {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [staffSearch, setStaffSearch] = useState("");
@@ -123,20 +127,30 @@ export const ManageData = ({
   const handleConfirmClear = async () => {
     await onClearAllData();
     setShowClearConfirm(false);
+    showToast("All data cleared successfully.", "info");
   };
 
   const handleAddStaff = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!newStaffName.trim()) return;
+    if (!newStaffName.trim()) {
+      showToast("Please enter a staff name.", "warning");
+      return;
+    }
     const fteValue = typeof newStaffFte === "number" ? newStaffFte : 1.0;
     await onAddStaff(
       newStaffName,
       newStaffRole || roleOptions[0].value,
       fteValue,
     );
+    showToast(`Added staff member "${newStaffName}".`, "success");
     setNewStaffName("");
     setNewStaffRole(roleOptions[0].value);
     setNewStaffFte(1.0);
+  };
+
+  const handleDeleteStaff = async (id: number) => {
+    await onDeleteStaff(id);
+    showToast("Staff member deleted.", "info");
   };
 
   const startEditStaff = (staff: Staff) => {
@@ -166,19 +180,29 @@ export const ManageData = ({
       editStaffProjectIds,
     );
     setEditingStaffId(null);
+    showToast("Staff member updated.", "success");
   };
 
   const handleAddProject = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!newProjectName.trim()) return;
+    if (!newProjectName.trim()) {
+      showToast("Please enter a project name.", "warning");
+      return;
+    }
     await onAddProject(
       newProjectName,
       newProjStart || undefined,
       newProjEnd || undefined,
     );
+    showToast(`Added project "${newProjectName}".`, "success");
     setNewProjectName("");
     setNewProjStart("");
     setNewProjEnd("");
+  };
+
+  const handleDeleteProject = async (id: number) => {
+    await onDeleteProject(id);
+    showToast("Project deleted.", "info");
   };
 
   const startEditProject = (proj: Project) => {
@@ -210,6 +234,7 @@ export const ManageData = ({
       editProjEnd || undefined,
     );
     setEditingProjectId(null);
+    showToast("Project details updated.", "success");
   };
 
   const filteredStaff = staffMembers.filter(
@@ -587,7 +612,7 @@ export const ManageData = ({
                                   <Edit3 className="w-4 h-4" />
                                 </button>
                                 <button
-                                  onClick={() => onDeleteStaff(staff.id!)}
+                                  onClick={() => handleDeleteStaff(staff.id!)}
                                   className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                                   title="Delete Staff Member"
                                 >
@@ -983,7 +1008,7 @@ export const ManageData = ({
                                   <Edit3 className="w-4 h-4" />
                                 </button>
                                 <button
-                                  onClick={() => onDeleteProject(proj.id!)}
+                                  onClick={() => handleDeleteProject(proj.id!)}
                                   className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                                   title="Delete Project"
                                 >
