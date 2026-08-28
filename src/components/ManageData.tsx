@@ -77,17 +77,15 @@ export const ManageData = ({
   const [staffToDelete, setStaffToDelete] = useState<Staff | null>(null);
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
 
-  const designationOptions = useMemo(
-    () =>
-      designations.length > 0
-        ? designations.map((d) => ({ label: d.name, value: d.code }))
-        : [
-            { label: "Research Associate", value: "RA" },
-            { label: "Senior Research Associate", value: "SRA" },
-            { label: "Director of Research", value: "DOR" },
-          ],
-    [designations],
-  );
+  const designationOptions = useMemo(() => {
+    if (designations.length === 0) {
+      return [{ label: "No designations available", value: "" }];
+    }
+    return designations.map((d) => ({
+      label: d.name,
+      value: d.code,
+    }));
+  }, [designations]);
 
   const handleConfirmClear = async () => {
     await onClearAllData();
