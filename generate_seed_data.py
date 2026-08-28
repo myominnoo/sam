@@ -35,7 +35,20 @@ project_data = [
     {"ID": 108, "Name": "Orion Data Pipeline", "Start Month": "2027-July", "End Month": "2027-December"},
 ]
 
-# 3. ASSIGNMENTS (Configured to produce 0%, 25%, 50%, 75%, and 100%)
+# 3. ROLES DATA & DEFINITIONS
+role_data = [
+    {"Role Code": "PL", "Role Name": "Project Lead", "Allocation Weight (%)": 50},
+    {"Role Code": "M", "Role Name": "Member", "Allocation Weight (%)": 25},
+    {"Role Code": "A", "Role Name": "Advisor", "Allocation Weight (%)": 25},
+]
+
+# Role allocation weights (% workload) mapped directly from definitions
+ROLE_WEIGHTS = {r["Role Code"]: r["Allocation Weight (%)"] for r in role_data}
+
+# Extract unique role list for separate sheet
+unique_roles = pd.DataFrame([{"Role Code": code} for code in sorted(list(ROLE_WEIGHTS.keys()))])
+
+# 4. ASSIGNMENTS (Configured to produce 0%, 25%, 50%, 75%, and 100%)
 assignment_data = [
     # Project Polaris (2026-Aug to 2026-Dec)
     {"Staff ID": 1, "Staff Name": "Jordan Ellis", "Project ID": 101, "Project Name": "Project Polaris", "Role": "PL"},  # 50%
@@ -72,15 +85,12 @@ assignment_data = [
     {"Staff ID": 7, "Staff Name": "David Kim", "Project ID": 108, "Project Name": "Orion Data Pipeline", "Role": "M"},            # 25%
 ]
 
-# 4. TIMELINE RANGE SETUP (Full Month Names matching frontend keys)
+# 5. TIMELINE RANGE SETUP (Full Month Names matching frontend keys)
 MONTH_KEYS = [
     "2026-August", "2026-September", "2026-October", "2026-November", "2026-December",
     "2027-January", "2027-February", "2027-March", "2027-April", "2027-May", "2027-June",
     "2027-July", "2027-August", "2027-September", "2027-October", "2027-November", "2027-December"
 ]
-
-# Role allocation weights (% workload)
-ROLE_WEIGHTS = {"PL": 50, "M": 25, "A": 25}
 
 def snap_to_25_increment(value: float, fte: float) -> int:
     """Snaps calculated percentage to nearest 25% step (0, 25, 50, 75, 100), bounded by FTE limit."""
@@ -121,15 +131,18 @@ for s in staff_base:
     staff_record = {**s, **monthly_allocations}
     staff_data.append(staff_record)
 
-# 5. WRITE EXCEL TEMPLATE
+# 6. WRITE EXCEL TEMPLATE
 df_staff = pd.DataFrame(staff_data)
 df_projects = pd.DataFrame(project_data)
 df_assignments = pd.DataFrame(assignment_data)
+df_roles = pd.DataFrame(role_data)
 
 with pd.ExcelWriter(FILE_PATH, engine="openpyxl") as writer:
     df_staff.to_excel(writer, sheet_name="Staff", index=False)
     df_projects.to_excel(writer, sheet_name="Projects", index=False)
     df_assignments.to_excel(writer, sheet_name="Assignments", index=False)
+    df_roles.to_excel(writer, sheet_name="Roles", index=False)
+    unique_roles.to_excel(writer, sheet_name="Unique Roles", index=False)
 
     header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
     header_fill = PatternFill(start_color="1E293B", end_color="1E293B", fill_type="solid")
