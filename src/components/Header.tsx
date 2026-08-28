@@ -21,10 +21,10 @@ export const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
             </div>
             <div>
               <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-                Staff Capacity Planner
+                Staff Allocation Matrix (SAM)
               </h1>
               <p className="text-xs text-slate-500 mt-0.5 hidden sm:block">
-                Track team bandwidth and project assignments in real time.
+                Stay on top of team bandwidth and project workloads.
               </p>
             </div>
           </div>

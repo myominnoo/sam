@@ -40,7 +40,7 @@ export const FormSelect = ({
       )}
       <select
         id={selectId}
-        className={`w-full border rounded-lg p-2 text-xs font-medium bg-white text-slate-700 focus:ring-2 focus:outline-none cursor-pointer transition-colors ${
+        className={`w-full border rounded-lg p-2 text-xs font-medium focus:ring-2 focus:outline-none cursor-pointer transition-colors ${
           error
             ? "border-rose-400 focus:ring-rose-400"
             : "border-slate-300 focus:ring-indigo-500 focus:border-indigo-500"

@@ -122,7 +122,8 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-slate-200 text-xs text-slate-700 bg-white">
+        {/* Standardized Table Body Typography: text-xs, font-medium, text-slate-700 */}
+        <tbody className="divide-y divide-slate-200 text-xs font-medium text-slate-700 bg-white">
           {staffMembers.map((staff) => {
             const staffAssignments = assignments.filter(
               (a) => a.staffId === staff.id,
@@ -134,23 +135,27 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                 key={staff.id}
                 className="group h-10 hover:bg-indigo-50/40 transition-colors duration-150"
               >
-                <td className="sticky left-0 z-10 bg-white group-hover:bg-slate-50 px-3 py-2 border-r border-slate-200 font-semibold text-slate-900 w-48 min-w-[192px] max-w-[192px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)] transition-colors">
+                {/* Staff Name */}
+                <td className="sticky left-0 z-10 bg-white group-hover:bg-slate-50 px-3 py-2 border-r border-slate-200 w-48 min-w-[192px] max-w-[192px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)] transition-colors">
                   <span
-                    className="line-clamp-1 truncate block font-medium text-slate-900"
+                    className="line-clamp-1 truncate block"
                     title={staff.name}
                   >
                     {staff.name}
                   </span>
                 </td>
 
-                <td className="px-2 py-2 border-r border-slate-200 text-center text-slate-500 font-medium w-20 min-w-[80px] max-w-[80px] truncate transition-colors">
+                {/* Designation */}
+                <td className="px-2 py-2 border-r border-slate-200 text-center w-20 min-w-[80px] max-w-[80px] truncate transition-colors">
                   {staff.designation}
                 </td>
 
-                <td className="px-1.5 py-2 border-r border-slate-200 text-center font-mono font-medium text-slate-600 w-14 min-w-[56px] max-w-[56px] transition-colors">
+                {/* FTE */}
+                <td className="px-1.5 py-2 border-r border-slate-200 text-center w-14 min-w-[56px] max-w-[56px] transition-colors">
                   {staff.fte}
                 </td>
 
+                {/* Dynamic Role Badges */}
                 {Array.from({ length: maxDynamicCols }).map((_, idx) => {
                   const proj = projects[idx];
                   if (!proj) {
@@ -172,7 +177,8 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                   );
                 })}
 
-                <td className="px-2 py-1.5 border-r border-slate-200 text-center font-bold text-slate-700 w-20 min-w-[80px] max-w-[80px] transition-colors">
+                {/* Threshold Badge */}
+                <td className="px-2 py-1.5 border-r border-slate-200 text-center w-20 min-w-[80px] max-w-[80px] transition-colors">
                   <div className="flex items-center justify-center">
                     <ThresholdBadge
                       count={activeProjectsCount}
@@ -182,6 +188,7 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                   </div>
                 </td>
 
+                {/* Timeline Heatmap Capacity Cells */}
                 {timelineMonths.map((m) => {
                   const monthIdx = MONTH_NAMES.indexOf(m.month);
                   const monthNum = String(monthIdx + 1).padStart(2, "0");
@@ -200,7 +207,7 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                   return (
                     <td
                       key={m.key}
-                      className={`p-0 border-r border-slate-200 text-center w-[60px] min-w-[60px] h-10 font-mono text-[11px] font-semibold transition-colors ${
+                      className={`p-0 border-r border-slate-200 text-center w-[60px] min-w-[60px] h-10 transition-colors ${
                         hasCapacity && rawCapacity > 0
                           ? getHeatmapClass(rawCapacity)
                           : "bg-white group-hover:bg-indigo-50/30 text-slate-300"

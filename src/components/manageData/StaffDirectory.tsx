@@ -15,6 +15,7 @@ import type { Staff, Project, Assignment } from "../../db";
 import { RoleBadge } from "../common/RoleBadge";
 import { FormInput, FormSelect } from "../common/FormControls";
 import type { ToastType } from "../common/Toast";
+import { ActionCard } from "../common/ActionCard";
 
 interface StaffDirectoryProps {
   staffMembers: Staff[];
@@ -100,7 +101,7 @@ export const StaffDirectory = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-lg border border-slate-200/90 ring-1 ring-slate-900/5 overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/40 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
@@ -129,57 +130,66 @@ export const StaffDirectory = ({
             />
           </div>
           <span className="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">
-            {staffMembers.length} Total
+            {staffMembers.length} Members
           </span>
         </div>
       </div>
 
       <div className="p-5 space-y-5">
-        <form
-          onSubmit={handleAdd}
-          className="bg-slate-50/80 p-3 rounded-xl border border-slate-200/80 flex flex-wrap lg:flex-nowrap items-center gap-2.5"
-        >
-          <div className="flex-1 min-w-[180px]">
-            <FormInput
-              placeholder="New Staff Name..."
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="bg-white"
-            />
-          </div>
-          <div className="w-full sm:w-auto min-w-[120px]">
-            <FormSelect
-              value={designation}
-              onChange={(e) => setDesignation(e.target.value)}
-              options={designationOptions}
-              className="bg-white"
-            />
-          </div>
-          <div className="w-full sm:w-auto flex items-center gap-1.5">
-            <FormInput
-              type="number"
-              step="0.1"
-              min="0.1"
-              max="1.0"
-              placeholder="1.0"
-              value={fte}
-              onChange={(e) =>
-                setFte(e.target.value === "" ? "" : Number(e.target.value))
-              }
-              className="w-20 bg-white text-center font-mono"
-            />
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider select-none shrink-0 pr-1">
-              FTE
-            </span>
-          </div>
-          <button
-            type="submit"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center gap-1 transition cursor-pointer shrink-0 w-full sm:w-auto shadow-xs"
+        <ActionCard accentColorClass="border-l-indigo-500">
+          <form
+            onSubmit={handleAdd}
+            className="flex flex-wrap lg:flex-nowrap items-center gap-2.5 w-full"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>Add Staff</span>
-          </button>
-        </form>
+            {/* Staff Name Input */}
+            <div className="flex-1 min-w-[180px]">
+              <FormInput
+                placeholder="New Staff Name..."
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="bg-slate-800/80 hover:bg-slate-800 border-slate-700 focus:border-indigo-500 text-slate-100 placeholder:text-slate-400"
+              />
+            </div>
+
+            {/* Designation Select */}
+            <div className="w-full sm:w-auto min-w-[140px]">
+              <FormSelect
+                value={designation}
+                onChange={(e) => setDesignation(e.target.value)}
+                options={designationOptions}
+                className="bg-slate-800 border-slate-700 text-white hover:text-white focus:text-white focus:bg-slate-800 focus:border-indigo-500 [&>option]:bg-slate-800 [&>option]:text-white"
+              />
+            </div>
+
+            {/* FTE Input with Label */}
+            <div className="w-full sm:w-auto flex items-center gap-2 bg-slate-800/80 border border-slate-700 rounded-lg px-2 py-0.5 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/50 transition-colors">
+              <FormInput
+                type="number"
+                step="0.1"
+                min="0.1"
+                max="1.0"
+                placeholder="1.0"
+                value={fte}
+                onChange={(e) =>
+                  setFte(e.target.value === "" ? "" : Number(e.target.value))
+                }
+                className="w-14 bg-transparent border-0 p-1 text-slate-100 text-center font-mono focus:ring-0 focus:outline-none"
+              />
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider select-none shrink-0 pr-1">
+                FTE
+              </span>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center gap-1.5 transition cursor-pointer shrink-0 w-full sm:w-auto shadow-xs active:scale-[0.98]"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Add Staff</span>
+            </button>
+          </form>
+        </ActionCard>
 
         <div className="overflow-x-auto border border-slate-200/80 rounded-xl">
           <table className="w-full text-left text-xs border-collapse">

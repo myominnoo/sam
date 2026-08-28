@@ -1,8 +1,12 @@
-export const getRoleBadgeClass = (role: string): string => {
-  if (role === "PL") return "bg-yellow-300 text-yellow-900 font-bold";
-  if (role === "M") return "bg-emerald-400 text-emerald-950 font-bold";
-  if (role === "A") return "bg-amber-400 text-amber-950 font-bold";
-  return "";
+const ROLE_BADGE_MAP: Record<string, string> = {
+  PL: "bg-yellow-300 text-yellow-900 font-bold",
+  M: "bg-emerald-400 text-emerald-950 font-bold",
+  A: "bg-amber-400 text-amber-950 font-bold",
+};
+
+export const getRoleBadgeClass = (role?: string): string => {
+  if (!role) return "";
+  return ROLE_BADGE_MAP[role.toUpperCase()] || "";
 };
 
 export const getHeatmapClass = (capacity: number = 100): string => {

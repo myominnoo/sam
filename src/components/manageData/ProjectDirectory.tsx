@@ -15,6 +15,7 @@ import { MASTER_MONTH_OPTIONS } from "../../constants";
 import { RoleBadge } from "../common/RoleBadge";
 import { FormInput, FormSelect } from "../common/FormControls";
 import type { ToastType } from "../common/Toast";
+import { ActionCard } from "../common/ActionCard";
 
 interface ProjectDirectoryProps {
   projects: Project[];
@@ -116,7 +117,7 @@ export const ProjectDirectory = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-lg border border-slate-200/90 ring-1 ring-slate-900/5 overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/40 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
@@ -144,63 +145,69 @@ export const ProjectDirectory = ({
             />
           </div>
           <span className="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">
-            {projects.length} Total
+            {projects.length} Projects
           </span>
         </div>
       </div>
 
       <div className="p-5 space-y-5">
-        <form
-          onSubmit={handleAdd}
-          className="bg-slate-50/80 p-3 rounded-xl border border-slate-200/80 flex flex-wrap lg:flex-nowrap items-center gap-2.5"
-        >
-          <div className="flex-1 min-w-[200px]">
-            <FormInput
-              placeholder="New Project Name..."
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              className="bg-white"
-            />
-          </div>
-
-          <div className="w-full sm:w-auto min-w-[130px]">
-            <FormSelect
-              value={startMonth}
-              onChange={(e) => setStartMonth(e.target.value)}
-              options={[
-                { label: "Start Month (Optional)", value: "" },
-                ...MASTER_MONTH_OPTIONS.map((m) => ({
-                  label: `${m.shortMonth} ${m.year}`,
-                  value: m.key,
-                })),
-              ]}
-              className="bg-white text-xs"
-            />
-          </div>
-
-          <div className="w-full sm:w-auto min-w-[130px]">
-            <FormSelect
-              value={endMonth}
-              onChange={(e) => setEndMonth(e.target.value)}
-              options={[
-                { label: "End Month (Optional)", value: "" },
-                ...MASTER_MONTH_OPTIONS.map((m) => ({
-                  label: `${m.shortMonth} ${m.year}`,
-                  value: m.key,
-                })),
-              ]}
-              className="bg-white text-xs"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center gap-1 transition cursor-pointer shrink-0 w-full sm:w-auto shadow-xs"
+        <ActionCard accentColorClass="border-l-indigo-500">
+          <form
+            onSubmit={handleAdd}
+            className="flex flex-wrap lg:flex-nowrap items-center gap-2.5 w-full"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>Create Project</span>
-          </button>
-        </form>
+            {/* Project Name Input */}
+            <div className="flex-1 min-w-[200px]">
+              <FormInput
+                placeholder="New Project Name..."
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                className="bg-slate-800/80 hover:bg-slate-800 border-slate-700 focus:border-indigo-500 text-slate-100 placeholder:text-slate-400"
+              />
+            </div>
+
+            {/* Start Month Select */}
+            <div className="w-full sm:w-auto min-w-[150px]">
+              <FormSelect
+                value={startMonth}
+                onChange={(e) => setStartMonth(e.target.value)}
+                options={[
+                  { label: "Start Month (Optional)", value: "" },
+                  ...MASTER_MONTH_OPTIONS.map((m) => ({
+                    label: `${m.shortMonth} ${m.year}`,
+                    value: m.key,
+                  })),
+                ]}
+                className="bg-slate-800/80 hover:bg-slate-800 border-slate-700 text-slate-100 hover:text-white focus:text-white focus:bg-slate-800 focus:border-indigo-500 [&>option]:bg-slate-800 [&>option]:text-white"
+              />
+            </div>
+
+            {/* End Month Select */}
+            <div className="w-full sm:w-auto min-w-[150px]">
+              <FormSelect
+                value={endMonth}
+                onChange={(e) => setEndMonth(e.target.value)}
+                options={[
+                  { label: "End Month (Optional)", value: "" },
+                  ...MASTER_MONTH_OPTIONS.map((m) => ({
+                    label: `${m.shortMonth} ${m.year}`,
+                    value: m.key,
+                  })),
+                ]}
+                className="bg-slate-800/80 hover:bg-slate-800 border-slate-700 text-slate-100 hover:text-white focus:text-white focus:bg-slate-800 focus:border-indigo-500 [&>option]:bg-slate-800 [&>option]:text-white"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center gap-1.5 transition cursor-pointer shrink-0 w-full sm:w-auto shadow-xs active:scale-[0.98]"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Create Project</span>
+            </button>
+          </form>
+        </ActionCard>
 
         <div className="overflow-x-auto border border-slate-200/80 rounded-xl">
           <table className="w-full text-left text-xs border-collapse">
