@@ -8,6 +8,8 @@ import {
   Trash2,
   Check,
   X,
+  Power,
+  PowerOff,
 } from "lucide-react";
 import type { Staff, Project, Assignment } from "../../db";
 import { RoleBadge } from "../common/RoleBadge";
@@ -18,8 +20,9 @@ interface StaffDirectoryProps {
   staffMembers: Staff[];
   projects: Project[];
   assignments: Assignment[];
-  roleOptions: { label: string; value: string }[];
+  designationOptions: { label: string; value: string }[];
   onAddStaff: (name: string, designation: string, fte: number) => Promise<void>;
+  onToggleStaffActive: (staff: Staff) => Promise<void>;
   onUpdateStaff: (
     id: number,
     name: string,
@@ -36,8 +39,9 @@ export const StaffDirectory = ({
   staffMembers,
   projects,
   assignments,
-  roleOptions,
+  designationOptions,
   onAddStaff,
+  onToggleStaffActive,
   onUpdateStaff,
   onRequestDelete,
   onOpenBulkCapacityModal,
@@ -45,15 +49,15 @@ export const StaffDirectory = ({
 }: StaffDirectoryProps) => {
   const [search, setSearch] = useState("");
 
-  // New Staff Form State
   const [name, setName] = useState("");
-  const [role, setRole] = useState(roleOptions[0]?.value || "");
+  const [designation, setDesignation] = useState(
+    designationOptions[0]?.value || "",
+  );
   const [fte, setFte] = useState<number | "">(1.0);
 
-  // Edit Staff State
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
-  const [editRole, setEditRole] = useState("");
+  const [editDesignation, setEditDesignation] = useState("");
   const [editFte, setEditFte] = useState(1.0);
   const [editProjectIds, setEditProjectIds] = useState<number[]>([]);
 
@@ -74,17 +78,16 @@ export const StaffDirectory = ({
       return;
     }
     const fteVal = typeof fte === "number" ? fte : 1.0;
-    await onAddStaff(name, role || roleOptions[0]?.value, fteVal);
-    showToast(`Added staff member "${name}".`, "success");
+    await onAddStaff(name, designation || designationOptions[0]?.value, fteVal);
     setName("");
-    setRole(roleOptions[0]?.value || "");
+    setDesignation(designationOptions[0]?.value || "");
     setFte(1.0);
   };
 
   const startEdit = (staff: Staff) => {
     setEditingId(staff.id!);
     setEditName(staff.name);
-    setEditRole(staff.designation || roleOptions[0]?.value);
+    setEditDesignation(staff.designation || designationOptions[0]?.value);
     setEditFte(staff.fte);
     setEditProjectIds(
       assignments.filter((a) => a.staffId === staff.id).map((a) => a.projectId),
@@ -92,9 +95,8 @@ export const StaffDirectory = ({
   };
 
   const handleSaveEdit = async (id: number) => {
-    await onUpdateStaff(id, editName, editRole, editFte, editProjectIds);
+    await onUpdateStaff(id, editName, editDesignation, editFte, editProjectIds);
     setEditingId(null);
-    showToast("Staff member updated.", "success");
   };
 
   return (
@@ -109,7 +111,8 @@ export const StaffDirectory = ({
               Staff Members Directory
             </h3>
             <p className="text-[11px] text-slate-500">
-              Manage personnel details, role assignments, and base FTE capacity
+              Manage personnel details, staff position designations, and active
+              state
             </p>
           </div>
         </div>
@@ -146,9 +149,9 @@ export const StaffDirectory = ({
           </div>
           <div className="w-full sm:w-auto min-w-[120px]">
             <FormSelect
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              options={roleOptions}
+              value={designation}
+              onChange={(e) => setDesignation(e.target.value)}
+              options={designationOptions}
               className="bg-white"
             />
           </div>
@@ -182,8 +185,9 @@ export const StaffDirectory = ({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200/80">
+                <th className="p-3">Status</th>
                 <th className="p-3">Name</th>
-                <th className="p-3">Designation / Role</th>
+                <th className="p-3">Designation / Position</th>
                 <th className="p-3 text-center">FTE</th>
                 <th className="p-3">Assigned Projects</th>
                 <th className="p-3 text-right whitespace-nowrap w-[1%]">
@@ -195,7 +199,7 @@ export const StaffDirectory = ({
               {filteredStaff.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="p-4 text-center text-slate-400 italic"
                   >
                     No staff members found matching search filter.
@@ -203,6 +207,7 @@ export const StaffDirectory = ({
                 </tr>
               ) : (
                 filteredStaff.map((staff) => {
+                  const isActive = staff.isActive !== false;
                   const isEditing = editingId === staff.id;
                   const staffAssignments = assignments.filter(
                     (a) => a.staffId === staff.id,
@@ -211,8 +216,29 @@ export const StaffDirectory = ({
                   return (
                     <tr
                       key={staff.id}
-                      className="hover:bg-slate-50/60 transition-colors"
+                      className={`transition-colors ${
+                        isActive
+                          ? "hover:bg-slate-50/60"
+                          : "bg-slate-50/40 text-slate-400"
+                      }`}
                     >
+                      <td className="p-3">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            isActive
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+                              : "bg-slate-200/80 text-slate-600 border border-slate-300/80"
+                          }`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              isActive ? "bg-emerald-500" : "bg-slate-400"
+                            }`}
+                          />
+                          {isActive ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+
                       {isEditing ? (
                         <>
                           <td className="p-2">
@@ -223,9 +249,11 @@ export const StaffDirectory = ({
                           </td>
                           <td className="p-2">
                             <FormSelect
-                              value={editRole}
-                              onChange={(e) => setEditRole(e.target.value)}
-                              options={roleOptions}
+                              value={editDesignation}
+                              onChange={(e) =>
+                                setEditDesignation(e.target.value)
+                              }
+                              options={designationOptions}
                               className="w-28"
                             />
                           </td>
@@ -307,10 +335,16 @@ export const StaffDirectory = ({
                         </>
                       ) : (
                         <>
-                          <td className="p-3 font-semibold text-slate-800">
+                          <td
+                            className={`p-3 font-semibold ${
+                              isActive
+                                ? "text-slate-800"
+                                : "text-slate-400 line-through"
+                            }`}
+                          >
                             {staff.name}
                           </td>
-                          <td className="p-3 text-slate-600">
+                          <td className="p-3">
                             <span className="inline-block px-2 py-0.5 bg-slate-100 border border-slate-200/60 rounded text-[11px] font-medium text-slate-700">
                               {staff.designation}
                             </span>
@@ -343,25 +377,55 @@ export const StaffDirectory = ({
                             )}
                           </td>
                           <td className="p-3 text-right whitespace-nowrap w-[1%]">
-                            <div className="flex items-center justify-end gap-0.5">
-                              <button
-                                onClick={() => onOpenBulkCapacityModal(staff)}
-                                className="p-1 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg cursor-pointer"
-                              >
-                                <Sliders className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => startEdit(staff)}
-                                className="p-1 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => onRequestDelete(staff)}
-                                className="p-1 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                            <div className="flex items-center justify-end gap-1">
+                              {isActive ? (
+                                <>
+                                  <button
+                                    onClick={() =>
+                                      onOpenBulkCapacityModal(staff)
+                                    }
+                                    className="p-1 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg cursor-pointer"
+                                    title="Edit Capacity"
+                                  >
+                                    <Sliders className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => startEdit(staff)}
+                                    className="p-1 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer"
+                                    title="Edit Staff"
+                                  >
+                                    <Edit3 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => onRequestDelete(staff)}
+                                    className="p-1 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
+                                    title="Delete Staff"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => onToggleStaffActive(staff)}
+                                    className="p-1.5 xl:px-2 xl:py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg font-semibold text-[11px] border border-amber-200/80 inline-flex items-center gap-1 cursor-pointer transition-colors"
+                                    title="Deactivate Staff"
+                                  >
+                                    <PowerOff className="w-3.5 h-3.5" />
+                                    <span className="hidden xl:inline">
+                                      Deactivate
+                                    </span>
+                                  </button>
+                                </>
+                              ) : (
+                                <button
+                                  onClick={() => onToggleStaffActive(staff)}
+                                  className="p-1.5 xl:px-2.5 xl:py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg font-semibold text-[11px] border border-emerald-200/80 inline-flex items-center gap-1 cursor-pointer transition-colors"
+                                  title="Activate Staff"
+                                >
+                                  <Power className="w-3.5 h-3.5" />
+                                  <span className="hidden xl:inline">
+                                    Activate
+                                  </span>
+                                </button>
+                              )}
                             </div>
                           </td>
                         </>

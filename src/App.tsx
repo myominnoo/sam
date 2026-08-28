@@ -6,16 +6,15 @@ import {
   Calendar,
   ArrowRight,
   Clock,
-  ShieldCheck,
 } from "lucide-react";
 
-import { db, type Staff } from "./db";
+import { db, type Staff, type Project } from "./db";
 import { Header } from "./components/Header";
 import { StaffMatrix } from "./components/StaffMatrix";
 import { ProjectMatrix } from "./components/ProjectMatrix";
 import { ManageData } from "./components/ManageData";
 import { BulkCapacityModal } from "./components/BulkCapacityModal";
-import { RoleCategoryModal } from "./components/RoleCategoryModal";
+import { DesignationCategoryModal } from "./components/DesignationCategoryModal";
 import { ImportConfirmModal } from "./components/ImportConfirmModal";
 import { RoleBadge } from "./components/common/RoleBadge";
 import { Toast, type ToastType } from "./components/common/Toast";
@@ -27,6 +26,7 @@ import {
   getEndKeyForDuration,
   MASTER_MONTH_OPTIONS,
   DURATION_OPTIONS,
+  PROJECT_ROLE_LEGEND,
 } from "./constants";
 import {
   exportToExcel,
@@ -75,7 +75,7 @@ export default function App() {
   const [bulkCapacityStaff, setBulkCapacityStaff] = useState<Staff | null>(
     null,
   );
-  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [isDesignationModalOpen, setIsDesignationModalOpen] = useState(false);
 
   const [pendingImportData, setPendingImportData] =
     useState<ParsedImportData | null>(null);
@@ -98,7 +98,6 @@ export default function App() {
     activeTab === "dashboard",
   );
 
-  // Duration select change handler
   const handleDurationChange = (monthsStr: string) => {
     setSelectedDuration(monthsStr);
     if (monthsStr !== "custom") {
@@ -110,7 +109,6 @@ export default function App() {
     }
   };
 
-  // Start month change handler
   const handleStartMonthChange = (newStartKey: string) => {
     setStartMonthKey(newStartKey);
     if (selectedDuration !== "custom") {
@@ -122,7 +120,6 @@ export default function App() {
     }
   };
 
-  // End month change handler
   const handleEndMonthChange = (newEndKey: string) => {
     const startIdx = MASTER_MONTH_OPTIONS.findIndex(
       (m) => m.key === startMonthKey,
@@ -141,44 +138,70 @@ export default function App() {
     [startMonthKey, endMonthKey],
   );
 
-  // Live Queries
-  const staffMembers = useLiveQuery(() => db.staff.toArray()) || [];
-  const projects = useLiveQuery(() => db.projects.toArray()) || [];
+  const allStaffMembers = useLiveQuery(() => db.staff.toArray()) || [];
+  const allProjects = useLiveQuery(() => db.projects.toArray()) || [];
   const assignments = useLiveQuery(() => db.assignments.toArray()) || [];
-  const roles = useLiveQuery(() => db.roles.toArray()) || [];
+  const designations = useLiveQuery(() => db.designations.toArray()) || [];
 
-  const maxDynamicCols = Math.max(projects.length, staffMembers.length);
+  const activeStaffMembers = useMemo(
+    () => allStaffMembers.filter((s) => s.isActive !== false),
+    [allStaffMembers],
+  );
 
-  // Role Category Actions
-  const handleAddRole = async (code: string, name: string) => {
+  const activeProjects = useMemo(
+    () => allProjects.filter((p) => p.isActive !== false),
+    [allProjects],
+  );
+
+  const maxDynamicCols = Math.max(
+    activeProjects.length,
+    activeStaffMembers.length,
+  );
+
+  const handleAddDesignation = async (code: string, name: string) => {
     try {
-      await db.roles.add({ code, name });
-      showToast(`Role "${name}" (${code}) added successfully.`, "success");
+      await db.designations.add({ code, name });
+      showToast(
+        `Designation "${name}" (${code}) added successfully.`,
+        "success",
+      );
     } catch (error: any) {
-      showToast(error?.message || "Failed to add role category.", "error");
+      showToast(error?.message || "Failed to add designation.", "error");
     }
   };
 
-  const handleDeleteRole = async (id: number) => {
+  const handleDeleteDesignation = async (id: number) => {
     try {
-      await db.roles.delete(id);
-      showToast("Role category deleted.", "info");
+      await db.designations.delete(id);
+      showToast("Designation deleted.", "info");
     } catch (error: any) {
-      showToast(error?.message || "Failed to delete role category.", "error");
+      showToast(error?.message || "Failed to delete designation.", "error");
     }
   };
 
-  // Staff Actions
   const handleAddStaff = async (
     name: string,
     designation: string,
     fte: number,
   ) => {
     try {
-      await db.staff.add({ name, designation, fte });
+      await db.staff.add({ name, designation, fte, isActive: true });
       showToast(`Staff member "${name}" added successfully.`, "success");
     } catch (error: any) {
       showToast(error?.message || "Failed to add staff member.", "error");
+    }
+  };
+
+  const handleToggleStaffActive = async (staff: Staff) => {
+    try {
+      const nextStatus = staff.isActive === false;
+      await db.staff.update(staff.id!, { isActive: nextStatus });
+      showToast(
+        `Staff member "${staff.name}" is now ${nextStatus ? "Active" : "Inactive"}.`,
+        "info",
+      );
+    } catch (error: any) {
+      showToast(error?.message || "Failed to change staff status.", "error");
     }
   };
 
@@ -242,17 +265,29 @@ export default function App() {
     }
   };
 
-  // Project Actions
   const handleAddProject = async (
     name: string,
     startMonth?: string,
     endMonth?: string,
   ) => {
     try {
-      await db.projects.add({ name, startMonth, endMonth });
+      await db.projects.add({ name, startMonth, endMonth, isActive: true });
       showToast(`Project "${name}" created successfully.`, "success");
     } catch (error: any) {
       showToast(error?.message || "Failed to create project.", "error");
+    }
+  };
+
+  const handleToggleProjectActive = async (project: Project) => {
+    try {
+      const nextStatus = project.isActive === false;
+      await db.projects.update(project.id!, { isActive: nextStatus });
+      showToast(
+        `Project "${project.name}" is now ${nextStatus ? "Active" : "Inactive"}.`,
+        "info",
+      );
+    } catch (error: any) {
+      showToast(error?.message || "Failed to change project status.", "error");
     }
   };
 
@@ -319,12 +354,12 @@ export default function App() {
         db.staff,
         db.projects,
         db.assignments,
-        db.roles,
+        db.designations,
         async () => {
           await db.staff.clear();
           await db.projects.clear();
           await db.assignments.clear();
-          await db.roles.clear();
+          await db.designations.clear();
         },
       );
       showToast("All database records have been cleared.", "success");
@@ -371,7 +406,7 @@ export default function App() {
 
   const handleExportToExcel = () => {
     try {
-      exportToExcel(staffMembers, projects, assignments, roles);
+      exportToExcel(allStaffMembers, allProjects, assignments, designations);
       showToast("Export completed successfully.", "success");
     } catch (error: any) {
       showToast(error?.message || "Failed to export data.", "error");
@@ -380,7 +415,6 @@ export default function App() {
 
   return (
     <div className="bg-slate-50 text-slate-800 px-4 sm:px-6 pb-8 font-sans min-h-screen relative antialiased">
-      {/* Top Floating Navigation */}
       <div className="sticky top-3 z-50 flex justify-center pointer-events-none mb-3">
         <div className="pointer-events-auto inline-flex items-center p-1 bg-white/80 backdrop-blur-md rounded-full ring-1 ring-slate-900/5 shadow-md shadow-slate-900/5 transition-all">
           <button
@@ -414,7 +448,6 @@ export default function App() {
 
         {activeTab === "dashboard" ? (
           <>
-            {/* Timeline Control Bar */}
             <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-indigo-600" />
@@ -424,7 +457,6 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-2.5 flex-wrap">
-                {/* Duration Presets Select */}
                 <div className="inline-flex items-center bg-slate-100/80 border border-slate-200/80 rounded-xl p-1 text-xs">
                   <Clock className="w-3.5 h-3.5 text-slate-400 ml-2.5 mr-1" />
                   <span className="text-[11px] font-semibold text-slate-500 pr-1.5 select-none">
@@ -446,7 +478,6 @@ export default function App() {
                   </select>
                 </div>
 
-                {/* Timeline Start/End Date Range Picker */}
                 <div className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-xl p-1 text-xs">
                   <select
                     value={startMonthKey}
@@ -475,31 +506,24 @@ export default function App() {
               </div>
             </div>
 
-            {/* Dynamic Role Legend Bar */}
             <div className="flex items-center justify-end gap-2 flex-wrap">
-              {roles.length > 0 ? (
-                roles.map((r) => (
-                  <div
-                    key={r.id || r.code}
-                    className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200/80 rounded-lg"
-                  >
-                    <RoleBadge role={r.code} title={r.name} />
-                    <span className="text-xs font-medium text-slate-600">
-                      {r.name}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <span className="text-xs text-slate-400 italic">
-                  No roles defined.
-                </span>
-              )}
+              {PROJECT_ROLE_LEGEND.map((r) => (
+                <div
+                  key={r.code}
+                  className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200/80 rounded-lg"
+                >
+                  <RoleBadge role={r.code} title={r.name} />
+                  <span className="text-xs font-medium text-slate-600">
+                    {r.name}
+                  </span>
+                </div>
+              ))}
             </div>
 
             <StaffMatrix
               ref={staffMatrixScrollRef}
-              staffMembers={staffMembers}
-              projects={projects}
+              staffMembers={activeStaffMembers}
+              projects={activeProjects}
               assignments={assignments}
               timelineMonths={timelineMonths}
               getRole={getRole}
@@ -508,8 +532,8 @@ export default function App() {
 
             <ProjectMatrix
               ref={projectMatrixScrollRef}
-              staffMembers={staffMembers}
-              projects={projects}
+              staffMembers={activeStaffMembers}
+              projects={activeProjects}
               assignments={assignments}
               timelineMonths={timelineMonths}
               getRole={getRole}
@@ -518,20 +542,22 @@ export default function App() {
           </>
         ) : (
           <ManageData
-            staffMembers={staffMembers}
-            projects={projects}
+            staffMembers={allStaffMembers}
+            projects={allProjects}
             assignments={assignments}
-            roles={roles}
+            designations={designations}
             timelineMonths={timelineMonths}
             onAddStaff={handleAddStaff}
+            onToggleStaffActive={handleToggleStaffActive}
             onUpdateStaff={handleUpdateStaff}
             onDeleteStaff={handleDeleteStaff}
             onAddProject={handleAddProject}
+            onToggleProjectActive={handleToggleProjectActive}
             onUpdateProject={handleUpdateProject}
             onDeleteProject={handleDeleteProject}
             onClearAllData={handleClearAllData}
             onOpenBulkCapacityModal={(staff) => setBulkCapacityStaff(staff)}
-            onOpenRoleModal={() => setIsRoleModalOpen(true)}
+            onOpenDesignationModal={() => setIsDesignationModalOpen(true)}
             onImportClick={() => fileInputRef.current?.click()}
             onExport={handleExportToExcel}
             fileInputRef={fileInputRef}
@@ -550,12 +576,12 @@ export default function App() {
         showToast={showToast}
       />
 
-      <RoleCategoryModal
-        isOpen={isRoleModalOpen}
-        roles={roles}
-        onClose={() => setIsRoleModalOpen(false)}
-        onAddRole={handleAddRole}
-        onDeleteRole={handleDeleteRole}
+      <DesignationCategoryModal
+        isOpen={isDesignationModalOpen}
+        designations={designations}
+        onClose={() => setIsDesignationModalOpen(false)}
+        onAddDesignation={handleAddDesignation}
+        onDeleteDesignation={handleDeleteDesignation}
         showToast={showToast}
       />
 

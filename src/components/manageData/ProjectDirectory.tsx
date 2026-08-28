@@ -3,11 +3,12 @@ import {
   FolderKanban,
   Search,
   Plus,
-  Calendar,
   Edit3,
   Trash2,
   Check,
   X,
+  Power,
+  PowerOff,
 } from "lucide-react";
 import type { Project, Staff, Assignment } from "../../db";
 import { MASTER_MONTH_OPTIONS } from "../../constants";
@@ -24,6 +25,7 @@ interface ProjectDirectoryProps {
     startMonth?: string,
     endMonth?: string,
   ) => Promise<void>;
+  onToggleProjectActive: (project: Project) => Promise<void>;
   onUpdateProject: (
     id: number,
     name: string,
@@ -41,24 +43,23 @@ export const ProjectDirectory = ({
   staffMembers,
   assignments,
   onAddProject,
+  onToggleProjectActive,
   onUpdateProject,
   onRequestDelete,
   showToast,
 }: ProjectDirectoryProps) => {
   const [search, setSearch] = useState("");
 
-  // New Project Form State
-  const [name, setName] = useState("");
+  const [projectName, setProjectName] = useState("");
   const [startMonth, setStartMonth] = useState("");
   const [endMonth, setEndMonth] = useState("");
 
-  // Edit Project State
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
-  const [editStart, setEditStart] = useState("");
-  const [editEnd, setEditEnd] = useState("");
-  const [editPlStaffId, setEditPlStaffId] = useState<number | null>(null);
-  const [editTeamMembers, setEditTeamMembers] = useState<
+  const [editStartMonth, setEditStartMonth] = useState("");
+  const [editEndMonth, setEditEndMonth] = useState("");
+  const [editPlId, setEditPlId] = useState<number | null>(null);
+  const [editTeam, setEditTeam] = useState<
     { staffId: number; role: "M" | "A" }[]
   >([]);
 
@@ -72,13 +73,16 @@ export const ProjectDirectory = ({
 
   const handleAdd = async (e: FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
+    if (!projectName.trim()) {
       showToast("Please enter a project name.", "warning");
       return;
     }
-    await onAddProject(name, startMonth || undefined, endMonth || undefined);
-    showToast(`Added project "${name}".`, "success");
-    setName("");
+    await onAddProject(
+      projectName,
+      startMonth || undefined,
+      endMonth || undefined,
+    );
+    setProjectName("");
     setStartMonth("");
     setEndMonth("");
   };
@@ -86,40 +90,36 @@ export const ProjectDirectory = ({
   const startEdit = (proj: Project) => {
     setEditingId(proj.id!);
     setEditName(proj.name);
-    setEditStart(proj.startMonth || "");
-    setEditEnd(proj.endMonth || "");
+    setEditStartMonth(proj.startMonth || "");
+    setEditEndMonth(proj.endMonth || "");
 
     const projAssignments = assignments.filter((a) => a.projectId === proj.id);
     const pl = projAssignments.find((a) => a.role === "PL");
-    setEditPlStaffId(pl ? pl.staffId : null);
-    setEditTeamMembers(
-      projAssignments
-        .filter((a) => a.role !== "PL")
-        .map((a) => ({
-          staffId: a.staffId,
-          role: (a.role as "M" | "A") || "M",
-        })),
-    );
+    const team = projAssignments
+      .filter((a) => a.role === "M" || a.role === "A")
+      .map((a) => ({ staffId: a.staffId, role: a.role as "M" | "A" }));
+
+    setEditPlId(pl ? pl.staffId : null);
+    setEditTeam(team);
   };
 
   const handleSaveEdit = async (id: number) => {
     await onUpdateProject(
       id,
       editName,
-      editPlStaffId,
-      editTeamMembers,
-      editStart || undefined,
-      editEnd || undefined,
+      editPlId,
+      editTeam,
+      editStartMonth || undefined,
+      editEndMonth || undefined,
     );
     setEditingId(null);
-    showToast("Project details updated.", "success");
   };
 
   return (
     <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/40 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+          <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
             <FolderKanban className="w-4 h-4" />
           </div>
           <div>
@@ -127,8 +127,7 @@ export const ProjectDirectory = ({
               Projects Directory
             </h3>
             <p className="text-[11px] text-slate-500">
-              Manage active projects, schedules, project leaders, and assigned
-              team members
+              Manage project metadata, assigned roles, and active states
             </p>
           </div>
         </div>
@@ -141,10 +140,10 @@ export const ProjectDirectory = ({
               placeholder="Filter projects..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 pr-3 py-1 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-36 sm:w-48"
+              className="pl-8 pr-3 py-1 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 w-36 sm:w-48"
             />
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100">
+          <span className="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">
             {projects.length} Total
           </span>
         </div>
@@ -155,48 +154,51 @@ export const ProjectDirectory = ({
           onSubmit={handleAdd}
           className="bg-slate-50/80 p-3 rounded-xl border border-slate-200/80 flex flex-wrap lg:flex-nowrap items-center gap-2.5"
         >
-          <div className="flex-1 min-w-[180px]">
+          <div className="flex-1 min-w-[200px]">
             <FormInput
               placeholder="New Project Name..."
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
               className="bg-white"
             />
           </div>
+
           <div className="w-full sm:w-auto min-w-[130px]">
             <FormSelect
               value={startMonth}
               onChange={(e) => setStartMonth(e.target.value)}
               options={[
-                { label: "Start Month...", value: "" },
+                { label: "Start Month (Optional)", value: "" },
                 ...MASTER_MONTH_OPTIONS.map((m) => ({
-                  label: `${m.month} ${m.year}`,
+                  label: `${m.shortMonth} ${m.year}`,
                   value: m.key,
                 })),
               ]}
-              className="bg-white"
+              className="bg-white text-xs"
             />
           </div>
+
           <div className="w-full sm:w-auto min-w-[130px]">
             <FormSelect
               value={endMonth}
               onChange={(e) => setEndMonth(e.target.value)}
               options={[
-                { label: "End Month...", value: "" },
+                { label: "End Month (Optional)", value: "" },
                 ...MASTER_MONTH_OPTIONS.map((m) => ({
-                  label: `${m.month} ${m.year}`,
+                  label: `${m.shortMonth} ${m.year}`,
                   value: m.key,
                 })),
               ]}
-              className="bg-white"
+              className="bg-white text-xs"
             />
           </div>
+
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center gap-1 transition cursor-pointer shrink-0 w-full sm:w-auto shadow-xs"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center gap-1 transition cursor-pointer shrink-0 w-full sm:w-auto shadow-xs"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>Add Project</span>
+            <span>Create Project</span>
           </button>
         </form>
 
@@ -204,10 +206,11 @@ export const ProjectDirectory = ({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200/80">
+                <th className="p-3">Status</th>
                 <th className="p-3">Project Name</th>
-                <th className="p-3">Timeline Duration</th>
-                <th className="p-3">Assigned PL</th>
-                <th className="p-3">Assigned Team</th>
+                <th className="p-3">Duration Range</th>
+                <th className="p-3">Project Lead</th>
+                <th className="p-3">Team Assignments</th>
                 <th className="p-3 text-right whitespace-nowrap w-[1%]">
                   Actions
                 </th>
@@ -217,17 +220,18 @@ export const ProjectDirectory = ({
               {filteredProjects.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="p-4 text-center text-slate-400 italic"
                   >
                     No projects found matching search filter.
                   </td>
                 </tr>
               ) : (
-                filteredProjects.map((proj) => {
-                  const isEditing = editingId === proj.id;
+                filteredProjects.map((project) => {
+                  const isActive = project.isActive !== false;
+                  const isEditing = editingId === project.id;
                   const projAssignments = assignments.filter(
-                    (a) => a.projectId === proj.id,
+                    (a) => a.projectId === project.id,
                   );
                   const plAssignment = projAssignments.find(
                     (a) => a.role === "PL",
@@ -235,15 +239,36 @@ export const ProjectDirectory = ({
                   const plStaff = plAssignment
                     ? staffMembers.find((s) => s.id === plAssignment.staffId)
                     : null;
-                  const teamAssignments = projAssignments.filter(
+                  const teamMembers = projAssignments.filter(
                     (a) => a.role !== "PL",
                   );
 
                   return (
                     <tr
-                      key={proj.id}
-                      className="hover:bg-slate-50/60 transition-colors"
+                      key={project.id}
+                      className={`transition-colors ${
+                        isActive
+                          ? "hover:bg-slate-50/60"
+                          : "bg-slate-50/40 text-slate-400"
+                      }`}
                     >
+                      <td className="p-3">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            isActive
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+                              : "bg-slate-200/80 text-slate-600 border border-slate-300/80"
+                          }`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              isActive ? "bg-emerald-500" : "bg-slate-400"
+                            }`}
+                          />
+                          {isActive ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+
                       {isEditing ? (
                         <>
                           <td className="p-2">
@@ -252,148 +277,135 @@ export const ProjectDirectory = ({
                               onChange={(e) => setEditName(e.target.value)}
                             />
                           </td>
-                          <td className="p-2 space-y-1">
-                            <FormSelect
-                              value={editStart}
-                              onChange={(e) => setEditStart(e.target.value)}
-                              options={[
-                                { label: "(Start Month)", value: "" },
-                                ...MASTER_MONTH_OPTIONS.map((m) => ({
-                                  label: `${m.month} ${m.year}`,
-                                  value: m.key,
-                                })),
-                              ]}
-                            />
-                            <FormSelect
-                              value={editEnd}
-                              onChange={(e) => setEditEnd(e.target.value)}
-                              options={[
-                                { label: "(End Month)", value: "" },
-                                ...MASTER_MONTH_OPTIONS.map((m) => ({
-                                  label: `${m.month} ${m.year}`,
-                                  value: m.key,
-                                })),
-                              ]}
-                            />
+                          <td className="p-2">
+                            <div className="flex gap-1">
+                              <FormSelect
+                                value={editStartMonth}
+                                onChange={(e) =>
+                                  setEditStartMonth(e.target.value)
+                                }
+                                options={[
+                                  { label: "Start", value: "" },
+                                  ...MASTER_MONTH_OPTIONS.map((m) => ({
+                                    label: m.shortMonth,
+                                    value: m.key,
+                                  })),
+                                ]}
+                                className="w-20"
+                              />
+                              <FormSelect
+                                value={editEndMonth}
+                                onChange={(e) =>
+                                  setEditEndMonth(e.target.value)
+                                }
+                                options={[
+                                  { label: "End", value: "" },
+                                  ...MASTER_MONTH_OPTIONS.map((m) => ({
+                                    label: m.shortMonth,
+                                    value: m.key,
+                                  })),
+                                ]}
+                                className="w-20"
+                              />
+                            </div>
                           </td>
                           <td className="p-2">
                             <FormSelect
-                              value={editPlStaffId || ""}
-                              onChange={(e) => {
-                                const val = Number(e.target.value);
-                                setEditPlStaffId(val || null);
-                                if (val)
-                                  setEditTeamMembers((prev) =>
-                                    prev.filter((t) => t.staffId !== val),
-                                  );
-                              }}
+                              value={editPlId || ""}
+                              onChange={(e) =>
+                                setEditPlId(
+                                  e.target.value
+                                    ? Number(e.target.value)
+                                    : null,
+                                )
+                              }
                               options={[
-                                { label: "(No PL Assigned)", value: "" },
+                                { label: "Select Lead...", value: "" },
                                 ...staffMembers.map((s) => ({
                                   label: s.name,
                                   value: s.id!,
                                 })),
                               ]}
+                              className="w-32"
                             />
                           </td>
                           <td className="p-2">
-                            <div className="space-y-1.5">
-                              <FormSelect
-                                value=""
-                                onChange={(e) => {
-                                  const val = e.target.value;
-                                  if (!val) return;
-                                  const [staffIdStr, role] = val.split("-");
-                                  const staffId = Number(staffIdStr);
-                                  if (
-                                    staffId &&
-                                    (role === "M" || role === "A")
-                                  ) {
-                                    setEditTeamMembers((prev) => [
-                                      ...prev.filter(
-                                        (t) => t.staffId !== staffId,
-                                      ),
-                                      { staffId, role: role as "M" | "A" },
-                                    ]);
-                                  }
-                                  e.target.value = "";
-                                }}
-                                options={[
-                                  { label: "+ Add Team Member...", value: "" },
-                                  ...staffMembers
-                                    .filter((s) => s.id !== editPlStaffId)
-                                    .flatMap((s) => {
-                                      const isAssigned = editTeamMembers.some(
-                                        (t) => t.staffId === s.id,
-                                      );
-                                      return [
-                                        {
-                                          label: `+ ${s.name} (Member - M)`,
-                                          value: `${s.id}-M`,
-                                          disabled: isAssigned,
-                                        },
-                                        {
-                                          label: `+ ${s.name} (Assisting - A)`,
-                                          value: `${s.id}-A`,
-                                          disabled: isAssigned,
-                                        },
-                                      ];
-                                    }),
-                                ]}
-                              />
-                              <div className="flex flex-wrap gap-1">
-                                {editTeamMembers.map((item) => {
-                                  const s = staffMembers.find(
-                                    (staff) => staff.id === item.staffId,
-                                  );
-                                  return s ? (
-                                    <span
-                                      key={item.staffId}
-                                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-800 text-[11px] font-medium"
+                            <FormSelect
+                              value=""
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                if (
+                                  val &&
+                                  !editTeam.some((t) => t.staffId === val)
+                                ) {
+                                  setEditTeam((prev) => [
+                                    ...prev,
+                                    { staffId: val, role: "M" },
+                                  ]);
+                                }
+                                e.target.value = "";
+                              }}
+                              options={[
+                                { label: "+ Add Team Member...", value: "" },
+                                ...staffMembers.map((s) => ({
+                                  label: s.name,
+                                  value: s.id!,
+                                  disabled:
+                                    s.id === editPlId ||
+                                    editTeam.some((t) => t.staffId === s.id),
+                                })),
+                              ]}
+                            />
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {editTeam.map((team) => {
+                                const st = staffMembers.find(
+                                  (s) => s.id === team.staffId,
+                                );
+                                return st ? (
+                                  <span
+                                    key={team.staffId}
+                                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-700 text-[11px]"
+                                  >
+                                    <span>{st.name}</span>
+                                    <select
+                                      value={team.role}
+                                      onChange={(e) => {
+                                        const r = e.target.value as "M" | "A";
+                                        setEditTeam((prev) =>
+                                          prev.map((t) =>
+                                            t.staffId === team.staffId
+                                              ? { ...t, role: r }
+                                              : t,
+                                          ),
+                                        );
+                                      }}
+                                      className="bg-white border rounded px-1 text-[10px] font-bold text-indigo-600"
                                     >
-                                      <span>{s.name}</span>
-                                      <RoleBadge
-                                        role={item.role}
-                                        onClick={() =>
-                                          setEditTeamMembers((prev) =>
-                                            prev.map((t) =>
-                                              t.staffId === item.staffId
-                                                ? {
-                                                    ...t,
-                                                    role:
-                                                      t.role === "M"
-                                                        ? "A"
-                                                        : "M",
-                                                  }
-                                                : t,
-                                            ),
-                                          )
-                                        }
-                                        title="Click to toggle Member (M) / Assisting (A)"
-                                      />
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          setEditTeamMembers((prev) =>
-                                            prev.filter(
-                                              (t) => t.staffId !== item.staffId,
-                                            ),
-                                          )
-                                        }
-                                        className="text-slate-400 hover:text-red-600 font-bold cursor-pointer ml-0.5"
-                                      >
-                                        ×
-                                      </button>
-                                    </span>
-                                  ) : null;
-                                })}
-                              </div>
+                                      <option value="M">M</option>
+                                      <option value="A">A</option>
+                                    </select>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setEditTeam((prev) =>
+                                          prev.filter(
+                                            (t) => t.staffId !== team.staffId,
+                                          ),
+                                        )
+                                      }
+                                      className="hover:text-red-600 cursor-pointer font-bold ml-0.5"
+                                    >
+                                      ×
+                                    </button>
+                                  </span>
+                                ) : null;
+                              })}
                             </div>
                           </td>
                           <td className="p-2 text-right whitespace-nowrap w-[1%]">
                             <div className="flex items-center justify-end gap-0.5">
                               <button
-                                onClick={() => handleSaveEdit(proj.id!)}
+                                onClick={() => handleSaveEdit(project.id!)}
                                 className="p-1 text-emerald-600 hover:bg-emerald-50 rounded-lg cursor-pointer"
                               >
                                 <Check className="w-4 h-4" />
@@ -409,26 +421,29 @@ export const ProjectDirectory = ({
                         </>
                       ) : (
                         <>
-                          <td className="p-3 font-semibold text-slate-800">
-                            {proj.name}
+                          <td
+                            className={`p-3 font-semibold ${
+                              isActive
+                                ? "text-slate-800"
+                                : "text-slate-400 line-through"
+                            }`}
+                          >
+                            {project.name}
                           </td>
-                          <td className="p-3">
-                            {proj.startMonth && proj.endMonth ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-50 text-slate-700 border border-slate-200/80 text-[11px] font-medium">
-                                <Calendar className="w-3 h-3 text-slate-400" />
-                                <span>{proj.startMonth.replace("-", " ")}</span>
-                                <span className="text-slate-400">→</span>
-                                <span>{proj.endMonth.replace("-", " ")}</span>
+                          <td className="p-3 text-slate-600 font-mono text-[11px]">
+                            {project.startMonth && project.endMonth ? (
+                              <span>
+                                {project.startMonth} → {project.endMonth}
                               </span>
                             ) : (
-                              <span className="text-slate-400 italic text-[11px]">
-                                No timeline set
+                              <span className="text-slate-400 italic">
+                                Continuous / Unspecified
                               </span>
                             )}
                           </td>
                           <td className="p-3">
                             {plStaff ? (
-                              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200/60 text-amber-900 text-[11px] font-medium">
+                              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200/80 text-amber-900 font-semibold text-[11px]">
                                 <span>{plStaff.name}</span>
                                 <RoleBadge role="PL" />
                               </span>
@@ -439,43 +454,72 @@ export const ProjectDirectory = ({
                             )}
                           </td>
                           <td className="p-3">
-                            {teamAssignments.length > 0 ? (
+                            {teamMembers.length > 0 ? (
                               <div className="flex flex-wrap gap-1.5">
-                                {teamAssignments.map((a) => {
-                                  const staff = staffMembers.find(
-                                    (s) => s.id === a.staffId,
+                                {teamMembers.map((tm) => {
+                                  const st = staffMembers.find(
+                                    (s) => s.id === tm.staffId,
                                   );
-                                  return staff ? (
+                                  return st ? (
                                     <span
-                                      key={a.id}
+                                      key={tm.id}
                                       className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200/80 text-[11px] font-medium text-slate-700"
                                     >
-                                      <span>{staff.name}</span>
-                                      <RoleBadge role={a.role} />
+                                      <span>{st.name}</span>
+                                      <RoleBadge role={tm.role} />
                                     </span>
                                   ) : null;
                                 })}
                               </div>
                             ) : (
                               <span className="text-slate-400 italic text-[11px]">
-                                No members
+                                No team members
                               </span>
                             )}
                           </td>
                           <td className="p-3 text-right whitespace-nowrap w-[1%]">
-                            <div className="flex items-center justify-end gap-0.5">
-                              <button
-                                onClick={() => startEdit(proj)}
-                                className="p-1 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => onRequestDelete(proj)}
-                                className="p-1 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                            <div className="flex items-center justify-end gap-1">
+                              {isActive ? (
+                                <>
+                                  <button
+                                    onClick={() => startEdit(project)}
+                                    className="p-1 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer"
+                                    title="Edit Project"
+                                  >
+                                    <Edit3 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => onRequestDelete(project)}
+                                    className="p-1 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
+                                    title="Delete Project"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      onToggleProjectActive(project)
+                                    }
+                                    className="p-1.5 xl:px-2 xl:py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg font-semibold text-[11px] border border-amber-200/80 inline-flex items-center gap-1 cursor-pointer transition-colors"
+                                    title="Deactivate Project"
+                                  >
+                                    <PowerOff className="w-3.5 h-3.5" />
+                                    <span className="hidden xl:inline">
+                                      Deactivate
+                                    </span>
+                                  </button>
+                                </>
+                              ) : (
+                                <button
+                                  onClick={() => onToggleProjectActive(project)}
+                                  className="p-1.5 xl:px-2.5 xl:py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg font-semibold text-[11px] border border-emerald-200/80 inline-flex items-center gap-1 cursor-pointer transition-colors"
+                                  title="Activate Project"
+                                >
+                                  <Power className="w-3.5 h-3.5" />
+                                  <span className="hidden xl:inline">
+                                    Activate
+                                  </span>
+                                </button>
+                              )}
                             </div>
                           </td>
                         </>

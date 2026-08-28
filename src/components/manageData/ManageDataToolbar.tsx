@@ -10,7 +10,7 @@ import {
 
 interface ManageDataToolbarProps {
   fileInputRef: RefObject<HTMLInputElement | null>;
-  onOpenRoleModal: () => void;
+  onOpenDesignationModal: () => void;
   onImportClick: () => void;
   onExport: () => void;
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -19,7 +19,7 @@ interface ManageDataToolbarProps {
 
 export const ManageDataToolbar = ({
   fileInputRef,
-  onOpenRoleModal,
+  onOpenDesignationModal,
   onImportClick,
   onExport,
   onFileChange,
@@ -37,16 +37,16 @@ export const ManageDataToolbar = ({
           </div>
           <p className="text-xs text-slate-500">
             Manage database records, bulk import/export configuration datasets,
-            and define role categories.
+            and define designation categories.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
           <button
-            onClick={onOpenRoleModal}
+            onClick={onOpenDesignationModal}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100/80 text-indigo-700 text-xs font-semibold rounded-xl border border-indigo-200/60 transition cursor-pointer"
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" /> Roles
+            <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" /> Designations
           </button>
 
           <a

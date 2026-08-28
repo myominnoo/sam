@@ -1,9 +1,15 @@
 export interface TimelineMonth {
-  key: string; // e.g. "2026-August"
-  month: string; // e.g. "August"
-  shortMonth: string; // e.g. "Aug"
-  year: number; // e.g. 2026
+  key: string;
+  month: string;
+  shortMonth: string;
+  year: number;
 }
+
+export const PROJECT_ROLE_LEGEND = [
+  { code: "PL", name: "Project Lead" },
+  { code: "M", name: "Member" },
+  { code: "A", name: "Assisting" },
+] as const;
 
 export const MONTH_NAMES = [
   "January",
@@ -20,7 +26,6 @@ export const MONTH_NAMES = [
   "December",
 ];
 
-// Centralized duration options
 export const DURATION_OPTIONS = [
   { label: "3 Months", value: "3" },
   { label: "6 Months", value: "6" },
@@ -30,7 +35,6 @@ export const DURATION_OPTIONS = [
   { label: "32 Months", value: "32" },
 ] as const;
 
-// Master list of month options: dynamically set from 1 year before to 3 years after current year
 export const MASTER_MONTH_OPTIONS: TimelineMonth[] = (() => {
   const currentYear = new Date().getFullYear();
   const startYear = currentYear - 1;
@@ -50,9 +54,6 @@ export const MASTER_MONTH_OPTIONS: TimelineMonth[] = (() => {
   return options;
 })();
 
-/**
- * Returns a key 17 months after startKey (total 18 months = 1.5 years)
- */
 export const getDefaultEndKey = (startKey: string): string => {
   const [yStr, mStr] = startKey.split("-");
   const year = parseInt(yStr, 10);
@@ -63,9 +64,6 @@ export const getDefaultEndKey = (startKey: string): string => {
   return `${endDate.getFullYear()}-${MONTH_NAMES[endDate.getMonth()]}`;
 };
 
-/**
- * Generates an array of TimelineMonth objects between startKey and endKey
- */
 export const generateTimelineMonthsRange = (
   startKey: string,
   endKey: string,
@@ -131,9 +129,6 @@ export const getDynamicTableMinWidth = (
   return `${total}px`;
 };
 
-/**
- * Calculates end key based on start key and number of duration months
- */
 export const getEndKeyForDuration = (
   startKey: string,
   durationMonths: number,
