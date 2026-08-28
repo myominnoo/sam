@@ -3,11 +3,8 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-// Replace with your actual GitHub repository name
-const REPO_NAME = "staff-allocation-app";
-
 export default defineConfig({
-  base: process.env.NODE_ENV === "production" ? `/${REPO_NAME}/` : "/",
+  base: process.env.NODE_ENV === "production" ? "/sam/" : "/",
   build: {
     chunkSizeWarningLimit: 1000,
   },
@@ -31,14 +28,14 @@ export default defineConfig({
         enabled: true,
       },
       manifest: {
-        name: "Staff Allocation Matrix (SAM)",
+        name: "SAM",
         short_name: "SAM",
         description: "Standalone PWA for managing staff workload allocations",
         theme_color: "#ffffff",
         background_color: "#ffffff",
         display: "standalone",
-        start_url: `./`,
-        scope: `./`,
+        start_url: "./",
+        scope: "./",
         icons: [
           {
             src: "favicon_io/android-chrome-192x192.png",
