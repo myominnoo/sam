@@ -10,7 +10,7 @@ interface StaffMatrixProps {
   assignments: Assignment[];
   timelineMonths: TimelineMonth[];
   getRole: (staffId: number, projectId: number) => string;
-  leftSideWidth: number;
+  maxDynamicCols: number;
 }
 
 export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
@@ -21,12 +21,12 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
       assignments,
       timelineMonths,
       getRole,
-      leftSideWidth,
+      maxDynamicCols,
     },
     ref,
   ) => {
-    const currentLeftWidth = 345 + projects.length * 90;
-    const paddingWidth = Math.max(0, leftSideWidth - currentLeftWidth);
+    const padCols = Math.max(0, maxDynamicCols - projects.length);
+    const leftSideWidth = 345 + maxDynamicCols * 90;
     const totalMinWidth = leftSideWidth + timelineMonths.length * 60;
     const yearGroups = getYearGroups(timelineMonths);
 
@@ -77,6 +77,7 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                 >
                   FTE
                 </th>
+
                 {projects.map((p) => (
                   <th
                     key={p.id}
@@ -87,21 +88,22 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                     {p.name}
                   </th>
                 ))}
+
+                {/* Spacer columns to equalize table header width */}
+                {Array.from({ length: padCols }).map((_, i) => (
+                  <th
+                    key={`pad-${i}`}
+                    rowSpan={2}
+                    className="w-[90px] border-r border-slate-200 bg-slate-100/40"
+                  />
+                ))}
+
                 <th
                   rowSpan={2}
                   className="p-3 border-r border-slate-200 text-center bg-slate-200/50 align-middle w-[65px]"
                 >
-                  # Proj
+                  # PROJ
                 </th>
-
-                {/* Dynamic width balancer spacer column */}
-                {paddingWidth > 0 && (
-                  <th
-                    rowSpan={2}
-                    style={{ width: `${paddingWidth}px` }}
-                    className="border-r border-slate-200 bg-slate-100/40"
-                  />
-                )}
 
                 {Object.entries(yearGroups).map(([year, count]) => (
                   <th
@@ -143,6 +145,7 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                     <td className="p-3 border-r border-slate-200 text-center font-mono w-[50px]">
                       {staff.fte}
                     </td>
+
                     {projects.map((p) => {
                       const role = getRole(staff.id!, p.id!);
                       return (
@@ -154,26 +157,34 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
                         </td>
                       );
                     })}
+
+                    {/* Spacer cells */}
+                    {Array.from({ length: padCols }).map((_, i) => (
+                      <td
+                        key={`pad-td-${i}`}
+                        className="w-[90px] border-r border-slate-200 bg-slate-50/30"
+                      />
+                    ))}
+
                     <td className="p-3 border-r border-slate-200 text-center font-bold bg-slate-50 w-[65px]">
                       {activeProjCount}
                     </td>
 
-                    {/* Spacer cell matching header */}
-                    {paddingWidth > 0 && (
-                      <td
-                        style={{ width: `${paddingWidth}px` }}
-                        className="border-r border-slate-200 bg-slate-50/30"
-                      />
-                    )}
+                    {timelineMonths.map((m) => {
+                      const capacityPct =
+                        staff.monthlyCapacity?.[m.key] ??
+                        staff.capacity ??
+                        Math.round((staff.fte ?? 1.0) * 100);
 
-                    {timelineMonths.map((m) => (
-                      <td
-                        key={m.key}
-                        className={`p-2 border-r border-slate-200 text-center w-[60px] ${getHeatmapClass(staff.capacity)}`}
-                      >
-                        {staff.capacity ?? 100}%
-                      </td>
-                    ))}
+                      return (
+                        <td
+                          key={m.key}
+                          className={`p-2 border-r border-slate-200 text-center w-[60px] ${getHeatmapClass(capacityPct)}`}
+                        >
+                          {capacityPct}%
+                        </td>
+                      );
+                    })}
                   </tr>
                 );
               })}

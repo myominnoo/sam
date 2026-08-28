@@ -1,14 +1,21 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import type { FormEvent } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { LayoutDashboard, SlidersHorizontal } from "lucide-react";
+import {
+  LayoutDashboard,
+  SlidersHorizontal,
+  Calendar,
+  ArrowRight,
+} from "lucide-react";
 
 import { db } from "./db";
+import type { Staff } from "./db";
 import { Header } from "./components/Header";
 import { StaffMatrix } from "./components/StaffMatrix";
 import { ProjectMatrix } from "./components/ProjectMatrix";
 import { ManageData } from "./components/ManageData";
 import { AssignmentModal } from "./components/AssignmentModal";
+import { BulkCapacityModal } from "./components/BulkCapacityModal";
 
 import {
   generateTimelineMonthsRange,
@@ -22,7 +29,7 @@ export default function App() {
     "dashboard",
   );
 
-  // Initial Timeline Range Setup (Current month -> 1.5 years out)
+  // Initial Timeline Range Setup
   const initialStartKey = `${new Date().getFullYear()}-${
     [
       "January",
@@ -45,11 +52,15 @@ export default function App() {
     getDefaultEndKey(initialStartKey),
   );
 
-  // Assignment Modal State
+  // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStaffId, setSelectedStaffId] = useState<number | "">("");
   const [selectedProjectId, setSelectedProjectId] = useState<number | "">("");
   const [selectedRole, setSelectedRole] = useState<string>("");
+
+  const [bulkCapacityStaff, setBulkCapacityStaff] = useState<Staff | null>(
+    null,
+  );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -57,7 +68,7 @@ export default function App() {
   const staffMatrixScrollRef = useRef<HTMLDivElement>(null);
   const projectMatrixScrollRef = useRef<HTMLDivElement>(null);
 
-  // Timeline Range Event Handlers
+  // Timeline Handlers
   const handleStartMonthChange = (newStartKey: string) => {
     setStartMonthKey(newStartKey);
     const newEndKey = getDefaultEndKey(newStartKey);
@@ -74,7 +85,6 @@ export default function App() {
     }
   };
 
-  // Compute Current Dashboard Range
   const timelineMonths = useMemo(
     () => generateTimelineMonthsRange(startMonthKey, endMonthKey),
     [startMonthKey, endMonthKey],
@@ -85,17 +95,9 @@ export default function App() {
   const projects = useLiveQuery(() => db.projects.toArray()) || [];
   const assignments = useLiveQuery(() => db.assignments.toArray()) || [];
 
-  // --- DYNAMIC MATRIX ALIGNMENT COMPUTATION ---
-  // Staff Matrix Left Width: Name(170) + Designation(60) + FTE(50) + Projects(projects.length * 90) + # Proj(65)
-  const staffLeftWidth = 345 + projects.length * 90;
+  const maxDynamicCols = Math.max(projects.length, staffMembers.length);
 
-  // Project Matrix Left Width: Project Name(280) + Staff(staffMembers.length * 90) + # Staff(65)
-  const projectLeftWidth = 345 + staffMembers.length * 90;
-
-  // Compute maximum width so timelines align 1-to-1
-  const sharedLeftWidth = Math.max(staffLeftWidth, projectLeftWidth);
-
-  // --- STAFF DATABASE OPERATIONS ---
+  // Staff Handlers
   const handleAddStaff = async (
     name: string,
     designation: string,
@@ -138,6 +140,13 @@ export default function App() {
     });
   };
 
+  const handleSaveBulkCapacity = async (
+    staffId: number,
+    monthlyCapacity: Record<string, number>,
+  ) => {
+    await db.staff.update(staffId, { monthlyCapacity });
+  };
+
   const handleDeleteStaff = async (id: number) => {
     await db.transaction("rw", db.staff, db.assignments, async () => {
       await db.assignments.where("staffId").equals(id).delete();
@@ -145,7 +154,7 @@ export default function App() {
     });
   };
 
-  // --- PROJECT DATABASE OPERATIONS ---
+  // Project Handlers
   const handleAddProject = async (
     name: string,
     startMonth?: string,
@@ -157,28 +166,30 @@ export default function App() {
   const handleUpdateProject = async (
     id: number,
     name: string,
-    assignedStaffIds: number[],
+    plStaffId: number | null,
+    teamAssignments: { staffId: number; role: "M" | "A" }[],
     startMonth?: string,
     endMonth?: string,
   ) => {
     await db.transaction("rw", db.projects, db.assignments, async () => {
       await db.projects.update(id, { name, startMonth, endMonth });
+      await db.assignments.where("projectId").equals(id).delete();
 
-      const existingAssignments = await db.assignments
-        .where("projectId")
-        .equals(id)
-        .toArray();
-      const existingStaffIds = existingAssignments.map((a) => a.staffId);
-
-      for (const a of existingAssignments) {
-        if (!assignedStaffIds.includes(a.staffId)) {
-          await db.assignments.delete(a.id!);
-        }
+      if (plStaffId) {
+        await db.assignments.add({
+          projectId: id,
+          staffId: plStaffId,
+          role: "PL",
+        });
       }
 
-      for (const staffId of assignedStaffIds) {
-        if (!existingStaffIds.includes(staffId)) {
-          await db.assignments.add({ staffId, projectId: id, role: "M" });
+      for (const team of teamAssignments) {
+        if (team.staffId !== plStaffId) {
+          await db.assignments.add({
+            projectId: id,
+            staffId: team.staffId,
+            role: team.role,
+          });
         }
       }
     });
@@ -191,7 +202,7 @@ export default function App() {
     });
   };
 
-  // --- SCROLL SYNCHRONIZATION ---
+  // Scroll Synchronization
   useEffect(() => {
     if (activeTab !== "dashboard") return;
     const staffEl = staffMatrixScrollRef.current;
@@ -234,13 +245,6 @@ export default function App() {
         (a) => a.staffId === staffId && a.projectId === projectId,
       )?.role || ""
     );
-  };
-
-  const handleOpenModal = () => {
-    if (staffMembers.length > 0) setSelectedStaffId(staffMembers[0].id!);
-    if (projects.length > 0) setSelectedProjectId(projects[0].id!);
-    setSelectedRole("");
-    setIsModalOpen(true);
   };
 
   const handleSaveAssignment = async (e: FormEvent) => {
@@ -302,21 +306,48 @@ export default function App() {
       </div>
 
       <div className="max-w-full mx-auto space-y-6">
-        <Header
-          activeTab={activeTab}
-          startMonthKey={startMonthKey}
-          endMonthKey={endMonthKey}
-          onStartMonthChange={handleStartMonthChange}
-          onEndMonthChange={handleEndMonthChange}
-          onImportClick={() => fileInputRef.current?.click()}
-          onExport={() => exportToExcel(staffMembers, projects, getRole)}
-          onOpenAssignmentModal={handleOpenModal}
-          fileInputRef={fileInputRef}
-          onFileChange={importFromExcel}
-        />
+        <Header />
 
         {activeTab === "dashboard" ? (
           <>
+            {/* DASHBOARD TIMELINE BAR */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-indigo-600" />
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  Active Timeline Range:
+                </span>
+              </div>
+
+              <div className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-xl p-1 text-xs">
+                <select
+                  value={startMonthKey}
+                  onChange={(e) => handleStartMonthChange(e.target.value)}
+                  className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+                >
+                  {MASTER_MONTH_OPTIONS.map((m) => (
+                    <option key={`start-${m.key}`} value={m.key}>
+                      {m.shortMonth} {m.year}
+                    </option>
+                  ))}
+                </select>
+
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+
+                <select
+                  value={endMonthKey}
+                  onChange={(e) => handleEndMonthChange(e.target.value)}
+                  className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+                >
+                  {MASTER_MONTH_OPTIONS.map((m) => (
+                    <option key={`end-${m.key}`} value={m.key}>
+                      {m.shortMonth} {m.year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <StaffMatrix
               ref={staffMatrixScrollRef}
               staffMembers={staffMembers}
@@ -324,7 +355,7 @@ export default function App() {
               assignments={assignments}
               timelineMonths={timelineMonths}
               getRole={getRole}
-              leftSideWidth={sharedLeftWidth}
+              maxDynamicCols={maxDynamicCols}
             />
 
             <ProjectMatrix
@@ -334,7 +365,7 @@ export default function App() {
               assignments={assignments}
               timelineMonths={timelineMonths}
               getRole={getRole}
-              leftSideWidth={sharedLeftWidth}
+              maxDynamicCols={maxDynamicCols}
             />
           </>
         ) : (
@@ -349,6 +380,11 @@ export default function App() {
             onAddProject={handleAddProject}
             onUpdateProject={handleUpdateProject}
             onDeleteProject={handleDeleteProject}
+            onOpenBulkCapacityModal={(staff) => setBulkCapacityStaff(staff)}
+            onImportClick={() => fileInputRef.current?.click()}
+            onExport={() => exportToExcel(staffMembers, projects, getRole)}
+            fileInputRef={fileInputRef}
+            onFileChange={importFromExcel}
           />
         )}
       </div>
@@ -365,6 +401,14 @@ export default function App() {
         onRoleChange={setSelectedRole}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveAssignment}
+      />
+
+      <BulkCapacityModal
+        isOpen={!!bulkCapacityStaff}
+        staff={bulkCapacityStaff}
+        timelineMonths={timelineMonths}
+        onClose={() => setBulkCapacityStaff(null)}
+        onSave={handleSaveBulkCapacity}
       />
     </div>
   );

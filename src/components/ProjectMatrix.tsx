@@ -10,7 +10,7 @@ interface ProjectMatrixProps {
   assignments: Assignment[];
   timelineMonths: TimelineMonth[];
   getRole: (staffId: number, projectId: number) => string;
-  leftSideWidth: number;
+  maxDynamicCols: number;
 }
 
 const parseMonthKeyToDate = (key: string): Date | null => {
@@ -46,12 +46,12 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
       assignments,
       timelineMonths,
       getRole,
-      leftSideWidth,
+      maxDynamicCols,
     },
     ref,
   ) => {
-    const currentLeftWidth = 345 + staffMembers.length * 90;
-    const paddingWidth = Math.max(0, leftSideWidth - currentLeftWidth);
+    const padCols = Math.max(0, maxDynamicCols - staffMembers.length);
+    const leftSideWidth = 345 + maxDynamicCols * 90;
     const totalMinWidth = leftSideWidth + timelineMonths.length * 60;
     const yearGroups = getYearGroups(timelineMonths);
 
@@ -100,21 +100,21 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                   </th>
                 ))}
 
+                {/* Spacer columns to match Staff Matrix header width */}
+                {Array.from({ length: padCols }).map((_, i) => (
+                  <th
+                    key={`pad-${i}`}
+                    rowSpan={2}
+                    className="w-[90px] border-r border-slate-200 bg-slate-100/40"
+                  />
+                ))}
+
                 <th
                   rowSpan={2}
                   className="p-3 border-r border-slate-200 text-center bg-slate-200/50 align-middle w-[65px]"
                 >
-                  # Staff
+                  # STAFF
                 </th>
-
-                {/* Dynamic width balancer spacer column */}
-                {paddingWidth > 0 && (
-                  <th
-                    rowSpan={2}
-                    style={{ width: `${paddingWidth}px` }}
-                    className="border-r border-slate-200 bg-slate-100/40"
-                  />
-                )}
 
                 {Object.entries(yearGroups).map(([year, count]) => (
                   <th
@@ -151,6 +151,7 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                     <td className="p-3 border-r border-slate-200 font-semibold text-slate-900 sticky left-0 bg-white z-10 w-[280px] truncate">
                       {proj.name}
                     </td>
+
                     {staffMembers.map((staff) => {
                       const role = getRole(staff.id!, proj.id!);
                       return (
@@ -162,17 +163,18 @@ export const ProjectMatrix = forwardRef<HTMLDivElement, ProjectMatrixProps>(
                         </td>
                       );
                     })}
+
+                    {/* Spacer cells */}
+                    {Array.from({ length: padCols }).map((_, i) => (
+                      <td
+                        key={`pad-td-${i}`}
+                        className="w-[90px] border-r border-slate-200 bg-slate-50/30"
+                      />
+                    ))}
+
                     <td className="p-3 border-r border-slate-200 text-center font-bold bg-slate-50 w-[65px]">
                       {assignedStaffCount}
                     </td>
-
-                    {/* Spacer cell matching header */}
-                    {paddingWidth > 0 && (
-                      <td
-                        style={{ width: `${paddingWidth}px` }}
-                        className="border-r border-slate-200 bg-slate-50/30"
-                      />
-                    )}
 
                     {timelineMonths.map((m) => {
                       const active = isMonthActive(proj, m.key);

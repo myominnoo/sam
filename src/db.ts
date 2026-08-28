@@ -6,8 +6,8 @@ export interface Staff {
   name: string;
   designation: string;
   fte: number;
-  note?: string;
-  capacity?: number;
+  capacity?: number; // Global default fallback
+  monthlyCapacity?: Record<string, number>; // Month key -> Capacity % override
 }
 
 export interface Project {
