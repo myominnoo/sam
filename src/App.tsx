@@ -10,6 +10,7 @@ import {
 
 import { db, type Staff, type Project } from "./db";
 import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 import { StaffMatrix } from "./components/StaffMatrix";
 import { ProjectMatrix } from "./components/ProjectMatrix";
 import { ManageData } from "./components/ManageData";
@@ -35,7 +36,7 @@ import {
   type ParsedImportData,
 } from "./utils/excel";
 
-const TAB_STORAGE_KEY = "staff_alloc_active_tab";
+const TAB_STORAGE_KEY = "sam_active_tab";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "manage">(() => {
@@ -414,58 +415,62 @@ export default function App() {
   };
 
   return (
-    <div className="bg-slate-50 text-slate-800 px-4 sm:px-6 pb-8 font-sans min-h-screen relative antialiased">
-      <div className="sticky top-3 z-50 flex justify-center pointer-events-none mb-3">
-        <div className="pointer-events-auto inline-flex items-center p-1 bg-white/80 backdrop-blur-md rounded-full ring-1 ring-slate-900/5 shadow-md shadow-slate-900/5 transition-all">
-          <button
-            onClick={() => setActiveTab("dashboard")}
-            className={`inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-full transition-all cursor-pointer ${
-              activeTab === "dashboard"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
-            }`}
-          >
-            <LayoutDashboard className="w-3.5 h-3.5" />
-            <span>Dashboard</span>
-          </button>
+    <div className="bg-slate-50 text-slate-800 px-4 sm:px-6 pb-8 font-sans min-h-screen relative antialiased flex flex-col justify-between">
+      <div className="space-y-6 max-w-full mx-auto w-full">
+        {/* Navigation Tabs */}
+        <div className="sticky top-3 z-50 flex justify-center pointer-events-none mb-3">
+          <div className="pointer-events-auto inline-flex items-center p-1 bg-white/80 backdrop-blur-md rounded-full ring-1 ring-slate-900/5 shadow-md shadow-slate-900/5 transition-all">
+            <button
+              onClick={() => setActiveTab("dashboard")}
+              className={`inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-full transition-all cursor-pointer ${
+                activeTab === "dashboard"
+                  ? "bg-slate-900 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
+              }`}
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Dashboard</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab("manage")}
-            className={`inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-full transition-all cursor-pointer ${
-              activeTab === "manage"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
-            }`}
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>Manage Data</span>
-          </button>
+            <button
+              onClick={() => setActiveTab("manage")}
+              className={`inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-full transition-all cursor-pointer ${
+                activeTab === "manage"
+                  ? "bg-slate-900 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
+              }`}
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>Manage Data</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="max-w-full mx-auto space-y-6">
         <Header />
 
         {activeTab === "dashboard" ? (
           <>
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center justify-between flex-wrap gap-3">
+            {/* Planning Horizon Control Bar */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-indigo-600" />
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                  Active Timeline Range:
+                <div className="p-1.5 bg-indigo-50 border border-indigo-100/80 rounded-lg text-indigo-600">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-semibold text-slate-800">
+                  Planning Horizon
                 </span>
               </div>
 
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <div className="inline-flex items-center bg-slate-100/80 border border-slate-200/80 rounded-xl p-1 text-xs">
-                  <Clock className="w-3.5 h-3.5 text-slate-400 ml-2.5 mr-1" />
-                  <span className="text-[11px] font-semibold text-slate-500 pr-1.5 select-none">
-                    Duration:
+              <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                <div className="inline-flex items-center bg-slate-50 border border-slate-200/80 rounded-xl px-2.5 py-1 text-xs">
+                  <Clock className="w-3.5 h-3.5 text-slate-400 mr-1.5 shrink-0" />
+                  <span className="text-[11px] font-medium text-slate-500 pr-2 select-none hidden min-[400px]:inline">
+                    Preset:
                   </span>
                   <select
                     value={selectedDuration}
                     onChange={(e) => handleDurationChange(e.target.value)}
-                    className="bg-white border border-slate-200/80 rounded-lg px-2.5 py-1 text-xs font-bold text-indigo-600 shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
+                    className="bg-transparent font-semibold text-indigo-600 focus:outline-none cursor-pointer pr-1"
                   >
                     {DURATION_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
@@ -478,11 +483,11 @@ export default function App() {
                   </select>
                 </div>
 
-                <div className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-xl p-1 text-xs">
+                <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 rounded-xl p-1 text-xs">
                   <select
                     value={startMonthKey}
                     onChange={(e) => handleStartMonthChange(e.target.value)}
-                    className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+                    className="bg-white border border-slate-200/80 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-2xs focus:outline-none focus:ring-1 focus:ring-indigo-500/30 cursor-pointer"
                   >
                     {MASTER_MONTH_OPTIONS.map((m) => (
                       <option key={`start-${m.key}`} value={m.key}>
@@ -490,11 +495,13 @@ export default function App() {
                       </option>
                     ))}
                   </select>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+
                   <select
                     value={endMonthKey}
                     onChange={(e) => handleEndMonthChange(e.target.value)}
-                    className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+                    className="bg-white border border-slate-200/80 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-2xs focus:outline-none focus:ring-1 focus:ring-indigo-500/30 cursor-pointer"
                   >
                     {MASTER_MONTH_OPTIONS.map((m) => (
                       <option key={`end-${m.key}`} value={m.key}>
@@ -506,6 +513,7 @@ export default function App() {
               </div>
             </div>
 
+            {/* Role Legend */}
             <div className="flex items-center justify-end gap-2 flex-wrap">
               {PROJECT_ROLE_LEGEND.map((r) => (
                 <div
@@ -520,6 +528,7 @@ export default function App() {
               ))}
             </div>
 
+            {/* Matrix Views */}
             <StaffMatrix
               ref={staffMatrixScrollRef}
               staffMembers={activeStaffMembers}
@@ -567,6 +576,10 @@ export default function App() {
         )}
       </div>
 
+      {/* Footer */}
+      <Footer />
+
+      {/* Modals & Toasts */}
       <BulkCapacityModal
         isOpen={!!bulkCapacityStaff}
         staff={bulkCapacityStaff}

@@ -29,11 +29,12 @@ export const MONTH_NAMES = [
 export const DURATION_OPTIONS = [
   { label: "3 Months", value: "3" },
   { label: "6 Months", value: "6" },
-  { label: "12 Months", value: "12" },
+  { label: "12 Months (1 Yr)", value: "12" },
   { label: "18 Months", value: "18" },
-  { label: "24 Months", value: "24" },
-  { label: "32 Months", value: "32" },
-] as const;
+  { label: "24 Months (2 Yrs)", value: "24" },
+  { label: "36 Months (3 Yrs)", value: "36" },
+  { label: "48 Months (4 Yrs)", value: "48" },
+];
 
 export const MASTER_MONTH_OPTIONS: TimelineMonth[] = (() => {
   const currentYear = new Date().getFullYear();
