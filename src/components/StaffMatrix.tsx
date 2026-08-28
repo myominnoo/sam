@@ -32,7 +32,7 @@ export const StaffMatrix = forwardRef<HTMLDivElement, StaffMatrixProps>(
     return (
       <BaseMatrix
         ref={ref}
-        title="Staff Allocation Matrix"
+        title="Staff Allocation & Capacity"
         countLabel={`${staffMembers.length} Staff Members`}
         timelineMonths={timelineMonths}
         prefixColsSpan={prefixColsSpan}

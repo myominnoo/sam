@@ -3,6 +3,7 @@ import { ShieldCheck, Plus, Trash2 } from "lucide-react";
 import type { RoleCategory } from "../db";
 import { Modal } from "./common/Modal";
 import { FormInput } from "./common/FormControls";
+import type { ToastType } from "./common/Toast";
 
 interface RoleCategoryModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface RoleCategoryModalProps {
   onClose: () => void;
   onAddRole: (code: string, name: string) => Promise<void>;
   onDeleteRole: (id: number) => Promise<void>;
+  showToast?: (message: string, type: ToastType) => void;
 }
 
 export const RoleCategoryModal = ({
@@ -18,16 +20,33 @@ export const RoleCategoryModal = ({
   onClose,
   onAddRole,
   onDeleteRole,
+  showToast,
 }: RoleCategoryModalProps) => {
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!code.trim() || !name.trim()) return;
-    await onAddRole(code.trim().toUpperCase(), name.trim());
-    setCode("");
-    setName("");
+    const trimmedCode = code.trim().toUpperCase();
+    const trimmedName = name.trim();
+
+    if (!trimmedCode || !trimmedName) {
+      showToast?.("Both role code and role name are required.", "warning");
+      return;
+    }
+
+    if (roles.some((r) => r.code === trimmedCode)) {
+      showToast?.(`Role code "${trimmedCode}" already exists.`, "warning");
+      return;
+    }
+
+    try {
+      await onAddRole(trimmedCode, trimmedName);
+      setCode("");
+      setName("");
+    } catch (err: any) {
+      showToast?.(err?.message || "Failed to add role category.", "error");
+    }
   };
 
   return (
@@ -78,8 +97,17 @@ export const RoleCategoryModal = ({
               {role.id !== undefined && (
                 <button
                   type="button"
-                  onClick={() => onDeleteRole(role.id!)}
-                  className="text-slate-400 hover:text-rose-600 p-1 rounded transition-colors"
+                  onClick={async () => {
+                    try {
+                      await onDeleteRole(role.id!);
+                    } catch (err: any) {
+                      showToast?.(
+                        err?.message || "Failed to delete role.",
+                        "error",
+                      );
+                    }
+                  }}
+                  className="text-slate-400 hover:text-rose-600 p-1 rounded transition-colors cursor-pointer"
                   title="Delete Role"
                 >
                   <Trash2 className="w-4 h-4" />

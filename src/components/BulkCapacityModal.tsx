@@ -5,6 +5,7 @@ import type { Staff } from "../db";
 import type { TimelineMonth } from "../constants";
 import { Modal } from "./common/Modal";
 import { FormInput, FormSelect } from "./common/FormControls";
+import type { ToastType } from "./common/Toast";
 
 interface BulkCapacityModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface BulkCapacityModalProps {
     staffId: number,
     monthlyCapacity: Record<string, number>,
   ) => Promise<void>;
+  showToast?: (message: string, type: ToastType) => void;
 }
 
 export const BulkCapacityModal = ({
@@ -23,14 +25,13 @@ export const BulkCapacityModal = ({
   timelineMonths,
   onClose,
   onSave,
+  showToast,
 }: BulkCapacityModalProps) => {
-  // Return early before initializing hooks or rendering when staff is null
   if (!isOpen || !staff) return null;
 
-  // Local alias ensures TypeScript retains type narrowing (Staff & { id: number })
   const activeStaff = staff;
-
   const defaultCapacityPct = Math.round((activeStaff.fte ?? 1.0) * 100);
+
   const [targetCapacity, setTargetCapacity] =
     useState<number>(defaultCapacityPct);
   const [startMonthKey, setStartMonthKey] = useState<string>(
@@ -39,11 +40,8 @@ export const BulkCapacityModal = ({
   const [endMonthKey, setEndMonthKey] = useState<string>(
     timelineMonths[timelineMonths.length - 1]?.key || "",
   );
-
-  // Default scope selection to false (Apply to custom date range)
   const [applyToAll, setApplyToAll] = useState<boolean>(false);
 
-  // Sync state when active staff changes
   useEffect(() => {
     if (activeStaff) {
       setTargetCapacity(Math.round((activeStaff.fte ?? 1.0) * 100));
@@ -59,6 +57,11 @@ export const BulkCapacityModal = ({
     e.preventDefault();
     if (!activeStaff.id) return;
 
+    if (targetCapacity < 0 || targetCapacity > 300) {
+      showToast?.("Target capacity must be between 0% and 300%.", "warning");
+      return;
+    }
+
     const updatedMap: Record<string, number> = {
       ...(activeStaff.monthlyCapacity || {}),
     };
@@ -72,15 +75,27 @@ export const BulkCapacityModal = ({
       const sIdx = keys.indexOf(startMonthKey);
       const eIdx = keys.indexOf(endMonthKey);
 
-      if (sIdx !== -1 && eIdx !== -1 && sIdx <= eIdx) {
-        for (let i = sIdx; i <= eIdx; i++) {
-          updatedMap[keys[i]] = targetCapacity;
-        }
+      if (sIdx === -1 || eIdx === -1) {
+        showToast?.("Please select a valid date range.", "error");
+        return;
+      }
+
+      if (sIdx > eIdx) {
+        showToast?.("Start month must precede end month.", "warning");
+        return;
+      }
+
+      for (let i = sIdx; i <= eIdx; i++) {
+        updatedMap[keys[i]] = targetCapacity;
       }
     }
 
-    await onSave(activeStaff.id, updatedMap);
-    onClose();
+    try {
+      await onSave(activeStaff.id, updatedMap);
+      onClose();
+    } catch (err: any) {
+      showToast?.(err?.message || "Failed to save capacity updates.", "error");
+    }
   };
 
   return (
@@ -99,7 +114,7 @@ export const BulkCapacityModal = ({
             <FormInput
               type="number"
               min="0"
-              max="200"
+              max="300"
               value={targetCapacity}
               onChange={(e) => setTargetCapacity(Number(e.target.value))}
               className="font-semibold"

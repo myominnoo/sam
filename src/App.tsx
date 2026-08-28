@@ -15,7 +15,7 @@ import { ManageData } from "./components/ManageData";
 import { BulkCapacityModal } from "./components/BulkCapacityModal";
 import { RoleCategoryModal } from "./components/RoleCategoryModal";
 import { ImportConfirmModal } from "./components/ImportConfirmModal";
-import { Toast } from "./components/common/Toast";
+import { Toast, type ToastType } from "./components/common/Toast";
 import { useScrollSync } from "./hooks/useScrollSync";
 
 import {
@@ -74,8 +74,12 @@ export default function App() {
     useState<ParsedImportData | null>(null);
   const [toast, setToast] = useState<{
     message: string;
-    type: "success" | "error";
+    type: ToastType;
   } | null>(null);
+
+  const showToast = (message: string, type: ToastType = "info") => {
+    setToast({ message, type });
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const staffMatrixScrollRef = useRef<HTMLDivElement>(null);
@@ -97,7 +101,11 @@ export default function App() {
       (m) => m.key === startMonthKey,
     );
     const endIdx = MASTER_MONTH_OPTIONS.findIndex((m) => m.key === newEndKey);
-    if (endIdx >= startIdx) setEndMonthKey(newEndKey);
+    if (endIdx < startIdx) {
+      showToast("End month cannot be earlier than start month.", "warning");
+      return;
+    }
+    setEndMonthKey(newEndKey);
   };
 
   const timelineMonths = useMemo(
@@ -115,11 +123,21 @@ export default function App() {
 
   // Role Category CRUD Actions
   const handleAddRole = async (code: string, name: string) => {
-    await db.roles.add({ code, name });
+    try {
+      await db.roles.add({ code, name });
+      showToast(`Role "${name}" (${code}) added successfully.`, "success");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to add role category.", "error");
+    }
   };
 
   const handleDeleteRole = async (id: number) => {
-    await db.roles.delete(id);
+    try {
+      await db.roles.delete(id);
+      showToast("Role category deleted.", "info");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to delete role category.", "error");
+    }
   };
 
   // Staff Database Actions
@@ -128,7 +146,12 @@ export default function App() {
     designation: string,
     fte: number,
   ) => {
-    await db.staff.add({ name, designation, fte });
+    try {
+      await db.staff.add({ name, designation, fte });
+      showToast(`Staff member "${name}" added successfully.`, "success");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to add staff member.", "error");
+    }
   };
 
   const handleUpdateStaff = async (
@@ -138,42 +161,57 @@ export default function App() {
     fte: number,
     assignedProjectIds: number[],
   ) => {
-    await db.transaction("rw", db.staff, db.assignments, async () => {
-      await db.staff.update(id, { name, designation, fte });
-      const existingAssignments = await db.assignments
-        .where("staffId")
-        .equals(id)
-        .toArray();
-      const existingProjectIds = existingAssignments.map((a) => a.projectId);
+    try {
+      await db.transaction("rw", db.staff, db.assignments, async () => {
+        await db.staff.update(id, { name, designation, fte });
+        const existingAssignments = await db.assignments
+          .where("staffId")
+          .equals(id)
+          .toArray();
+        const existingProjectIds = existingAssignments.map((a) => a.projectId);
 
-      for (const a of existingAssignments) {
-        if (!assignedProjectIds.includes(a.projectId))
-          await db.assignments.delete(a.id!);
-      }
-      for (const projId of assignedProjectIds) {
-        if (!existingProjectIds.includes(projId)) {
-          await db.assignments.add({
-            staffId: id,
-            projectId: projId,
-            role: "M",
-          });
+        for (const a of existingAssignments) {
+          if (!assignedProjectIds.includes(a.projectId))
+            await db.assignments.delete(a.id!);
         }
-      }
-    });
+        for (const projId of assignedProjectIds) {
+          if (!existingProjectIds.includes(projId)) {
+            await db.assignments.add({
+              staffId: id,
+              projectId: projId,
+              role: "M",
+            });
+          }
+        }
+      });
+      showToast(`Updated record for ${name}.`, "success");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to update staff record.", "error");
+    }
   };
 
   const handleSaveBulkCapacity = async (
     staffId: number,
     monthlyCapacity: Record<string, number>,
   ) => {
-    await db.staff.update(staffId, { monthlyCapacity });
+    try {
+      await db.staff.update(staffId, { monthlyCapacity });
+      showToast("Capacity allocation saved successfully.", "success");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to save monthly capacity.", "error");
+    }
   };
 
   const handleDeleteStaff = async (id: number) => {
-    await db.transaction("rw", db.staff, db.assignments, async () => {
-      await db.assignments.where("staffId").equals(id).delete();
-      await db.staff.delete(id);
-    });
+    try {
+      await db.transaction("rw", db.staff, db.assignments, async () => {
+        await db.assignments.where("staffId").equals(id).delete();
+        await db.staff.delete(id);
+      });
+      showToast("Staff record deleted successfully.", "info");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to delete staff member.", "error");
+    }
   };
 
   // Project Database Actions
@@ -182,7 +220,12 @@ export default function App() {
     startMonth?: string,
     endMonth?: string,
   ) => {
-    await db.projects.add({ name, startMonth, endMonth });
+    try {
+      await db.projects.add({ name, startMonth, endMonth });
+      showToast(`Project "${name}" created successfully.`, "success");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to create project.", "error");
+    }
   };
 
   const handleUpdateProject = async (
@@ -193,34 +236,44 @@ export default function App() {
     startMonth?: string,
     endMonth?: string,
   ) => {
-    await db.transaction("rw", db.projects, db.assignments, async () => {
-      await db.projects.update(id, { name, startMonth, endMonth });
-      await db.assignments.where("projectId").equals(id).delete();
+    try {
+      await db.transaction("rw", db.projects, db.assignments, async () => {
+        await db.projects.update(id, { name, startMonth, endMonth });
+        await db.assignments.where("projectId").equals(id).delete();
 
-      if (plStaffId) {
-        await db.assignments.add({
-          projectId: id,
-          staffId: plStaffId,
-          role: "PL",
-        });
-      }
-      for (const team of teamAssignments) {
-        if (team.staffId !== plStaffId) {
+        if (plStaffId) {
           await db.assignments.add({
             projectId: id,
-            staffId: team.staffId,
-            role: team.role,
+            staffId: plStaffId,
+            role: "PL",
           });
         }
-      }
-    });
+        for (const team of teamAssignments) {
+          if (team.staffId !== plStaffId) {
+            await db.assignments.add({
+              projectId: id,
+              staffId: team.staffId,
+              role: team.role,
+            });
+          }
+        }
+      });
+      showToast(`Project "${name}" updated successfully.`, "success");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to update project.", "error");
+    }
   };
 
   const handleDeleteProject = async (id: number) => {
-    await db.transaction("rw", db.projects, db.assignments, async () => {
-      await db.assignments.where("projectId").equals(id).delete();
-      await db.projects.delete(id);
-    });
+    try {
+      await db.transaction("rw", db.projects, db.assignments, async () => {
+        await db.assignments.where("projectId").equals(id).delete();
+        await db.projects.delete(id);
+      });
+      showToast("Project deleted successfully.", "info");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to delete project.", "error");
+    }
   };
 
   const getRole = (staffId: number, projectId: number) => {
@@ -232,21 +285,22 @@ export default function App() {
   };
 
   const handleClearAllData = async () => {
-    await db.transaction(
-      "rw",
-      db.staff,
-      db.projects,
-      db.assignments,
-      async () => {
-        await db.staff.clear();
-        await db.projects.clear();
-        await db.assignments.clear();
-      },
-    );
-    setToast({
-      message: "All database records have been cleared.",
-      type: "success",
-    });
+    try {
+      await db.transaction(
+        "rw",
+        db.staff,
+        db.projects,
+        db.assignments,
+        async () => {
+          await db.staff.clear();
+          await db.projects.clear();
+          await db.assignments.clear();
+        },
+      );
+      showToast("All database records have been cleared.", "success");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to clear database.", "error");
+    }
   };
 
   const importFromExcel = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -257,11 +311,10 @@ export default function App() {
       const parsed = await parseExcelFile(file);
       setPendingImportData(parsed);
     } catch (error: any) {
-      console.error("Failed to parse Excel file:", error);
-      setToast({
-        message: error.message || "Failed to parse the selected Excel file.",
-        type: "error",
-      });
+      showToast(
+        error.message || "Failed to parse the selected Excel file.",
+        "error",
+      );
     } finally {
       e.target.value = "";
     }
@@ -272,18 +325,26 @@ export default function App() {
 
     try {
       await commitImportToDatabase(pendingImportData);
-      setToast({
-        message: `Imported ${pendingImportData.staff.length} staff, ${pendingImportData.projects.length} projects, and ${pendingImportData.assignments.length} assignments!`,
-        type: "success",
-      });
+      showToast(
+        `Imported ${pendingImportData.staff.length} staff, ${pendingImportData.projects.length} projects, and ${pendingImportData.assignments.length} assignments!`,
+        "success",
+      );
     } catch (error: any) {
-      console.error("Failed to import into database:", error);
-      setToast({
-        message: error.message || "An error occurred while importing data.",
-        type: "error",
-      });
+      showToast(
+        error.message || "An error occurred while importing data.",
+        "error",
+      );
     } finally {
       setPendingImportData(null);
+    }
+  };
+
+  const handleExportToExcel = () => {
+    try {
+      exportToExcel(staffMembers, projects, assignments, roles);
+      showToast("Export completed successfully.", "success");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to export data.", "error");
     }
   };
 
@@ -393,11 +454,10 @@ export default function App() {
             onOpenBulkCapacityModal={(staff) => setBulkCapacityStaff(staff)}
             onOpenRoleModal={() => setIsRoleModalOpen(true)}
             onImportClick={() => fileInputRef.current?.click()}
-            onExport={() =>
-              exportToExcel(staffMembers, projects, assignments, roles)
-            }
+            onExport={handleExportToExcel}
             fileInputRef={fileInputRef}
             onFileChange={importFromExcel}
+            showToast={showToast}
           />
         )}
       </div>
@@ -408,6 +468,7 @@ export default function App() {
         timelineMonths={timelineMonths}
         onClose={() => setBulkCapacityStaff(null)}
         onSave={handleSaveBulkCapacity}
+        showToast={showToast}
       />
 
       <RoleCategoryModal
@@ -416,6 +477,7 @@ export default function App() {
         onClose={() => setIsRoleModalOpen(false)}
         onAddRole={handleAddRole}
         onDeleteRole={handleDeleteRole}
+        showToast={showToast}
       />
 
       <ImportConfirmModal
