@@ -20,10 +20,24 @@ export const MONTH_NAMES = [
   "December",
 ];
 
-// Master list of month options for selection dropdowns
+// Centralized duration options
+export const DURATION_OPTIONS = [
+  { label: "3 Months", value: "3" },
+  { label: "6 Months", value: "6" },
+  { label: "12 Months", value: "12" },
+  { label: "18 Months", value: "18" },
+  { label: "24 Months", value: "24" },
+  { label: "32 Months", value: "32" },
+] as const;
+
+// Master list of month options: dynamically set from 1 year before to 3 years after current year
 export const MASTER_MONTH_OPTIONS: TimelineMonth[] = (() => {
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - 1;
+  const endYear = currentYear + 3;
+
   const options: TimelineMonth[] = [];
-  for (let year = 2025; year <= 2030; year++) {
+  for (let year = startYear; year <= endYear; year++) {
     MONTH_NAMES.forEach((month) => {
       options.push({
         key: `${year}-${month}`,
@@ -115,4 +129,20 @@ export const getDynamicTableMinWidth = (
   const total =
     leftSideWidthPx + projectColsWidthPx + timelineLength * monthColWidthPx;
   return `${total}px`;
+};
+
+/**
+ * Calculates end key based on start key and number of duration months
+ */
+export const getEndKeyForDuration = (
+  startKey: string,
+  durationMonths: number,
+): string => {
+  const [yStr, mStr] = startKey.split("-");
+  const year = parseInt(yStr, 10);
+  const mIdx = MONTH_NAMES.indexOf(mStr);
+  if (isNaN(year) || mIdx === -1) return startKey;
+
+  const endDate = new Date(year, mIdx + durationMonths - 1, 1);
+  return `${endDate.getFullYear()}-${MONTH_NAMES[endDate.getMonth()]}`;
 };
