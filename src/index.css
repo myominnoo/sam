@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+/* Custom scrollbar for wide matrix tables */
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+.table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
