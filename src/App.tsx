@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
-import type { FormEvent } from "react";
+import { useState, useRef, useMemo, type FormEvent } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   LayoutDashboard,
@@ -8,14 +7,13 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { db } from "./db";
-import type { Staff } from "./db";
+import { db, type Staff } from "./db";
 import { Header } from "./components/Header";
 import { StaffMatrix } from "./components/StaffMatrix";
 import { ProjectMatrix } from "./components/ProjectMatrix";
 import { ManageData } from "./components/ManageData";
-import { AssignmentModal } from "./components/AssignmentModal";
 import { BulkCapacityModal } from "./components/BulkCapacityModal";
+import { useScrollSync } from "./hooks/useScrollSync";
 
 import {
   generateTimelineMonthsRange,
@@ -29,7 +27,6 @@ export default function App() {
     "dashboard",
   );
 
-  // Initial Timeline Range Setup
   const initialStartKey = `${new Date().getFullYear()}-${
     [
       "January",
@@ -51,28 +48,25 @@ export default function App() {
   const [endMonthKey, setEndMonthKey] = useState<string>(() =>
     getDefaultEndKey(initialStartKey),
   );
-
-  // Modal States
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedStaffId, setSelectedStaffId] = useState<number | "">("");
-  const [selectedProjectId, setSelectedProjectId] = useState<number | "">("");
-  const [selectedRole, setSelectedRole] = useState<string>("");
-
   const [bulkCapacityStaff, setBulkCapacityStaff] = useState<Staff | null>(
     null,
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Scroll Sync Handles
   const staffMatrixScrollRef = useRef<HTMLDivElement>(null);
   const projectMatrixScrollRef = useRef<HTMLDivElement>(null);
+
+  // Synchronize twin matrix horizontal scroll
+  useScrollSync(
+    staffMatrixScrollRef,
+    projectMatrixScrollRef,
+    activeTab === "dashboard",
+  );
 
   // Timeline Handlers
   const handleStartMonthChange = (newStartKey: string) => {
     setStartMonthKey(newStartKey);
-    const newEndKey = getDefaultEndKey(newStartKey);
-    setEndMonthKey(newEndKey);
+    setEndMonthKey(getDefaultEndKey(newStartKey));
   };
 
   const handleEndMonthChange = (newEndKey: string) => {
@@ -80,9 +74,7 @@ export default function App() {
       (m) => m.key === startMonthKey,
     );
     const endIdx = MASTER_MONTH_OPTIONS.findIndex((m) => m.key === newEndKey);
-    if (endIdx >= startIdx) {
-      setEndMonthKey(newEndKey);
-    }
+    if (endIdx >= startIdx) setEndMonthKey(newEndKey);
   };
 
   const timelineMonths = useMemo(
@@ -97,7 +89,7 @@ export default function App() {
 
   const maxDynamicCols = Math.max(projects.length, staffMembers.length);
 
-  // Staff Handlers
+  // Staff Database Actions
   const handleAddStaff = async (
     name: string,
     designation: string,
@@ -115,7 +107,6 @@ export default function App() {
   ) => {
     await db.transaction("rw", db.staff, db.assignments, async () => {
       await db.staff.update(id, { name, designation, fte });
-
       const existingAssignments = await db.assignments
         .where("staffId")
         .equals(id)
@@ -123,11 +114,9 @@ export default function App() {
       const existingProjectIds = existingAssignments.map((a) => a.projectId);
 
       for (const a of existingAssignments) {
-        if (!assignedProjectIds.includes(a.projectId)) {
+        if (!assignedProjectIds.includes(a.projectId))
           await db.assignments.delete(a.id!);
-        }
       }
-
       for (const projId of assignedProjectIds) {
         if (!existingProjectIds.includes(projId)) {
           await db.assignments.add({
@@ -154,7 +143,7 @@ export default function App() {
     });
   };
 
-  // Project Handlers
+  // Project Database Actions
   const handleAddProject = async (
     name: string,
     startMonth?: string,
@@ -182,7 +171,6 @@ export default function App() {
           role: "PL",
         });
       }
-
       for (const team of teamAssignments) {
         if (team.staffId !== plStaffId) {
           await db.assignments.add({
@@ -202,43 +190,6 @@ export default function App() {
     });
   };
 
-  // Scroll Synchronization
-  useEffect(() => {
-    if (activeTab !== "dashboard") return;
-    const staffEl = staffMatrixScrollRef.current;
-    const projectEl = projectMatrixScrollRef.current;
-    if (!staffEl || !projectEl) return;
-
-    let isSyncingStaff = false;
-    let isSyncingProject = false;
-
-    const handleStaffScroll = () => {
-      if (!isSyncingStaff) {
-        isSyncingProject = true;
-        projectEl.scrollLeft = staffEl.scrollLeft;
-      }
-      isSyncingStaff = false;
-    };
-
-    const handleProjectScroll = () => {
-      if (!isSyncingProject) {
-        isSyncingStaff = true;
-        staffEl.scrollLeft = projectEl.scrollLeft;
-      }
-      isSyncingProject = false;
-    };
-
-    staffEl.addEventListener("scroll", handleStaffScroll, { passive: true });
-    projectEl.addEventListener("scroll", handleProjectScroll, {
-      passive: true,
-    });
-
-    return () => {
-      staffEl.removeEventListener("scroll", handleStaffScroll);
-      projectEl.removeEventListener("scroll", handleProjectScroll);
-    };
-  }, [activeTab]);
-
   const getRole = (staffId: number, projectId: number) => {
     return (
       assignments.find(
@@ -247,36 +198,9 @@ export default function App() {
     );
   };
 
-  const handleSaveAssignment = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!selectedStaffId || !selectedProjectId) return;
-
-    const existing = assignments.find(
-      (a) =>
-        a.staffId === Number(selectedStaffId) &&
-        a.projectId === Number(selectedProjectId),
-    );
-
-    if (!selectedRole) {
-      if (existing?.id) await db.assignments.delete(existing.id);
-    } else {
-      const role = selectedRole as "PL" | "M" | "A";
-      if (existing?.id) {
-        await db.assignments.update(existing.id, { role });
-      } else {
-        await db.assignments.add({
-          staffId: Number(selectedStaffId),
-          projectId: Number(selectedProjectId),
-          role,
-        });
-      }
-    }
-    setIsModalOpen(false);
-  };
-
   return (
     <div className="bg-slate-50 text-slate-800 px-4 sm:px-6 pb-8 font-sans min-h-screen relative">
-      {/* FLOATING TRANSLUCENT TAB BAR */}
+      {/* FLOATING TAB PANEL */}
       <div className="sticky top-3 z-50 flex justify-center pointer-events-none mb-3">
         <div className="pointer-events-auto inline-flex items-center p-1 bg-white/70 backdrop-blur-md rounded-full ring-1 ring-slate-900/5 shadow-md shadow-slate-900/5 transition-all">
           <button
@@ -310,7 +234,6 @@ export default function App() {
 
         {activeTab === "dashboard" ? (
           <>
-            {/* DASHBOARD TIMELINE BAR */}
             <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-indigo-600" />
@@ -318,7 +241,6 @@ export default function App() {
                   Active Timeline Range:
                 </span>
               </div>
-
               <div className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-xl p-1 text-xs">
                 <select
                   value={startMonthKey}
@@ -331,9 +253,7 @@ export default function App() {
                     </option>
                   ))}
                 </select>
-
                 <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-
                 <select
                   value={endMonthKey}
                   onChange={(e) => handleEndMonthChange(e.target.value)}
@@ -388,20 +308,6 @@ export default function App() {
           />
         )}
       </div>
-
-      <AssignmentModal
-        isOpen={isModalOpen}
-        staffMembers={staffMembers}
-        projects={projects}
-        selectedStaffId={selectedStaffId}
-        selectedProjectId={selectedProjectId}
-        selectedRole={selectedRole}
-        onStaffChange={setSelectedStaffId}
-        onProjectChange={setSelectedProjectId}
-        onRoleChange={setSelectedRole}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveAssignment}
-      />
 
       <BulkCapacityModal
         isOpen={!!bulkCapacityStaff}

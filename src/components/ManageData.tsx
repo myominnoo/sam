@@ -1,5 +1,9 @@
-import { useState } from "react";
-import type { FormEvent, RefObject, ChangeEvent } from "react";
+import {
+  useState,
+  type FormEvent,
+  type RefObject,
+  type ChangeEvent,
+} from "react";
 import {
   User,
   Briefcase,
@@ -16,7 +20,8 @@ import {
 import type { Staff, Project, Assignment } from "../db";
 import type { TimelineMonth } from "../constants";
 import { MASTER_MONTH_OPTIONS } from "../constants";
-import { getRoleBadgeClass } from "../utils/styleHelpers";
+import { RoleBadge } from "./common/RoleBadge";
+import { FormSelect, FormInput } from "./common/FormControls";
 
 interface ManageDataProps {
   staffMembers: Staff[];
@@ -53,7 +58,12 @@ interface ManageDataProps {
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
-const ROLE_OPTIONS = ["RA", "SRA", "ADE", "DOR"];
+const ROLE_OPTIONS = [
+  { label: "RA", value: "RA" },
+  { label: "SRA", value: "SRA" },
+  { label: "ADE", value: "ADE" },
+  { label: "DOR", value: "DOR" },
+];
 
 export const ManageData = ({
   staffMembers,
@@ -71,7 +81,7 @@ export const ManageData = ({
   fileInputRef,
   onFileChange,
 }: ManageDataProps) => {
-  // Staff Form State
+  // Form state
   const [newStaffName, setNewStaffName] = useState("");
   const [newStaffRole, setNewStaffRole] = useState("RA");
   const [newStaffFte, setNewStaffFte] = useState(1.0);
@@ -81,7 +91,6 @@ export const ManageData = ({
   const [editStaffFte, setEditStaffFte] = useState(1.0);
   const [editStaffProjectIds, setEditStaffProjectIds] = useState<number[]>([]);
 
-  // Project Form State
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjStart, setNewProjStart] = useState("");
   const [newProjEnd, setNewProjEnd] = useState("");
@@ -89,15 +98,13 @@ export const ManageData = ({
   const [editProjectName, setEditProjectName] = useState("");
   const [editProjStart, setEditProjStart] = useState("");
   const [editProjEnd, setEditProjEnd] = useState("");
-
-  // Project Assignment State
   const [editPlStaffId, setEditPlStaffId] = useState<number | null>(null);
   const [editTeamMembers, setEditTeamMembers] = useState<
     { staffId: number; role: "M" | "A" }[]
   >([]);
 
-  // Handlers
-  const handleAddStaff = async (e: FormEvent) => {
+  // Staff handlers
+  const handleAddStaff = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newStaffName.trim()) return;
     await onAddStaff(newStaffName, newStaffRole, newStaffFte);
@@ -109,13 +116,14 @@ export const ManageData = ({
     setEditingStaffId(staff.id!);
     setEditStaffName(staff.name);
     setEditStaffRole(
-      ROLE_OPTIONS.includes(staff.designation) ? staff.designation : "RA",
+      ROLE_OPTIONS.some((r) => r.value === staff.designation)
+        ? staff.designation
+        : "RA",
     );
     setEditStaffFte(staff.fte);
-    const currentProjIds = assignments
-      .filter((a) => a.staffId === staff.id)
-      .map((a) => a.projectId);
-    setEditStaffProjectIds(currentProjIds);
+    setEditStaffProjectIds(
+      assignments.filter((a) => a.staffId === staff.id).map((a) => a.projectId),
+    );
   };
 
   const handleToggleStaffProject = (projId: number) => {
@@ -137,7 +145,8 @@ export const ManageData = ({
     setEditingStaffId(null);
   };
 
-  const handleAddProject = async (e: FormEvent) => {
+  // Project handlers
+  const handleAddProject = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newProjectName.trim()) return;
     await onAddProject(
@@ -158,28 +167,14 @@ export const ManageData = ({
 
     const projAssignments = assignments.filter((a) => a.projectId === proj.id);
     const pl = projAssignments.find((a) => a.role === "PL");
-    const team = projAssignments
-      .filter((a) => a.role !== "PL")
-      .map((a) => ({ staffId: a.staffId, role: (a.role as "M" | "A") || "M" }));
-
     setEditPlStaffId(pl ? pl.staffId : null);
-    setEditTeamMembers(team);
-  };
-
-  const handleAddTeamMember = (staffId: number) => {
-    if (editTeamMembers.some((t) => t.staffId === staffId)) return;
-    setEditTeamMembers((prev) => [...prev, { staffId, role: "M" }]);
-  };
-
-  const handleRemoveTeamMember = (staffId: number) => {
-    setEditTeamMembers((prev) => prev.filter((t) => t.staffId !== staffId));
-  };
-
-  const handleToggleMemberRole = (staffId: number) => {
-    setEditTeamMembers((prev) =>
-      prev.map((t) =>
-        t.staffId === staffId ? { ...t, role: t.role === "M" ? "A" : "M" } : t,
-      ),
+    setEditTeamMembers(
+      projAssignments
+        .filter((a) => a.role !== "PL")
+        .map((a) => ({
+          staffId: a.staffId,
+          role: (a.role as "M" | "A") || "M",
+        })),
     );
   };
 
@@ -197,8 +192,8 @@ export const ManageData = ({
 
   return (
     <div className="space-y-6">
-      {/* DATA MANAGEMENT TOOLBAR (IMPORT & EXPORT) */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm flex items-center justify-between">
+      {/* OPERATIONS TOOLBAR */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-sm font-semibold text-slate-800">
             Directory Operations
@@ -207,26 +202,19 @@ export const ManageData = ({
             Import or export your system database in Excel format.
           </p>
         </div>
-
         <div className="flex items-center gap-2">
           <button
             onClick={onImportClick}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100/80 hover:bg-slate-200/70 text-slate-700 font-medium text-xs rounded-xl border border-slate-200/60 transition cursor-pointer"
-            title="Import Excel data"
           >
-            <Upload className="w-3.5 h-3.5 text-slate-500" />
-            <span>Import</span>
+            <Upload className="w-3.5 h-3.5 text-slate-500" /> Import
           </button>
-
           <button
             onClick={onExport}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100/80 hover:bg-slate-200/70 text-slate-700 font-medium text-xs rounded-xl border border-slate-200/60 transition cursor-pointer"
-            title="Export to Excel"
           >
-            <Download className="w-3.5 h-3.5 text-slate-500" />
-            <span>Export</span>
+            <Download className="w-3.5 h-3.5 text-slate-500" /> Export
           </button>
-
           <input
             type="file"
             ref={fileInputRef}
@@ -237,9 +225,10 @@ export const ManageData = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* STAFF DIRECTORY CARD */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      {/* STACKED DIRECTORIES CONTAINER (SINGLE COLUMN) */}
+      <div className="flex flex-col gap-8 w-full">
+        {/* STAFF DIRECTORY */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <User className="w-5 h-5 text-indigo-600" />
@@ -255,42 +244,52 @@ export const ManageData = ({
           <div className="p-6 space-y-6">
             <form
               onSubmit={handleAddStaff}
-              className="flex gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200"
+              className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-wrap lg:flex-nowrap items-center gap-2.5 w-full"
             >
-              <input
-                type="text"
-                placeholder="Staff Name..."
-                value={newStaffName}
-                onChange={(e) => setNewStaffName(e.target.value)}
-                className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-              <select
-                value={newStaffRole}
-                onChange={(e) => setNewStaffRole(e.target.value)}
-                className="w-24 px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-              >
-                {ROLE_OPTIONS.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="number"
-                step="0.1"
-                min="0.1"
-                max="1.0"
-                placeholder="FTE"
-                value={newStaffFte}
-                onChange={(e) => setNewStaffFte(Number(e.target.value))}
-                className="w-16 px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-center"
-              />
+              {/* STAFF NAME INPUT */}
+              <div className="flex-1 min-w-[200px]">
+                <FormInput
+                  placeholder="Staff Name..."
+                  value={newStaffName}
+                  onChange={(e) => setNewStaffName(e.target.value)}
+                  className="bg-white"
+                />
+              </div>
+
+              {/* ROLE SELECT */}
+              <div className="w-full sm:w-auto min-w-[120px]">
+                <FormSelect
+                  value={newStaffRole}
+                  onChange={(e) => setNewStaffRole(e.target.value)}
+                  options={ROLE_OPTIONS}
+                  className="bg-white"
+                />
+              </div>
+
+              {/* FTE INPUT + INLINE LABEL GROUP */}
+              <div className="w-full sm:w-auto flex items-center gap-1.5">
+                <FormInput
+                  type="number"
+                  step="0.1"
+                  min="0.1"
+                  max="1.0"
+                  placeholder="1.0"
+                  value={newStaffFte || ""}
+                  onChange={(e) => setNewStaffFte(Number(e.target.value))}
+                  className="w-20 bg-white text-center font-mono"
+                />
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider select-none shrink-0 pr-1">
+                  FTE
+                </span>
+              </div>
+
+              {/* ADD BUTTON */}
               <button
                 type="submit"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1 transition cursor-pointer"
+                className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center gap-1 transition cursor-pointer shrink-0 w-full sm:w-auto"
               >
-                <Plus className="w-3.5 h-3.5" />
-                Add
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Add</span>
               </button>
             </form>
 
@@ -320,104 +319,87 @@ export const ManageData = ({
                         {isEditing ? (
                           <>
                             <td className="p-2">
-                              <input
-                                type="text"
+                              <FormInput
                                 value={editStaffName}
                                 onChange={(e) =>
                                   setEditStaffName(e.target.value)
                                 }
-                                className="w-full px-2 py-1 border rounded text-xs focus:ring-2 focus:ring-indigo-500"
                               />
                             </td>
                             <td className="p-2">
-                              <select
+                              <FormSelect
                                 value={editStaffRole}
                                 onChange={(e) =>
                                   setEditStaffRole(e.target.value)
                                 }
-                                className="w-20 px-1.5 py-1 border border-slate-300 rounded text-xs font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                              >
-                                {ROLE_OPTIONS.map((role) => (
-                                  <option key={role} value={role}>
-                                    {role}
-                                  </option>
-                                ))}
-                              </select>
+                                options={ROLE_OPTIONS}
+                                className="w-20"
+                              />
                             </td>
                             <td className="p-2 text-center">
-                              <input
+                              <FormInput
                                 type="number"
                                 step="0.1"
                                 value={editStaffFte}
                                 onChange={(e) =>
                                   setEditStaffFte(Number(e.target.value))
                                 }
-                                className="w-14 px-1 py-1 border rounded text-xs text-center focus:ring-2 focus:ring-indigo-500"
+                                className="w-14 text-center"
                               />
                             </td>
                             <td className="p-2">
-                              <div className="space-y-1.5">
-                                <select
-                                  onChange={(e) => {
-                                    const val = Number(e.target.value);
-                                    if (val) handleToggleStaffProject(val);
-                                    e.target.value = "";
-                                  }}
-                                  className="w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs font-medium text-slate-700 focus:outline-none"
-                                >
-                                  <option value="">+ Add Project...</option>
-                                  {projects.map((p) => (
-                                    <option
-                                      key={p.id}
-                                      value={p.id}
-                                      disabled={editStaffProjectIds.includes(
-                                        p.id!,
-                                      )}
+                              <FormSelect
+                                value=""
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  if (val) handleToggleStaffProject(val);
+                                }}
+                                options={[
+                                  { label: "+ Add Project...", value: "" },
+                                  ...projects.map((p) => ({
+                                    label: p.name,
+                                    value: p.id!,
+                                    disabled: editStaffProjectIds.includes(
+                                      p.id!,
+                                    ),
+                                  })),
+                                ]}
+                              />
+                              <div className="flex flex-wrap gap-1 mt-1.5">
+                                {editStaffProjectIds.map((pid) => {
+                                  const proj = projects.find(
+                                    (p) => p.id === pid,
+                                  );
+                                  return proj ? (
+                                    <span
+                                      key={pid}
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-medium"
                                     >
-                                      {p.name}
-                                    </option>
-                                  ))}
-                                </select>
-
-                                <div className="flex flex-wrap gap-1">
-                                  {editStaffProjectIds.map((pid) => {
-                                    const proj = projects.find(
-                                      (p) => p.id === pid,
-                                    );
-                                    if (!proj) return null;
-                                    return (
-                                      <span
-                                        key={pid}
-                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-medium"
+                                      {proj.name}
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleToggleStaffProject(pid)
+                                        }
+                                        className="hover:text-red-600 cursor-pointer"
                                       >
-                                        <span>{proj.name}</span>
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            handleToggleStaffProject(pid)
-                                          }
-                                          className="hover:text-red-600 cursor-pointer"
-                                        >
-                                          ×
-                                        </button>
-                                      </span>
-                                    );
-                                  })}
-                                </div>
+                                        ×
+                                      </button>
+                                    </span>
+                                  ) : null;
+                                })}
                               </div>
                             </td>
                             <td className="p-2 text-right space-x-1">
                               <button
                                 onClick={() => handleSaveStaffEdit(staff.id!)}
-                                className="p-1 text-emerald-600 hover:bg-emerald-50 rounded transition cursor-pointer"
-                                title="Save"
+                                className="p-1 text-emerald-600 hover:bg-emerald-50 rounded cursor-pointer"
                               >
                                 <Check className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setEditingStaffId(null)}
-                                className="p-1 text-slate-400 hover:bg-slate-100 rounded transition cursor-pointer"
-                                title="Cancel"
+                                className="p-1 text-slate-400 hover:bg-slate-100 rounded cursor-pointer"
                               >
                                 <X className="w-4 h-4" />
                               </button>
@@ -441,20 +423,15 @@ export const ManageData = ({
                                     const proj = projects.find(
                                       (p) => p.id === a.projectId,
                                     );
-                                    if (!proj) return null;
-                                    return (
+                                    return proj ? (
                                       <span
                                         key={a.id}
                                         className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[11px] font-medium text-slate-700"
                                       >
                                         <span>{proj.name}</span>
-                                        <span
-                                          className={`px-1 rounded text-[9px] font-bold ${getRoleBadgeClass(a.role)}`}
-                                        >
-                                          {a.role}
-                                        </span>
+                                        <RoleBadge role={a.role} />
                                       </span>
-                                    );
+                                    ) : null;
                                   })}
                                 </div>
                               ) : (
@@ -466,21 +443,21 @@ export const ManageData = ({
                             <td className="p-3 text-right space-x-1">
                               <button
                                 onClick={() => onOpenBulkCapacityModal(staff)}
-                                className="p-1 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded transition cursor-pointer"
-                                title="Set Workload / Capacity"
+                                className="p-1 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded cursor-pointer"
+                                title="Set Capacity"
                               >
                                 <Sliders className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => startEditStaff(staff)}
-                                className="p-1 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition cursor-pointer"
+                                className="p-1 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded cursor-pointer"
                                 title="Edit"
                               >
                                 <Edit3 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => onDeleteStaff(staff.id!)}
-                                className="p-1 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded transition cursor-pointer"
+                                className="p-1 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded cursor-pointer"
                                 title="Delete"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -497,8 +474,8 @@ export const ManageData = ({
           </div>
         </div>
 
-        {/* PROJECTS DIRECTORY CARD */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        {/* PROJECTS DIRECTORY */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Briefcase className="w-5 h-5 text-blue-600" />
@@ -514,58 +491,58 @@ export const ManageData = ({
           <div className="p-6 space-y-6">
             <form
               onSubmit={handleAddProject}
-              className="space-y-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200"
+              className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-wrap lg:flex-nowrap items-center gap-2.5 w-full"
             >
-              <div className="flex gap-2">
-                <input
-                  type="text"
+              {/* PROJECT NAME INPUT */}
+              <div className="flex-1 min-w-[200px]">
+                <FormInput
                   placeholder="New Project Name..."
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
-                  className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white"
                 />
-                <button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-4 py-1.5 rounded-lg flex items-center gap-1 transition cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Add
-                </button>
               </div>
 
-              <div className="flex items-center gap-2 text-xs flex-wrap">
-                <span className="text-slate-500 font-medium flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5" /> Start:
-                </span>
-                <select
+              {/* START MONTH SELECT */}
+              <div className="w-full sm:w-auto min-w-[140px]">
+                <FormSelect
                   value={newProjStart}
                   onChange={(e) => setNewProjStart(e.target.value)}
-                  className="bg-white border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                >
-                  <option value="">(Select Start)</option>
-                  {MASTER_MONTH_OPTIONS.map((m) => (
-                    <option key={m.key} value={m.key}>
-                      {m.month} {m.year}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    { label: "Start Month...", value: "" },
+                    ...MASTER_MONTH_OPTIONS.map((m) => ({
+                      label: `${m.month} ${m.year}`,
+                      value: m.key,
+                    })),
+                  ]}
+                  className="bg-white"
+                />
+              </div>
 
-                <span className="text-slate-500 font-medium flex items-center gap-1 ml-2">
-                  End:
-                </span>
-                <select
+              {/* END MONTH SELECT */}
+              <div className="w-full sm:w-auto min-w-[140px]">
+                <FormSelect
                   value={newProjEnd}
                   onChange={(e) => setNewProjEnd(e.target.value)}
-                  className="bg-white border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                >
-                  <option value="">(Select End)</option>
-                  {MASTER_MONTH_OPTIONS.map((m) => (
-                    <option key={m.key} value={m.key}>
-                      {m.month} {m.year}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    { label: "End Month...", value: "" },
+                    ...MASTER_MONTH_OPTIONS.map((m) => ({
+                      label: `${m.month} ${m.year}`,
+                      value: m.key,
+                    })),
+                  ]}
+                  className="bg-white"
+                />
               </div>
+
+              {/* ADD BUTTON */}
+              <button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center gap-1 transition cursor-pointer shrink-0 w-full sm:w-auto"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Add</span>
+              </button>
             </form>
 
             <div className="overflow-x-auto border border-slate-200 rounded-xl">
@@ -593,7 +570,6 @@ export const ManageData = ({
                     const teamAssignments = projAssignments.filter(
                       (a) => a.role !== "PL",
                     );
-
                     const isEditing = editingProjectId === proj.id;
 
                     return (
@@ -604,144 +580,147 @@ export const ManageData = ({
                         {isEditing ? (
                           <>
                             <td className="p-2">
-                              <input
-                                type="text"
+                              <FormInput
                                 value={editProjectName}
                                 onChange={(e) =>
                                   setEditProjectName(e.target.value)
                                 }
-                                className="w-full px-2 py-1 border rounded text-xs focus:ring-2 focus:ring-blue-500"
                               />
                             </td>
-
-                            <td className="p-2">
-                              <div className="space-y-1">
-                                <select
-                                  value={editProjStart}
-                                  onChange={(e) =>
-                                    setEditProjStart(e.target.value)
-                                  }
-                                  className="w-full bg-white border border-slate-300 rounded px-1.5 py-1 text-[11px] focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                                >
-                                  <option value="">(Start Month)</option>
-                                  {MASTER_MONTH_OPTIONS.map((m) => (
-                                    <option key={m.key} value={m.key}>
-                                      {m.month} {m.year}
-                                    </option>
-                                  ))}
-                                </select>
-                                <select
-                                  value={editProjEnd}
-                                  onChange={(e) =>
-                                    setEditProjEnd(e.target.value)
-                                  }
-                                  className="w-full bg-white border border-slate-300 rounded px-1.5 py-1 text-[11px] focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                                >
-                                  <option value="">(End Month)</option>
-                                  {MASTER_MONTH_OPTIONS.map((m) => (
-                                    <option key={m.key} value={m.key}>
-                                      {m.month} {m.year}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
+                            <td className="p-2 space-y-1">
+                              <FormSelect
+                                value={editProjStart}
+                                onChange={(e) =>
+                                  setEditProjStart(e.target.value)
+                                }
+                                options={[
+                                  { label: "(Start Month)", value: "" },
+                                  ...MASTER_MONTH_OPTIONS.map((m) => ({
+                                    label: `${m.month} ${m.year}`,
+                                    value: m.key,
+                                  })),
+                                ]}
+                              />
+                              <FormSelect
+                                value={editProjEnd}
+                                onChange={(e) => setEditProjEnd(e.target.value)}
+                                options={[
+                                  { label: "(End Month)", value: "" },
+                                  ...MASTER_MONTH_OPTIONS.map((m) => ({
+                                    label: `${m.month} ${m.year}`,
+                                    value: m.key,
+                                  })),
+                                ]}
+                              />
                             </td>
-
                             <td className="p-2">
-                              <select
+                              <FormSelect
                                 value={editPlStaffId || ""}
                                 onChange={(e) => {
                                   const val = Number(e.target.value);
                                   setEditPlStaffId(val || null);
-                                  if (val) handleRemoveTeamMember(val);
+                                  if (val)
+                                    setEditTeamMembers((prev) =>
+                                      prev.filter((t) => t.staffId !== val),
+                                    );
                                 }}
-                                className="w-full bg-white border border-amber-300 rounded px-2 py-1 text-xs font-semibold text-amber-900 focus:ring-2 focus:ring-amber-500 cursor-pointer"
-                              >
-                                <option value="">(No PL Assigned)</option>
-                                {staffMembers.map((s) => (
-                                  <option key={s.id} value={s.id}>
-                                    {s.name}
-                                  </option>
-                                ))}
-                              </select>
+                                options={[
+                                  { label: "(No PL Assigned)", value: "" },
+                                  ...staffMembers.map((s) => ({
+                                    label: s.name,
+                                    value: s.id!,
+                                  })),
+                                ]}
+                              />
                             </td>
-
                             <td className="p-2">
-                              <div className="space-y-1.5">
-                                <select
-                                  onChange={(e) => {
-                                    const val = Number(e.target.value);
-                                    if (val) handleAddTeamMember(val);
-                                    e.target.value = "";
-                                  }}
-                                  className="w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs font-medium text-slate-700 focus:outline-none"
-                                >
-                                  <option value="">+ Add Team Member...</option>
-                                  {staffMembers
+                              <FormSelect
+                                value=""
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  if (
+                                    val &&
+                                    !editTeamMembers.some(
+                                      (t) => t.staffId === val,
+                                    )
+                                  ) {
+                                    setEditTeamMembers((prev) => [
+                                      ...prev,
+                                      { staffId: val, role: "M" },
+                                    ]);
+                                  }
+                                }}
+                                options={[
+                                  { label: "+ Add Team Member...", value: "" },
+                                  ...staffMembers
                                     .filter((s) => s.id !== editPlStaffId)
-                                    .map((s) => (
-                                      <option
-                                        key={s.id}
-                                        value={s.id}
-                                        disabled={editTeamMembers.some(
-                                          (t) => t.staffId === s.id,
-                                        )}
+                                    .map((s) => ({
+                                      label: s.name,
+                                      value: s.id!,
+                                      disabled: editTeamMembers.some(
+                                        (t) => t.staffId === s.id,
+                                      ),
+                                    })),
+                                ]}
+                              />
+                              <div className="flex flex-wrap gap-1 mt-1.5">
+                                {editTeamMembers.map((item) => {
+                                  const s = staffMembers.find(
+                                    (staff) => staff.id === item.staffId,
+                                  );
+                                  return s ? (
+                                    <span
+                                      key={item.staffId}
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-800 text-[11px] font-medium"
+                                    >
+                                      <span>{s.name}</span>
+                                      <RoleBadge
+                                        role={item.role}
+                                        onClick={() =>
+                                          setEditTeamMembers((prev) =>
+                                            prev.map((t) =>
+                                              t.staffId === item.staffId
+                                                ? {
+                                                    ...t,
+                                                    role:
+                                                      t.role === "M"
+                                                        ? "A"
+                                                        : "M",
+                                                  }
+                                                : t,
+                                            ),
+                                          )
+                                        }
+                                        title="Click to toggle Member (M) / Assisting (A)"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setEditTeamMembers((prev) =>
+                                            prev.filter(
+                                              (t) => t.staffId !== item.staffId,
+                                            ),
+                                          )
+                                        }
+                                        className="text-slate-400 hover:text-red-600 cursor-pointer font-bold ml-0.5"
                                       >
-                                        {s.name}
-                                      </option>
-                                    ))}
-                                </select>
-
-                                <div className="flex flex-wrap gap-1">
-                                  {editTeamMembers.map((item) => {
-                                    const s = staffMembers.find(
-                                      (staff) => staff.id === item.staffId,
-                                    );
-                                    if (!s) return null;
-                                    return (
-                                      <span
-                                        key={item.staffId}
-                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-800 text-[11px] font-medium"
-                                      >
-                                        <span>{s.name}</span>
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            handleToggleMemberRole(item.staffId)
-                                          }
-                                          className={`px-1 rounded text-[9px] font-bold cursor-pointer ${getRoleBadgeClass(item.role)}`}
-                                          title="Click to toggle Member (M) / Assisting (A)"
-                                        >
-                                          {item.role}
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            handleRemoveTeamMember(item.staffId)
-                                          }
-                                          className="text-slate-400 hover:text-red-600 font-bold ml-0.5 cursor-pointer"
-                                        >
-                                          ×
-                                        </button>
-                                      </span>
-                                    );
-                                  })}
-                                </div>
+                                        ×
+                                      </button>
+                                    </span>
+                                  ) : null;
+                                })}
                               </div>
                             </td>
-
                             <td className="p-2 text-right space-x-1">
                               <button
                                 onClick={() => handleSaveProjectEdit(proj.id!)}
-                                className="p-1 text-emerald-600 hover:bg-emerald-50 rounded transition cursor-pointer"
-                                title="Save"
+                                className="p-1 text-emerald-600 hover:bg-emerald-50 rounded cursor-pointer"
                               >
                                 <Check className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setEditingProjectId(null)}
-                                className="p-1 text-slate-400 hover:bg-slate-100 rounded transition cursor-pointer"
-                                title="Cancel"
+                                className="p-1 text-slate-400 hover:bg-slate-100 rounded cursor-pointer"
                               >
                                 <X className="w-4 h-4" />
                               </button>
@@ -752,7 +731,6 @@ export const ManageData = ({
                             <td className="p-3 font-semibold text-slate-800">
                               {proj.name}
                             </td>
-
                             <td className="p-3">
                               {proj.startMonth && proj.endMonth ? (
                                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-medium">
@@ -769,14 +747,11 @@ export const ManageData = ({
                                 </span>
                               )}
                             </td>
-
                             <td className="p-3">
                               {plStaff ? (
                                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-medium">
                                   <span>{plStaff.name}</span>
-                                  <span className="px-1 rounded text-[9px] font-bold bg-yellow-300 text-yellow-900">
-                                    PL
-                                  </span>
+                                  <RoleBadge role="PL" />
                                 </span>
                               ) : (
                                 <span className="text-slate-400 italic text-[11px]">
@@ -784,7 +759,6 @@ export const ManageData = ({
                                 </span>
                               )}
                             </td>
-
                             <td className="p-3">
                               {teamAssignments.length > 0 ? (
                                 <div className="flex flex-wrap gap-1.5">
@@ -792,20 +766,15 @@ export const ManageData = ({
                                     const staff = staffMembers.find(
                                       (s) => s.id === a.staffId,
                                     );
-                                    if (!staff) return null;
-                                    return (
+                                    return staff ? (
                                       <span
                                         key={a.id}
                                         className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[11px] font-medium text-slate-700"
                                       >
                                         <span>{staff.name}</span>
-                                        <span
-                                          className={`px-1 rounded text-[9px] font-bold ${getRoleBadgeClass(a.role)}`}
-                                        >
-                                          {a.role}
-                                        </span>
+                                        <RoleBadge role={a.role} />
                                       </span>
-                                    );
+                                    ) : null;
                                   })}
                                 </div>
                               ) : (
@@ -814,19 +783,16 @@ export const ManageData = ({
                                 </span>
                               )}
                             </td>
-
                             <td className="p-3 text-right space-x-1">
                               <button
                                 onClick={() => startEditProject(proj)}
-                                className="p-1 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition cursor-pointer"
-                                title="Edit"
+                                className="p-1 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded cursor-pointer"
                               >
                                 <Edit3 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => onDeleteProject(proj.id!)}
-                                className="p-1 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded transition cursor-pointer"
-                                title="Delete"
+                                className="p-1 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded cursor-pointer"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
