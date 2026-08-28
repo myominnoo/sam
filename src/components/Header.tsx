@@ -1,4 +1,5 @@
 import { LayoutDashboard, SlidersHorizontal } from "lucide-react";
+import logoIcon from "/favicon_io/favicon.ico?url"; // Uses Vite's built-in static asset loader
 
 interface HeaderProps {
   activeTab: "dashboard" | "manage";
@@ -14,7 +15,7 @@ export const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
           <div className="flex items-center gap-3.5 w-full sm:w-auto">
             <div className="p-2 bg-indigo-50/80 border border-indigo-100/80 rounded-xl shrink-0 shadow-xs flex items-center justify-center">
               <img
-                src="/favicon_io/favicon.ico"
+                src={logoIcon}
                 alt="App Logo"
                 className="w-6 h-6 object-contain"
               />
