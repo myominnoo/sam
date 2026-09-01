@@ -9,13 +9,16 @@ interface HeaderProps {
 }
 
 export function Header({ activeTab = "dashboard", onTabChange }: HeaderProps) {
+  // Dynamically resolve the base URL configured in vite.config.ts
+  const logoUrl = `${import.meta.env.BASE_URL}icon.svg`
+
   return (
     <header className="fixed top-3 left-4 right-4 sm:left-6 sm:right-6 max-w-7xl mx-auto z-50 flex flex-col md:grid md:grid-cols-3 items-center gap-3 p-2.5 px-4 rounded-3xl border border-neutral-300 dark:border-neutral-700 bg-gradient-to-b from-white/30 via-white/15 to-white/5 dark:from-white/10 dark:via-white/[0.04] dark:to-transparent backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_0_0_rgba(255,255,255,0.8)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.2)] text-left transition-all duration-300">
       {/* 1. Brand Identity */}
       <div className="flex items-center gap-2.5 w-full">
         <div className="shrink-0 transition-transform duration-200 hover:scale-105 flex items-center justify-center">
           <img
-            src="/icon.svg"
+            src={logoUrl}
             alt="Staff Allocation Manager"
             className="h-8 w-8 object-contain filter drop-shadow-[0_1px_3px_rgba(0,0,0,0.15)]"
           />
