@@ -197,7 +197,7 @@ export function ConfigureCapacityDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in-50 duration-200">
-      <div className="w-[min(96vw,56rem)] max-w-none rounded-3xl border border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
+      <div className="w-[min(96vw,42rem)] max-w-none rounded-3xl border border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border/60 bg-muted/30">
           <div className="flex items-center gap-2.5">

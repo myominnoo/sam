@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react"
 import { Calendar, SlidersHorizontal, X } from "lucide-react"
 import { getCurrentYearMonth, calculateEndMonth, generateMonthOptions } from "@/lib/date-utils"
+import { Slider } from "@/components/ui/slider"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
-export const PRESET_OPTIONS = [1, 3, 6, 9, 12, 24, 36, 48] as const
+const PRESET_OPTIONS = [6, 12, 24, 36, 48] as const
 
 interface TimelineFilterBarProps {
   preset?: number
@@ -38,27 +40,31 @@ export function TimelineFilterBar({
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  // Handle Preset Selection Change -> Recalculate End Month from Start Month
-  const handlePresetChange = (newPreset: number) => {
-    setPreset(newPreset)
-    const newEndMonth = calculateEndMonth(startMonth, newPreset)
-    setEndMonth(newEndMonth)
-    onTimelineChange?.({ preset: newPreset, startMonth, endMonth: newEndMonth })
-  }
+  const startMonthIndex = Math.max(0, monthOptions.findIndex((month) => month.value === startMonth))
+  const endMonthIndex = Math.max(startMonthIndex, monthOptions.findIndex((month) => month.value === endMonth))
 
-  // Handle Start Month Change -> Keep Preset & Update End Month
-  const handleStartMonthChange = (newStartMonth: string) => {
+  const handleRangeChange = ([newStartIndex, newEndIndex]: readonly number[]) => {
+    const newStartMonth = monthOptions[newStartIndex]?.value ?? startMonth
+    const newEndMonth = monthOptions[newEndIndex]?.value ?? endMonth
+    const newPreset = newEndIndex - newStartIndex + 1
+
     setStartMonth(newStartMonth)
-    const newEndMonth = calculateEndMonth(newStartMonth, preset)
     setEndMonth(newEndMonth)
-    onTimelineChange?.({ preset, startMonth: newStartMonth, endMonth: newEndMonth })
+    setPreset(newPreset)
+    onTimelineChange?.({ preset: newPreset, startMonth: newStartMonth, endMonth: newEndMonth })
   }
 
-  // Handle Manual End Month Change
-  const handleEndMonthChange = (newEndMonth: string) => {
-    setEndMonth(newEndMonth)
-    onTimelineChange?.({ preset, startMonth, endMonth: newEndMonth })
+  const handlePresetChange = ([presetValue]: string[]) => {
+    const selectedPreset = Number(presetValue)
+    if (!selectedPreset) return
+
+    const newEndIndex = Math.min(startMonthIndex + selectedPreset - 1, monthOptions.length - 1)
+    handleRangeChange([startMonthIndex, newEndIndex])
   }
+
+  const selectedPreset = PRESET_OPTIONS.includes(preset as (typeof PRESET_OPTIONS)[number])
+    ? [String(preset)]
+    : []
 
   return (
     <div className="relative inline-block text-left" ref={popoverRef}>
@@ -93,53 +99,43 @@ export function TimelineFilterBar({
           </div>
 
           <div className="flex flex-col gap-3 text-xs">
-            {/* Preset Selector */}
-            <div className="flex flex-col gap-1">
-              <label className="text-muted-foreground font-semibold text-[11px]">Preset Duration</label>
-              <select
-                value={preset}
-                onChange={(e) => handlePresetChange(Number(e.target.value))}
-                className="bg-white/60 dark:bg-neutral-900/60 border border-neutral-300/80 dark:border-neutral-700/80 rounded-lg px-2.5 h-7 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground font-semibold text-[11px]">Preset months</span>
+              <ToggleGroup
+                aria-label="Timeline duration preset"
+                value={selectedPreset}
+                onValueChange={handlePresetChange}
               >
                 {PRESET_OPTIONS.map((months) => (
-                  <option key={months} value={months}>
-                    {months} {months === 1 ? "Month" : "Months"}
-                  </option>
+                  <ToggleGroupItem key={months} value={String(months)} aria-label={`${months} months`}>
+                    {months}M
+                  </ToggleGroupItem>
                 ))}
-              </select>
+              </ToggleGroup>
             </div>
-
-            {/* Date Range Selectors */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col gap-1">
-                <label className="text-muted-foreground font-semibold text-[11px]">Start Month</label>
-                <select
-                  value={startMonth}
-                  onChange={(e) => handleStartMonthChange(e.target.value)}
-                  className="bg-white/60 dark:bg-neutral-900/60 border border-neutral-300/80 dark:border-neutral-700/80 rounded-lg px-2 h-7 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-                >
-                  {monthOptions.map((opt) => (
-                    <option key={`start-${opt.value}`} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+            <div className="rounded-xl border border-border/70 bg-muted/30 px-3 py-2.5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Start</span>
+                  <span className="font-semibold text-foreground">{monthOptions[startMonthIndex]?.label}</span>
+                </div>
+                <div className="flex flex-col items-end gap-0.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">End</span>
+                  <span className="font-semibold text-foreground">{monthOptions[endMonthIndex]?.label}</span>
+                </div>
               </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-muted-foreground font-semibold text-[11px]">End Month</label>
-                <select
-                  value={endMonth}
-                  onChange={(e) => handleEndMonthChange(e.target.value)}
-                  className="bg-white/60 dark:bg-neutral-900/60 border border-neutral-300/80 dark:border-neutral-700/80 rounded-lg px-2 h-7 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-                >
-                  {monthOptions.map((opt) => (
-                    <option key={`end-${opt.value}`} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <Slider
+                min={0}
+                max={monthOptions.length - 1}
+                step={1}
+                value={[startMonthIndex, endMonthIndex]}
+                thumbCollisionBehavior="none"
+                onValueChange={handleRangeChange}
+              />
+              <p className="text-center text-[11px] font-medium text-muted-foreground">
+                {preset} {preset === 1 ? "month" : "months"} selected
+                {selectedPreset.length === 0 ? " · Custom range" : ""}
+              </p>
             </div>
           </div>
         </div>
