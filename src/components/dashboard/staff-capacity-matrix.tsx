@@ -4,7 +4,7 @@ import { toTitleCase } from "@/lib/string-utils"
 import { RoleBadge } from "@/components/ui/role-badge"
 import { useMatrixTimeline } from "@/hooks/use-matrix-timeline"
 import { MatrixTooltip } from "@/components/dashboard/matrix-tooltip"
-import { MatrixHeader } from "@/components/dashboard/matrix-header"
+import { MatrixColumnGroup, MatrixHeader } from "@/components/dashboard/matrix-header"
 import { useMatrixExpansion } from "@/hooks/use-matrix-expansion"
 import { useMatrixResponsiveLayout } from "@/hooks/use-matrix-responsive-layout"
 import { CollapseAllButton } from "@/components/ui/collapse-all-button"
@@ -56,15 +56,17 @@ export function StaffCapacityMatrix({
   const { toggleExpand, isExpanded, toggleAll, isAllExpanded } = useMatrixExpansion(staffIds)
   const { months, yearGroups } = useMatrixTimeline(startMonth, endMonth)
 
-  const { containerRef, containerMaxWidthClass, tableWidthClass } = useMatrixResponsiveLayout({
+  const { containerRef, containerMaxWidthClass, tableWidthClass, tableStyle } = useMatrixResponsiveLayout({
     monthCount: months.length,
   })
 
   const getAllocationColorClass = (sumPct: number) => {
     if (sumPct === 0) return "bg-transparent text-transparent"
-    if (sumPct > 100) return "bg-red-500 text-white font-bold"
-    if (sumPct === 100) return "bg-emerald-600 text-white font-bold"
-    if (sumPct >= 50) return "bg-emerald-500/80 text-white font-semibold"
+    if (sumPct >= 100) return "bg-red-600 text-white font-bold"
+    if (sumPct >= 90) return "bg-red-500/85 text-white font-bold"
+    if (sumPct >= 70) return "bg-orange-400/90 text-orange-950 font-bold"
+    if (sumPct >= 50) return "bg-amber-300/90 text-amber-950 font-bold"
+    if (sumPct >= 25) return "bg-emerald-400/75 text-emerald-950 font-semibold"
     return "bg-emerald-200 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 font-semibold"
   }
 
@@ -93,7 +95,8 @@ export function StaffCapacityMatrix({
         onScroll={onScroll}
         className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700"
       >
-        <table className={`${tableWidthClass} text-left border-collapse text-xs select-none`}>
+        <table className={`staff-capacity-table ${tableWidthClass} text-left border-collapse text-xs select-none`} style={tableStyle}>
+          <MatrixColumnGroup monthCount={months.length} />
           <MatrixHeader
             metadataTitle="Staff Metadata"
             countLabel="# Proj"
@@ -101,7 +104,7 @@ export function StaffCapacityMatrix({
             yearGroups={yearGroups}
           />
 
-          <tbody className="divide-y divide-border/30 font-medium">
+          <tbody className="divide-y divide-border/30 font-medium [&>tr>td]:!align-top">
             {staffList.length > 0 ? (
               staffList.map((s) => {
                 const staffAssignments = assignmentsByStaffId.get(s.id) ?? []

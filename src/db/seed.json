@@ -2,4983 +2,2005 @@
   "staff": [
     {
       "id": 1,
-      "name": "Alice Smith",
-      "designation": "DOR",
-      "fte": 0.5,
-      "isActive": true
-    },
-    {
-      "id": 2,
-      "name": "Bob Jones",
-      "designation": "RA",
-      "fte": 1.0,
-      "isActive": true
-    },
-    {
-      "id": 3,
-      "name": "Charlie Brown",
-      "designation": "SRA",
-      "fte": 0.5,
-      "isActive": true
-    },
-    {
-      "id": 4,
-      "name": "Diana Prince",
-      "designation": "RA",
-      "fte": 0.5,
-      "isActive": true
-    },
-    {
-      "id": 5,
-      "name": "Evan Wright",
-      "designation": "DOR",
-      "fte": 0.5,
-      "isActive": true
-    },
-    {
-      "id": 6,
-      "name": "Fiona Gallagher",
-      "designation": "DOR",
-      "fte": 1.0,
-      "isActive": true
-    },
-    {
-      "id": 7,
-      "name": "George Clark",
-      "designation": "DOR",
-      "fte": 0.5,
-      "isActive": true
-    },
-    {
-      "id": 8,
-      "name": "Hannah Abbott",
+      "name": "Maya Chen",
       "designation": "DOR",
       "fte": 0.8,
       "isActive": true
     },
     {
+      "id": 2,
+      "name": "Liam Patel",
+      "designation": "SRA",
+      "fte": 1.0,
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "name": "Sofia Martinez",
+      "designation": "DOR",
+      "fte": 1.0,
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "name": "Noah Williams",
+      "designation": "DOR",
+      "fte": 1.0,
+      "isActive": true
+    },
+    {
+      "id": 5,
+      "name": "Ava Thompson",
+      "designation": "SRA",
+      "fte": 1.0,
+      "isActive": true
+    },
+    {
+      "id": 6,
+      "name": "Ethan Brooks",
+      "designation": "SRA",
+      "fte": 1.0,
+      "isActive": true
+    },
+    {
+      "id": 7,
+      "name": "Grace Kim",
+      "designation": "DOR",
+      "fte": 0.8,
+      "isActive": true
+    },
+    {
+      "id": 8,
+      "name": "Oliver Grant",
+      "designation": "SRA",
+      "fte": 1.0,
+      "isActive": true
+    },
+    {
       "id": 9,
-      "name": "Ian Malcolm",
+      "name": "Chloe Bennett",
       "designation": "RA",
-      "fte": 0.5,
+      "fte": 0.6,
       "isActive": true
     },
     {
       "id": 10,
-      "name": "Julia Roberts",
-      "designation": "RA",
-      "fte": 0.5,
+      "name": "Daniel Okafor",
+      "designation": "SRA",
+      "fte": 1.0,
       "isActive": true
     },
     {
       "id": 11,
-      "name": "Kevin Bacon",
+      "name": "Emma Sinclair",
       "designation": "RA",
-      "fte": 1.0,
+      "fte": 0.8,
       "isActive": true
     },
     {
       "id": 12,
-      "name": "Laura Croft",
-      "designation": "DOR",
-      "fte": 0.5,
+      "name": "Lucas Reid",
+      "designation": "RA",
+      "fte": 0.8,
       "isActive": true
-    },
-    {
-      "id": 13,
-      "name": "Marcus Vance",
-      "designation": "DOR",
-      "fte": 0.5,
-      "isActive": true
-    },
-    {
-      "id": 14,
-      "name": "Nina Simone",
-      "designation": "DOR",
-      "fte": 1.0,
-      "isActive": false
-    },
-    {
-      "id": 15,
-      "name": "Oscar Isaac",
-      "designation": "DOR",
-      "fte": 1.0,
-      "isActive": false
-    },
-    {
-      "id": 16,
-      "name": "Penelope Cruz",
-      "designation": "SRA",
-      "fte": 0.5,
-      "isActive": false
     }
   ],
   "projects": [
     {
       "id": 1,
-      "name": "Project Alpha",
-      "startMonth": "2026-01",
-      "endMonth": "2027-12",
+      "name": "Northern Star Clinical Trial",
+      "startMonth": "2026-08",
+      "endMonth": "2027-02",
       "isActive": true
     },
     {
       "id": 2,
-      "name": "Project Beta",
-      "startMonth": "2026-01",
-      "endMonth": "2027-12",
+      "name": "Horizon Health Survey",
+      "startMonth": "2026-08",
+      "endMonth": "2026-11",
       "isActive": true
     },
     {
       "id": 3,
-      "name": "Project Gamma",
-      "startMonth": "2026-01",
-      "endMonth": "2027-12",
+      "name": "Beacon Outcomes Registry",
+      "startMonth": "2026-09",
+      "endMonth": "2027-07",
       "isActive": true
     },
     {
       "id": 4,
-      "name": "Project Delta",
-      "startMonth": "2026-01",
-      "endMonth": "2027-12",
+      "name": "Prairie Access Study",
+      "startMonth": "2026-10",
+      "endMonth": "2027-03",
       "isActive": true
     },
     {
       "id": 5,
-      "name": "Project Epsilon",
-      "startMonth": "2026-01",
-      "endMonth": "2027-12",
+      "name": "Mosaic Data Platform",
+      "startMonth": "2026-11",
+      "endMonth": "2027-07",
       "isActive": true
     },
     {
       "id": 6,
-      "name": "Project Zeta",
-      "startMonth": "2026-01",
-      "endMonth": "2026-12",
-      "isActive": false
+      "name": "Community Wellbeing Evaluation",
+      "startMonth": "2027-01",
+      "endMonth": "2027-07",
+      "isActive": true
     },
     {
       "id": 7,
-      "name": "Project Eta",
-      "startMonth": "2026-06",
+      "name": "Atlas Implementation Pilot",
+      "startMonth": "2027-02",
       "endMonth": "2027-06",
       "isActive": true
     },
     {
       "id": 8,
-      "name": "Project Theta",
-      "startMonth": "2027-01",
-      "endMonth": "2027-12",
+      "name": "Summit Knowledge Synthesis",
+      "startMonth": "2027-05",
+      "endMonth": "2027-07",
       "isActive": true
     }
   ],
   "assignments": [
     {
       "id": 1,
-      "staffId": 10,
+      "staffId": 1,
       "projectId": 1,
       "role": "PL"
     },
     {
       "id": 2,
-      "staffId": 5,
+      "staffId": 2,
       "projectId": 1,
-      "role": "A"
+      "role": "M"
     },
     {
       "id": 3,
-      "staffId": 1,
+      "staffId": 3,
       "projectId": 1,
       "role": "M"
     },
     {
       "id": 4,
-      "staffId": 3,
+      "staffId": 8,
       "projectId": 1,
       "role": "M"
     },
     {
       "id": 5,
-      "staffId": 1,
+      "staffId": 4,
+      "projectId": 2,
+      "role": "PL"
+    },
+    {
+      "id": 6,
+      "staffId": 5,
       "projectId": 2,
       "role": "M"
     },
     {
-      "id": 6,
+      "id": 7,
       "staffId": 6,
       "projectId": 2,
-      "role": "PL"
-    },
-    {
-      "id": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "role": "A"
+      "role": "M"
     },
     {
       "id": 8,
-      "staffId": 2,
+      "staffId": 9,
+      "projectId": 2,
+      "role": "A"
+    },
+    {
+      "id": 9,
+      "staffId": 7,
       "projectId": 3,
       "role": "PL"
     },
     {
-      "id": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "role": "A"
-    },
-    {
       "id": 10,
-      "staffId": 5,
+      "staffId": 2,
       "projectId": 3,
       "role": "M"
     },
     {
       "id": 11,
-      "staffId": 13,
+      "staffId": 10,
       "projectId": 3,
       "role": "M"
     },
     {
       "id": 12,
-      "staffId": 10,
+      "staffId": 11,
       "projectId": 3,
-      "role": "M"
+      "role": "A"
     },
     {
       "id": 13,
       "staffId": 3,
       "projectId": 4,
-      "role": "A"
-    },
-    {
-      "id": 14,
-      "staffId": 13,
-      "projectId": 4,
       "role": "PL"
     },
     {
+      "id": 14,
+      "staffId": 5,
+      "projectId": 4,
+      "role": "M"
+    },
+    {
       "id": 15,
-      "staffId": 4,
+      "staffId": 12,
       "projectId": 4,
       "role": "M"
     },
     {
       "id": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "role": "M"
+      "staffId": 9,
+      "projectId": 4,
+      "role": "A"
     },
     {
       "id": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "role": "M"
-    },
-    {
-      "id": 18,
-      "staffId": 10,
+      "staffId": 8,
       "projectId": 5,
       "role": "PL"
     },
     {
+      "id": 18,
+      "staffId": 6,
+      "projectId": 5,
+      "role": "M"
+    },
+    {
       "id": 19,
-      "staffId": 5,
+      "staffId": 10,
+      "projectId": 5,
+      "role": "M"
+    },
+    {
+      "id": 20,
+      "staffId": 4,
       "projectId": 5,
       "role": "A"
     },
     {
-      "id": 20,
-      "staffId": 2,
+      "id": 21,
+      "staffId": 1,
       "projectId": 6,
       "role": "PL"
     },
     {
-      "id": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "role": "M"
-    },
-    {
       "id": 22,
-      "staffId": 1,
+      "staffId": 7,
       "projectId": 6,
       "role": "M"
     },
     {
       "id": 23,
-      "staffId": 7,
+      "staffId": 11,
+      "projectId": 6,
+      "role": "M"
+    },
+    {
+      "id": 24,
+      "staffId": 12,
       "projectId": 6,
       "role": "A"
     },
     {
-      "id": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "role": "A"
-    },
-    {
       "id": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "role": "M"
-    },
-    {
-      "id": 26,
-      "staffId": 3,
+      "staffId": 4,
       "projectId": 7,
       "role": "PL"
     },
     {
+      "id": 26,
+      "staffId": 2,
+      "projectId": 7,
+      "role": "M"
+    },
+    {
       "id": 27,
-      "staffId": 12,
-      "projectId": 8,
+      "staffId": 10,
+      "projectId": 7,
       "role": "M"
     },
     {
       "id": 28,
-      "staffId": 2,
-      "projectId": 8,
+      "staffId": 9,
+      "projectId": 7,
       "role": "A"
     },
     {
       "id": 29,
-      "staffId": 7,
+      "staffId": 3,
       "projectId": 8,
       "role": "PL"
+    },
+    {
+      "id": 30,
+      "staffId": 5,
+      "projectId": 8,
+      "role": "M"
+    },
+    {
+      "id": 31,
+      "staffId": 6,
+      "projectId": 8,
+      "role": "M"
+    },
+    {
+      "id": 32,
+      "staffId": 8,
+      "projectId": 8,
+      "role": "A"
     }
   ],
   "allocations": [
     {
       "id": 1,
       "assignmentId": 1,
-      "staffId": 10,
+      "staffId": 1,
       "projectId": 1,
-      "month": "2026-01",
-      "percentage": 0.0
+      "month": "2026-08",
+      "percentage": 0.5
     },
     {
       "id": 2,
       "assignmentId": 1,
-      "staffId": 10,
+      "staffId": 1,
       "projectId": 1,
-      "month": "2026-02",
-      "percentage": 0.75
+      "month": "2026-09",
+      "percentage": 0.5
     },
     {
       "id": 3,
       "assignmentId": 1,
-      "staffId": 10,
+      "staffId": 1,
       "projectId": 1,
-      "month": "2026-03",
-      "percentage": 0.0
+      "month": "2026-10",
+      "percentage": 0.5
     },
     {
       "id": 4,
       "assignmentId": 1,
-      "staffId": 10,
+      "staffId": 1,
       "projectId": 1,
-      "month": "2026-04",
-      "percentage": 0.75
+      "month": "2026-11",
+      "percentage": 0.5
     },
     {
       "id": 5,
       "assignmentId": 1,
-      "staffId": 10,
+      "staffId": 1,
       "projectId": 1,
-      "month": "2026-05",
-      "percentage": 1.0
+      "month": "2026-12",
+      "percentage": 0.5
     },
     {
       "id": 6,
       "assignmentId": 1,
-      "staffId": 10,
+      "staffId": 1,
       "projectId": 1,
-      "month": "2026-06",
-      "percentage": 0.0
+      "month": "2027-01",
+      "percentage": 0.5
     },
     {
       "id": 7,
       "assignmentId": 1,
-      "staffId": 10,
+      "staffId": 1,
       "projectId": 1,
-      "month": "2026-07",
-      "percentage": 0.0
+      "month": "2027-02",
+      "percentage": 0.5
     },
     {
       "id": 8,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 2,
+      "staffId": 2,
       "projectId": 1,
       "month": "2026-08",
-      "percentage": 0.25
+      "percentage": 0.3
     },
     {
       "id": 9,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 2,
+      "staffId": 2,
       "projectId": 1,
       "month": "2026-09",
-      "percentage": 0.75
+      "percentage": 0.3
     },
     {
       "id": 10,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 2,
+      "staffId": 2,
       "projectId": 1,
       "month": "2026-10",
-      "percentage": 0.0
+      "percentage": 0.3
     },
     {
       "id": 11,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 2,
+      "staffId": 2,
       "projectId": 1,
       "month": "2026-11",
-      "percentage": 0.0
+      "percentage": 0.3
     },
     {
       "id": 12,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 2,
+      "staffId": 2,
       "projectId": 1,
       "month": "2026-12",
-      "percentage": 0.75
+      "percentage": 0.3
     },
     {
       "id": 13,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 2,
+      "staffId": 2,
       "projectId": 1,
       "month": "2027-01",
-      "percentage": 1.0
+      "percentage": 0.3
     },
     {
       "id": 14,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 2,
+      "staffId": 2,
       "projectId": 1,
       "month": "2027-02",
-      "percentage": 0.0
+      "percentage": 0.3
     },
     {
       "id": 15,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 3,
+      "staffId": 3,
       "projectId": 1,
-      "month": "2027-03",
-      "percentage": 0.75
+      "month": "2026-08",
+      "percentage": 0.4
     },
     {
       "id": 16,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 3,
+      "staffId": 3,
       "projectId": 1,
-      "month": "2027-04",
-      "percentage": 0.25
+      "month": "2026-09",
+      "percentage": 0.4
     },
     {
       "id": 17,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 3,
+      "staffId": 3,
       "projectId": 1,
-      "month": "2027-05",
-      "percentage": 0.75
+      "month": "2026-10",
+      "percentage": 0.4
     },
     {
       "id": 18,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 3,
+      "staffId": 3,
       "projectId": 1,
-      "month": "2027-06",
-      "percentage": 0.0
+      "month": "2026-11",
+      "percentage": 0.4
     },
     {
       "id": 19,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 3,
+      "staffId": 3,
       "projectId": 1,
-      "month": "2027-07",
-      "percentage": 0.75
+      "month": "2026-12",
+      "percentage": 0.4
     },
     {
       "id": 20,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 3,
+      "staffId": 3,
       "projectId": 1,
-      "month": "2027-08",
-      "percentage": 0.0
+      "month": "2027-01",
+      "percentage": 0.4
     },
     {
       "id": 21,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 3,
+      "staffId": 3,
       "projectId": 1,
-      "month": "2027-09",
-      "percentage": 1.0
+      "month": "2027-02",
+      "percentage": 0.4
     },
     {
       "id": 22,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 4,
+      "staffId": 8,
       "projectId": 1,
-      "month": "2027-10",
-      "percentage": 0.0
+      "month": "2026-08",
+      "percentage": 0.4
     },
     {
       "id": 23,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 4,
+      "staffId": 8,
       "projectId": 1,
-      "month": "2027-11",
-      "percentage": 1.0
+      "month": "2026-09",
+      "percentage": 0.4
     },
     {
       "id": 24,
-      "assignmentId": 1,
-      "staffId": 10,
+      "assignmentId": 4,
+      "staffId": 8,
       "projectId": 1,
-      "month": "2027-12",
-      "percentage": 0.0
+      "month": "2026-10",
+      "percentage": 0.4
     },
     {
       "id": 25,
-      "assignmentId": 2,
-      "staffId": 5,
+      "assignmentId": 4,
+      "staffId": 8,
       "projectId": 1,
-      "month": "2026-01",
-      "percentage": 1.0
+      "month": "2026-11",
+      "percentage": 0.4
     },
     {
       "id": 26,
-      "assignmentId": 2,
-      "staffId": 5,
+      "assignmentId": 4,
+      "staffId": 8,
       "projectId": 1,
-      "month": "2026-02",
-      "percentage": 0.25
+      "month": "2026-12",
+      "percentage": 0.4
     },
     {
       "id": 27,
-      "assignmentId": 2,
-      "staffId": 5,
+      "assignmentId": 4,
+      "staffId": 8,
       "projectId": 1,
-      "month": "2026-03",
-      "percentage": 0.75
+      "month": "2027-01",
+      "percentage": 0.4
     },
     {
       "id": 28,
-      "assignmentId": 2,
-      "staffId": 5,
+      "assignmentId": 4,
+      "staffId": 8,
       "projectId": 1,
-      "month": "2026-04",
-      "percentage": 1.0
+      "month": "2027-02",
+      "percentage": 0.4
     },
     {
       "id": 29,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2026-05",
-      "percentage": 0.25
+      "assignmentId": 5,
+      "staffId": 4,
+      "projectId": 2,
+      "month": "2026-08",
+      "percentage": 0.5
     },
     {
       "id": 30,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2026-06",
-      "percentage": 0.25
+      "assignmentId": 5,
+      "staffId": 4,
+      "projectId": 2,
+      "month": "2026-09",
+      "percentage": 0.5
     },
     {
       "id": 31,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2026-07",
-      "percentage": 0.0
+      "assignmentId": 5,
+      "staffId": 4,
+      "projectId": 2,
+      "month": "2026-10",
+      "percentage": 0.5
     },
     {
       "id": 32,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2026-08",
-      "percentage": 0.0
+      "assignmentId": 5,
+      "staffId": 4,
+      "projectId": 2,
+      "month": "2026-11",
+      "percentage": 0.5
     },
     {
       "id": 33,
-      "assignmentId": 2,
+      "assignmentId": 6,
       "staffId": 5,
-      "projectId": 1,
-      "month": "2026-09",
-      "percentage": 0.75
+      "projectId": 2,
+      "month": "2026-08",
+      "percentage": 0.5
     },
     {
       "id": 34,
-      "assignmentId": 2,
+      "assignmentId": 6,
       "staffId": 5,
-      "projectId": 1,
-      "month": "2026-10",
-      "percentage": 0.0
+      "projectId": 2,
+      "month": "2026-09",
+      "percentage": 0.5
     },
     {
       "id": 35,
-      "assignmentId": 2,
+      "assignmentId": 6,
       "staffId": 5,
-      "projectId": 1,
-      "month": "2026-11",
-      "percentage": 1.0
+      "projectId": 2,
+      "month": "2026-10",
+      "percentage": 0.5
     },
     {
       "id": 36,
-      "assignmentId": 2,
+      "assignmentId": 6,
       "staffId": 5,
-      "projectId": 1,
-      "month": "2026-12",
-      "percentage": 0.75
+      "projectId": 2,
+      "month": "2026-11",
+      "percentage": 0.5
     },
     {
       "id": 37,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-01",
-      "percentage": 0.0
+      "assignmentId": 7,
+      "staffId": 6,
+      "projectId": 2,
+      "month": "2026-08",
+      "percentage": 0.5
     },
     {
       "id": 38,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-02",
-      "percentage": 1.0
+      "assignmentId": 7,
+      "staffId": 6,
+      "projectId": 2,
+      "month": "2026-09",
+      "percentage": 0.5
     },
     {
       "id": 39,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-03",
-      "percentage": 0.75
+      "assignmentId": 7,
+      "staffId": 6,
+      "projectId": 2,
+      "month": "2026-10",
+      "percentage": 0.5
     },
     {
       "id": 40,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-04",
-      "percentage": 0.0
+      "assignmentId": 7,
+      "staffId": 6,
+      "projectId": 2,
+      "month": "2026-11",
+      "percentage": 0.5
     },
     {
       "id": 41,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-05",
-      "percentage": 1.0
+      "assignmentId": 8,
+      "staffId": 9,
+      "projectId": 2,
+      "month": "2026-08",
+      "percentage": 0.2
     },
     {
       "id": 42,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-06",
-      "percentage": 0.0
+      "assignmentId": 8,
+      "staffId": 9,
+      "projectId": 2,
+      "month": "2026-09",
+      "percentage": 0.2
     },
     {
       "id": 43,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-07",
-      "percentage": 1.0
+      "assignmentId": 8,
+      "staffId": 9,
+      "projectId": 2,
+      "month": "2026-10",
+      "percentage": 0.2
     },
     {
       "id": 44,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-08",
-      "percentage": 0.25
+      "assignmentId": 8,
+      "staffId": 9,
+      "projectId": 2,
+      "month": "2026-11",
+      "percentage": 0.2
     },
     {
       "id": 45,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-09",
-      "percentage": 0.25
+      "assignmentId": 9,
+      "staffId": 7,
+      "projectId": 3,
+      "month": "2026-09",
+      "percentage": 0.5
     },
     {
       "id": 46,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-10",
-      "percentage": 0.25
+      "assignmentId": 9,
+      "staffId": 7,
+      "projectId": 3,
+      "month": "2026-10",
+      "percentage": 0.5
     },
     {
       "id": 47,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-11",
-      "percentage": 0.25
+      "assignmentId": 9,
+      "staffId": 7,
+      "projectId": 3,
+      "month": "2026-11",
+      "percentage": 0.5
     },
     {
       "id": 48,
-      "assignmentId": 2,
-      "staffId": 5,
-      "projectId": 1,
-      "month": "2027-12",
-      "percentage": 0.0
+      "assignmentId": 9,
+      "staffId": 7,
+      "projectId": 3,
+      "month": "2026-12",
+      "percentage": 0.5
     },
     {
       "id": 49,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-01",
-      "percentage": 0.0
+      "assignmentId": 9,
+      "staffId": 7,
+      "projectId": 3,
+      "month": "2027-01",
+      "percentage": 0.5
     },
     {
       "id": 50,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-02",
-      "percentage": 1.0
+      "assignmentId": 9,
+      "staffId": 7,
+      "projectId": 3,
+      "month": "2027-02",
+      "percentage": 0.5
     },
     {
       "id": 51,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-03",
-      "percentage": 0.0
+      "assignmentId": 9,
+      "staffId": 7,
+      "projectId": 3,
+      "month": "2027-03",
+      "percentage": 0.5
     },
     {
       "id": 52,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-04",
-      "percentage": 0.75
+      "assignmentId": 9,
+      "staffId": 7,
+      "projectId": 3,
+      "month": "2027-04",
+      "percentage": 0.5
     },
     {
       "id": 53,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-05",
-      "percentage": 1.0
+      "assignmentId": 9,
+      "staffId": 7,
+      "projectId": 3,
+      "month": "2027-05",
+      "percentage": 0.5
     },
     {
       "id": 54,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-06",
-      "percentage": 0.25
+      "assignmentId": 9,
+      "staffId": 7,
+      "projectId": 3,
+      "month": "2027-06",
+      "percentage": 0.5
     },
     {
       "id": 55,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-07",
-      "percentage": 0.25
+      "assignmentId": 9,
+      "staffId": 7,
+      "projectId": 3,
+      "month": "2027-07",
+      "percentage": 0.5
     },
     {
       "id": 56,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-08",
-      "percentage": 1.0
+      "assignmentId": 10,
+      "staffId": 2,
+      "projectId": 3,
+      "month": "2026-09",
+      "percentage": 0.4
     },
     {
       "id": 57,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-09",
-      "percentage": 1.0
+      "assignmentId": 10,
+      "staffId": 2,
+      "projectId": 3,
+      "month": "2026-10",
+      "percentage": 0.4
     },
     {
       "id": 58,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-10",
-      "percentage": 0.75
+      "assignmentId": 10,
+      "staffId": 2,
+      "projectId": 3,
+      "month": "2026-11",
+      "percentage": 0.4
     },
     {
       "id": 59,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-11",
-      "percentage": 0.75
+      "assignmentId": 10,
+      "staffId": 2,
+      "projectId": 3,
+      "month": "2026-12",
+      "percentage": 0.4
     },
     {
       "id": 60,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2026-12",
-      "percentage": 0.0
+      "assignmentId": 10,
+      "staffId": 2,
+      "projectId": 3,
+      "month": "2027-01",
+      "percentage": 0.4
     },
     {
       "id": 61,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-01",
-      "percentage": 1.0
+      "assignmentId": 10,
+      "staffId": 2,
+      "projectId": 3,
+      "month": "2027-02",
+      "percentage": 0.4
     },
     {
       "id": 62,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-02",
-      "percentage": 0.0
+      "assignmentId": 10,
+      "staffId": 2,
+      "projectId": 3,
+      "month": "2027-03",
+      "percentage": 0.4
     },
     {
       "id": 63,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-03",
-      "percentage": 0.25
+      "assignmentId": 10,
+      "staffId": 2,
+      "projectId": 3,
+      "month": "2027-04",
+      "percentage": 0.4
     },
     {
       "id": 64,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-04",
-      "percentage": 0.25
+      "assignmentId": 10,
+      "staffId": 2,
+      "projectId": 3,
+      "month": "2027-05",
+      "percentage": 0.4
     },
     {
       "id": 65,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-05",
-      "percentage": 0.75
+      "assignmentId": 10,
+      "staffId": 2,
+      "projectId": 3,
+      "month": "2027-06",
+      "percentage": 0.4
     },
     {
       "id": 66,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-06",
-      "percentage": 1.0
+      "assignmentId": 10,
+      "staffId": 2,
+      "projectId": 3,
+      "month": "2027-07",
+      "percentage": 0.4
     },
     {
       "id": 67,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-07",
-      "percentage": 0.25
+      "assignmentId": 11,
+      "staffId": 10,
+      "projectId": 3,
+      "month": "2026-09",
+      "percentage": 0.4
     },
     {
       "id": 68,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-08",
-      "percentage": 0.25
+      "assignmentId": 11,
+      "staffId": 10,
+      "projectId": 3,
+      "month": "2026-10",
+      "percentage": 0.4
     },
     {
       "id": 69,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-09",
-      "percentage": 1.0
+      "assignmentId": 11,
+      "staffId": 10,
+      "projectId": 3,
+      "month": "2026-11",
+      "percentage": 0.4
     },
     {
       "id": 70,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-10",
-      "percentage": 1.0
+      "assignmentId": 11,
+      "staffId": 10,
+      "projectId": 3,
+      "month": "2026-12",
+      "percentage": 0.4
     },
     {
       "id": 71,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-11",
-      "percentage": 0.25
+      "assignmentId": 11,
+      "staffId": 10,
+      "projectId": 3,
+      "month": "2027-01",
+      "percentage": 0.4
     },
     {
       "id": 72,
-      "assignmentId": 3,
-      "staffId": 1,
-      "projectId": 1,
-      "month": "2027-12",
-      "percentage": 0.0
+      "assignmentId": 11,
+      "staffId": 10,
+      "projectId": 3,
+      "month": "2027-02",
+      "percentage": 0.4
     },
     {
       "id": 73,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-01",
-      "percentage": 0.75
+      "assignmentId": 11,
+      "staffId": 10,
+      "projectId": 3,
+      "month": "2027-03",
+      "percentage": 0.4
     },
     {
       "id": 74,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-02",
-      "percentage": 0.0
+      "assignmentId": 11,
+      "staffId": 10,
+      "projectId": 3,
+      "month": "2027-04",
+      "percentage": 0.4
     },
     {
       "id": 75,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-03",
-      "percentage": 0.0
+      "assignmentId": 11,
+      "staffId": 10,
+      "projectId": 3,
+      "month": "2027-05",
+      "percentage": 0.4
     },
     {
       "id": 76,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-04",
-      "percentage": 0.25
+      "assignmentId": 11,
+      "staffId": 10,
+      "projectId": 3,
+      "month": "2027-06",
+      "percentage": 0.4
     },
     {
       "id": 77,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-05",
-      "percentage": 0.0
+      "assignmentId": 11,
+      "staffId": 10,
+      "projectId": 3,
+      "month": "2027-07",
+      "percentage": 0.4
     },
     {
       "id": 78,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-06",
-      "percentage": 0.25
+      "assignmentId": 12,
+      "staffId": 11,
+      "projectId": 3,
+      "month": "2026-09",
+      "percentage": 0.3
     },
     {
       "id": 79,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-07",
-      "percentage": 1.0
+      "assignmentId": 12,
+      "staffId": 11,
+      "projectId": 3,
+      "month": "2026-10",
+      "percentage": 0.3
     },
     {
       "id": 80,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-08",
-      "percentage": 0.25
+      "assignmentId": 12,
+      "staffId": 11,
+      "projectId": 3,
+      "month": "2026-11",
+      "percentage": 0.3
     },
     {
       "id": 81,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-09",
-      "percentage": 1.0
+      "assignmentId": 12,
+      "staffId": 11,
+      "projectId": 3,
+      "month": "2026-12",
+      "percentage": 0.3
     },
     {
       "id": 82,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-10",
-      "percentage": 0.0
+      "assignmentId": 12,
+      "staffId": 11,
+      "projectId": 3,
+      "month": "2027-01",
+      "percentage": 0.3
     },
     {
       "id": 83,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-11",
-      "percentage": 1.0
+      "assignmentId": 12,
+      "staffId": 11,
+      "projectId": 3,
+      "month": "2027-02",
+      "percentage": 0.3
     },
     {
       "id": 84,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2026-12",
-      "percentage": 0.25
+      "assignmentId": 12,
+      "staffId": 11,
+      "projectId": 3,
+      "month": "2027-03",
+      "percentage": 0.3
     },
     {
       "id": 85,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2027-01",
-      "percentage": 1.0
+      "assignmentId": 12,
+      "staffId": 11,
+      "projectId": 3,
+      "month": "2027-04",
+      "percentage": 0.3
     },
     {
       "id": 86,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2027-02",
-      "percentage": 1.0
+      "assignmentId": 12,
+      "staffId": 11,
+      "projectId": 3,
+      "month": "2027-05",
+      "percentage": 0.3
     },
     {
       "id": 87,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2027-03",
-      "percentage": 1.0
+      "assignmentId": 12,
+      "staffId": 11,
+      "projectId": 3,
+      "month": "2027-06",
+      "percentage": 0.3
     },
     {
       "id": 88,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2027-04",
-      "percentage": 0.75
+      "assignmentId": 12,
+      "staffId": 11,
+      "projectId": 3,
+      "month": "2027-07",
+      "percentage": 0.3
     },
     {
       "id": 89,
-      "assignmentId": 4,
+      "assignmentId": 13,
       "staffId": 3,
-      "projectId": 1,
-      "month": "2027-05",
-      "percentage": 0.75
+      "projectId": 4,
+      "month": "2026-10",
+      "percentage": 0.5
     },
     {
       "id": 90,
-      "assignmentId": 4,
+      "assignmentId": 13,
       "staffId": 3,
-      "projectId": 1,
-      "month": "2027-06",
-      "percentage": 0.0
+      "projectId": 4,
+      "month": "2026-11",
+      "percentage": 0.5
     },
     {
       "id": 91,
-      "assignmentId": 4,
+      "assignmentId": 13,
       "staffId": 3,
-      "projectId": 1,
-      "month": "2027-07",
-      "percentage": 0.0
+      "projectId": 4,
+      "month": "2026-12",
+      "percentage": 0.5
     },
     {
       "id": 92,
-      "assignmentId": 4,
+      "assignmentId": 13,
       "staffId": 3,
-      "projectId": 1,
-      "month": "2027-08",
-      "percentage": 1.0
+      "projectId": 4,
+      "month": "2027-01",
+      "percentage": 0.5
     },
     {
       "id": 93,
-      "assignmentId": 4,
+      "assignmentId": 13,
       "staffId": 3,
-      "projectId": 1,
-      "month": "2027-09",
-      "percentage": 1.0
+      "projectId": 4,
+      "month": "2027-02",
+      "percentage": 0.5
     },
     {
       "id": 94,
-      "assignmentId": 4,
+      "assignmentId": 13,
       "staffId": 3,
-      "projectId": 1,
-      "month": "2027-10",
-      "percentage": 0.0
+      "projectId": 4,
+      "month": "2027-03",
+      "percentage": 0.5
     },
     {
       "id": 95,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2027-11",
-      "percentage": 0.0
+      "assignmentId": 14,
+      "staffId": 5,
+      "projectId": 4,
+      "month": "2026-10",
+      "percentage": 0.4
     },
     {
       "id": 96,
-      "assignmentId": 4,
-      "staffId": 3,
-      "projectId": 1,
-      "month": "2027-12",
-      "percentage": 0.25
+      "assignmentId": 14,
+      "staffId": 5,
+      "projectId": 4,
+      "month": "2026-11",
+      "percentage": 0.4
     },
     {
       "id": 97,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-01",
-      "percentage": 0.0
+      "assignmentId": 14,
+      "staffId": 5,
+      "projectId": 4,
+      "month": "2026-12",
+      "percentage": 0.4
     },
     {
       "id": 98,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-02",
-      "percentage": 1.0
+      "assignmentId": 14,
+      "staffId": 5,
+      "projectId": 4,
+      "month": "2027-01",
+      "percentage": 0.4
     },
     {
       "id": 99,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-03",
-      "percentage": 0.0
+      "assignmentId": 14,
+      "staffId": 5,
+      "projectId": 4,
+      "month": "2027-02",
+      "percentage": 0.4
     },
     {
       "id": 100,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-04",
-      "percentage": 1.0
+      "assignmentId": 14,
+      "staffId": 5,
+      "projectId": 4,
+      "month": "2027-03",
+      "percentage": 0.4
     },
     {
       "id": 101,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-05",
-      "percentage": 0.25
+      "assignmentId": 15,
+      "staffId": 12,
+      "projectId": 4,
+      "month": "2026-10",
+      "percentage": 0.4
     },
     {
       "id": 102,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-06",
-      "percentage": 0.75
+      "assignmentId": 15,
+      "staffId": 12,
+      "projectId": 4,
+      "month": "2026-11",
+      "percentage": 0.4
     },
     {
       "id": 103,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-07",
-      "percentage": 0.0
+      "assignmentId": 15,
+      "staffId": 12,
+      "projectId": 4,
+      "month": "2026-12",
+      "percentage": 0.4
     },
     {
       "id": 104,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-08",
-      "percentage": 0.0
+      "assignmentId": 15,
+      "staffId": 12,
+      "projectId": 4,
+      "month": "2027-01",
+      "percentage": 0.4
     },
     {
       "id": 105,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-09",
-      "percentage": 0.75
+      "assignmentId": 15,
+      "staffId": 12,
+      "projectId": 4,
+      "month": "2027-02",
+      "percentage": 0.4
     },
     {
       "id": 106,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-10",
-      "percentage": 1.0
+      "assignmentId": 15,
+      "staffId": 12,
+      "projectId": 4,
+      "month": "2027-03",
+      "percentage": 0.4
     },
     {
       "id": 107,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-11",
-      "percentage": 0.0
+      "assignmentId": 16,
+      "staffId": 9,
+      "projectId": 4,
+      "month": "2026-10",
+      "percentage": 0.2
     },
     {
       "id": 108,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2026-12",
-      "percentage": 1.0
+      "assignmentId": 16,
+      "staffId": 9,
+      "projectId": 4,
+      "month": "2026-11",
+      "percentage": 0.2
     },
     {
       "id": 109,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-01",
-      "percentage": 0.0
+      "assignmentId": 16,
+      "staffId": 9,
+      "projectId": 4,
+      "month": "2026-12",
+      "percentage": 0.2
     },
     {
       "id": 110,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-02",
-      "percentage": 0.75
+      "assignmentId": 16,
+      "staffId": 9,
+      "projectId": 4,
+      "month": "2027-01",
+      "percentage": 0.2
     },
     {
       "id": 111,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-03",
-      "percentage": 0.25
+      "assignmentId": 16,
+      "staffId": 9,
+      "projectId": 4,
+      "month": "2027-02",
+      "percentage": 0.2
     },
     {
       "id": 112,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-04",
-      "percentage": 0.0
+      "assignmentId": 16,
+      "staffId": 9,
+      "projectId": 4,
+      "month": "2027-03",
+      "percentage": 0.2
     },
     {
       "id": 113,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-05",
-      "percentage": 0.0
+      "assignmentId": 17,
+      "staffId": 8,
+      "projectId": 5,
+      "month": "2026-11",
+      "percentage": 0.5
     },
     {
       "id": 114,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-06",
-      "percentage": 0.75
+      "assignmentId": 17,
+      "staffId": 8,
+      "projectId": 5,
+      "month": "2026-12",
+      "percentage": 0.5
     },
     {
       "id": 115,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-07",
-      "percentage": 0.0
+      "assignmentId": 17,
+      "staffId": 8,
+      "projectId": 5,
+      "month": "2027-01",
+      "percentage": 0.5
     },
     {
       "id": 116,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-08",
-      "percentage": 0.25
+      "assignmentId": 17,
+      "staffId": 8,
+      "projectId": 5,
+      "month": "2027-02",
+      "percentage": 0.5
     },
     {
       "id": 117,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-09",
-      "percentage": 1.0
+      "assignmentId": 17,
+      "staffId": 8,
+      "projectId": 5,
+      "month": "2027-03",
+      "percentage": 0.5
     },
     {
       "id": 118,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-10",
-      "percentage": 0.0
+      "assignmentId": 17,
+      "staffId": 8,
+      "projectId": 5,
+      "month": "2027-04",
+      "percentage": 0.5
     },
     {
       "id": 119,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-11",
-      "percentage": 1.0
+      "assignmentId": 17,
+      "staffId": 8,
+      "projectId": 5,
+      "month": "2027-05",
+      "percentage": 0.5
     },
     {
       "id": 120,
-      "assignmentId": 5,
-      "staffId": 1,
-      "projectId": 2,
-      "month": "2027-12",
-      "percentage": 0.25
+      "assignmentId": 17,
+      "staffId": 8,
+      "projectId": 5,
+      "month": "2027-06",
+      "percentage": 0.5
     },
     {
       "id": 121,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
-      "month": "2026-01",
-      "percentage": 0.25
+      "assignmentId": 17,
+      "staffId": 8,
+      "projectId": 5,
+      "month": "2027-07",
+      "percentage": 0.5
     },
     {
       "id": 122,
-      "assignmentId": 6,
+      "assignmentId": 18,
       "staffId": 6,
-      "projectId": 2,
-      "month": "2026-02",
-      "percentage": 0.0
+      "projectId": 5,
+      "month": "2026-11",
+      "percentage": 0.5
     },
     {
       "id": 123,
-      "assignmentId": 6,
+      "assignmentId": 18,
       "staffId": 6,
-      "projectId": 2,
-      "month": "2026-03",
-      "percentage": 0.25
+      "projectId": 5,
+      "month": "2026-12",
+      "percentage": 0.5
     },
     {
       "id": 124,
-      "assignmentId": 6,
+      "assignmentId": 18,
       "staffId": 6,
-      "projectId": 2,
-      "month": "2026-04",
-      "percentage": 0.25
+      "projectId": 5,
+      "month": "2027-01",
+      "percentage": 0.5
     },
     {
       "id": 125,
-      "assignmentId": 6,
+      "assignmentId": 18,
       "staffId": 6,
-      "projectId": 2,
-      "month": "2026-05",
-      "percentage": 0.0
+      "projectId": 5,
+      "month": "2027-02",
+      "percentage": 0.5
     },
     {
       "id": 126,
-      "assignmentId": 6,
+      "assignmentId": 18,
       "staffId": 6,
-      "projectId": 2,
-      "month": "2026-06",
-      "percentage": 0.0
+      "projectId": 5,
+      "month": "2027-03",
+      "percentage": 0.5
     },
     {
       "id": 127,
-      "assignmentId": 6,
+      "assignmentId": 18,
       "staffId": 6,
-      "projectId": 2,
-      "month": "2026-07",
-      "percentage": 0.75
+      "projectId": 5,
+      "month": "2027-04",
+      "percentage": 0.5
     },
     {
       "id": 128,
-      "assignmentId": 6,
+      "assignmentId": 18,
       "staffId": 6,
-      "projectId": 2,
-      "month": "2026-08",
-      "percentage": 0.0
+      "projectId": 5,
+      "month": "2027-05",
+      "percentage": 0.5
     },
     {
       "id": 129,
-      "assignmentId": 6,
+      "assignmentId": 18,
       "staffId": 6,
-      "projectId": 2,
-      "month": "2026-09",
-      "percentage": 1.0
+      "projectId": 5,
+      "month": "2027-06",
+      "percentage": 0.5
     },
     {
       "id": 130,
-      "assignmentId": 6,
+      "assignmentId": 18,
       "staffId": 6,
-      "projectId": 2,
-      "month": "2026-10",
-      "percentage": 1.0
+      "projectId": 5,
+      "month": "2027-07",
+      "percentage": 0.5
     },
     {
       "id": 131,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
+      "assignmentId": 19,
+      "staffId": 10,
+      "projectId": 5,
       "month": "2026-11",
-      "percentage": 0.75
+      "percentage": 0.3
     },
     {
       "id": 132,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
+      "assignmentId": 19,
+      "staffId": 10,
+      "projectId": 5,
       "month": "2026-12",
-      "percentage": 0.0
+      "percentage": 0.3
     },
     {
       "id": 133,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
+      "assignmentId": 19,
+      "staffId": 10,
+      "projectId": 5,
       "month": "2027-01",
-      "percentage": 0.0
+      "percentage": 0.3
     },
     {
       "id": 134,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
+      "assignmentId": 19,
+      "staffId": 10,
+      "projectId": 5,
       "month": "2027-02",
-      "percentage": 1.0
+      "percentage": 0.3
     },
     {
       "id": 135,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
+      "assignmentId": 19,
+      "staffId": 10,
+      "projectId": 5,
       "month": "2027-03",
-      "percentage": 0.25
+      "percentage": 0.3
     },
     {
       "id": 136,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
+      "assignmentId": 19,
+      "staffId": 10,
+      "projectId": 5,
       "month": "2027-04",
-      "percentage": 0.25
+      "percentage": 0.3
     },
     {
       "id": 137,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
+      "assignmentId": 19,
+      "staffId": 10,
+      "projectId": 5,
       "month": "2027-05",
-      "percentage": 0.0
+      "percentage": 0.3
     },
     {
       "id": 138,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
+      "assignmentId": 19,
+      "staffId": 10,
+      "projectId": 5,
       "month": "2027-06",
-      "percentage": 1.0
+      "percentage": 0.3
     },
     {
       "id": 139,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
+      "assignmentId": 19,
+      "staffId": 10,
+      "projectId": 5,
       "month": "2027-07",
-      "percentage": 0.0
+      "percentage": 0.3
     },
     {
       "id": 140,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
-      "month": "2027-08",
-      "percentage": 0.25
+      "assignmentId": 20,
+      "staffId": 4,
+      "projectId": 5,
+      "month": "2026-11",
+      "percentage": 0.2
     },
     {
       "id": 141,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
-      "month": "2027-09",
-      "percentage": 0.25
+      "assignmentId": 20,
+      "staffId": 4,
+      "projectId": 5,
+      "month": "2026-12",
+      "percentage": 0.2
     },
     {
       "id": 142,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
-      "month": "2027-10",
-      "percentage": 1.0
+      "assignmentId": 20,
+      "staffId": 4,
+      "projectId": 5,
+      "month": "2027-01",
+      "percentage": 0.2
     },
     {
       "id": 143,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
-      "month": "2027-11",
-      "percentage": 0.75
+      "assignmentId": 20,
+      "staffId": 4,
+      "projectId": 5,
+      "month": "2027-02",
+      "percentage": 0.2
     },
     {
       "id": 144,
-      "assignmentId": 6,
-      "staffId": 6,
-      "projectId": 2,
-      "month": "2027-12",
-      "percentage": 0.0
+      "assignmentId": 20,
+      "staffId": 4,
+      "projectId": 5,
+      "month": "2027-03",
+      "percentage": 0.2
     },
     {
       "id": 145,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-01",
-      "percentage": 0.25
+      "assignmentId": 20,
+      "staffId": 4,
+      "projectId": 5,
+      "month": "2027-04",
+      "percentage": 0.2
     },
     {
       "id": 146,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-02",
-      "percentage": 0.25
+      "assignmentId": 20,
+      "staffId": 4,
+      "projectId": 5,
+      "month": "2027-05",
+      "percentage": 0.2
     },
     {
       "id": 147,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-03",
-      "percentage": 0.75
+      "assignmentId": 20,
+      "staffId": 4,
+      "projectId": 5,
+      "month": "2027-06",
+      "percentage": 0.2
     },
     {
       "id": 148,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-04",
-      "percentage": 1.0
+      "assignmentId": 20,
+      "staffId": 4,
+      "projectId": 5,
+      "month": "2027-07",
+      "percentage": 0.2
     },
     {
       "id": 149,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-05",
-      "percentage": 0.75
+      "assignmentId": 21,
+      "staffId": 1,
+      "projectId": 6,
+      "month": "2027-01",
+      "percentage": 0.3
     },
     {
       "id": 150,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-06",
-      "percentage": 0.0
+      "assignmentId": 21,
+      "staffId": 1,
+      "projectId": 6,
+      "month": "2027-02",
+      "percentage": 0.3
     },
     {
       "id": 151,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-07",
-      "percentage": 0.25
+      "assignmentId": 21,
+      "staffId": 1,
+      "projectId": 6,
+      "month": "2027-03",
+      "percentage": 0.3
     },
     {
       "id": 152,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-08",
-      "percentage": 0.0
+      "assignmentId": 21,
+      "staffId": 1,
+      "projectId": 6,
+      "month": "2027-04",
+      "percentage": 0.3
     },
     {
       "id": 153,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-09",
-      "percentage": 0.0
+      "assignmentId": 21,
+      "staffId": 1,
+      "projectId": 6,
+      "month": "2027-05",
+      "percentage": 0.3
     },
     {
       "id": 154,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-10",
-      "percentage": 0.75
+      "assignmentId": 21,
+      "staffId": 1,
+      "projectId": 6,
+      "month": "2027-06",
+      "percentage": 0.3
     },
     {
       "id": 155,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-11",
-      "percentage": 0.25
+      "assignmentId": 21,
+      "staffId": 1,
+      "projectId": 6,
+      "month": "2027-07",
+      "percentage": 0.3
     },
     {
       "id": 156,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2026-12",
-      "percentage": 0.0
+      "assignmentId": 22,
+      "staffId": 7,
+      "projectId": 6,
+      "month": "2027-01",
+      "percentage": 0.3
     },
     {
       "id": 157,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-01",
-      "percentage": 1.0
+      "assignmentId": 22,
+      "staffId": 7,
+      "projectId": 6,
+      "month": "2027-02",
+      "percentage": 0.3
     },
     {
       "id": 158,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-02",
-      "percentage": 0.25
+      "assignmentId": 22,
+      "staffId": 7,
+      "projectId": 6,
+      "month": "2027-03",
+      "percentage": 0.3
     },
     {
       "id": 159,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-03",
-      "percentage": 1.0
+      "assignmentId": 22,
+      "staffId": 7,
+      "projectId": 6,
+      "month": "2027-04",
+      "percentage": 0.3
     },
     {
       "id": 160,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-04",
-      "percentage": 0.0
+      "assignmentId": 22,
+      "staffId": 7,
+      "projectId": 6,
+      "month": "2027-05",
+      "percentage": 0.3
     },
     {
       "id": 161,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-05",
-      "percentage": 0.25
+      "assignmentId": 22,
+      "staffId": 7,
+      "projectId": 6,
+      "month": "2027-06",
+      "percentage": 0.3
     },
     {
       "id": 162,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-06",
-      "percentage": 0.75
+      "assignmentId": 22,
+      "staffId": 7,
+      "projectId": 6,
+      "month": "2027-07",
+      "percentage": 0.3
     },
     {
       "id": 163,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-07",
-      "percentage": 0.0
+      "assignmentId": 23,
+      "staffId": 11,
+      "projectId": 6,
+      "month": "2027-01",
+      "percentage": 0.5
     },
     {
       "id": 164,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-08",
-      "percentage": 1.0
+      "assignmentId": 23,
+      "staffId": 11,
+      "projectId": 6,
+      "month": "2027-02",
+      "percentage": 0.5
     },
     {
       "id": 165,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-09",
-      "percentage": 1.0
+      "assignmentId": 23,
+      "staffId": 11,
+      "projectId": 6,
+      "month": "2027-03",
+      "percentage": 0.5
     },
     {
       "id": 166,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-10",
-      "percentage": 1.0
+      "assignmentId": 23,
+      "staffId": 11,
+      "projectId": 6,
+      "month": "2027-04",
+      "percentage": 0.5
     },
     {
       "id": 167,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-11",
-      "percentage": 1.0
+      "assignmentId": 23,
+      "staffId": 11,
+      "projectId": 6,
+      "month": "2027-05",
+      "percentage": 0.5
     },
     {
       "id": 168,
-      "assignmentId": 7,
-      "staffId": 2,
-      "projectId": 2,
-      "month": "2027-12",
-      "percentage": 0.75
+      "assignmentId": 23,
+      "staffId": 11,
+      "projectId": 6,
+      "month": "2027-06",
+      "percentage": 0.5
     },
     {
       "id": 169,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-01",
-      "percentage": 1.0
+      "assignmentId": 23,
+      "staffId": 11,
+      "projectId": 6,
+      "month": "2027-07",
+      "percentage": 0.5
     },
     {
       "id": 170,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-02",
-      "percentage": 1.0
+      "assignmentId": 24,
+      "staffId": 12,
+      "projectId": 6,
+      "month": "2027-01",
+      "percentage": 0.3
     },
     {
       "id": 171,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-03",
-      "percentage": 0.75
+      "assignmentId": 24,
+      "staffId": 12,
+      "projectId": 6,
+      "month": "2027-02",
+      "percentage": 0.3
     },
     {
       "id": 172,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-04",
-      "percentage": 0.75
+      "assignmentId": 24,
+      "staffId": 12,
+      "projectId": 6,
+      "month": "2027-03",
+      "percentage": 0.3
     },
     {
       "id": 173,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-05",
-      "percentage": 0.25
+      "assignmentId": 24,
+      "staffId": 12,
+      "projectId": 6,
+      "month": "2027-04",
+      "percentage": 0.3
     },
     {
       "id": 174,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-06",
-      "percentage": 0.0
+      "assignmentId": 24,
+      "staffId": 12,
+      "projectId": 6,
+      "month": "2027-05",
+      "percentage": 0.3
     },
     {
       "id": 175,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-07",
-      "percentage": 0.75
+      "assignmentId": 24,
+      "staffId": 12,
+      "projectId": 6,
+      "month": "2027-06",
+      "percentage": 0.3
     },
     {
       "id": 176,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-08",
-      "percentage": 0.0
+      "assignmentId": 24,
+      "staffId": 12,
+      "projectId": 6,
+      "month": "2027-07",
+      "percentage": 0.3
     },
     {
       "id": 177,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-09",
-      "percentage": 0.25
+      "assignmentId": 25,
+      "staffId": 4,
+      "projectId": 7,
+      "month": "2027-02",
+      "percentage": 0.5
     },
     {
       "id": 178,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-10",
-      "percentage": 0.75
+      "assignmentId": 25,
+      "staffId": 4,
+      "projectId": 7,
+      "month": "2027-03",
+      "percentage": 0.5
     },
     {
       "id": 179,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-11",
-      "percentage": 0.0
+      "assignmentId": 25,
+      "staffId": 4,
+      "projectId": 7,
+      "month": "2027-04",
+      "percentage": 0.5
     },
     {
       "id": 180,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2026-12",
-      "percentage": 1.0
+      "assignmentId": 25,
+      "staffId": 4,
+      "projectId": 7,
+      "month": "2027-05",
+      "percentage": 0.5
     },
     {
       "id": 181,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2027-01",
-      "percentage": 0.25
+      "assignmentId": 25,
+      "staffId": 4,
+      "projectId": 7,
+      "month": "2027-06",
+      "percentage": 0.5
     },
     {
       "id": 182,
-      "assignmentId": 8,
+      "assignmentId": 26,
       "staffId": 2,
-      "projectId": 3,
+      "projectId": 7,
       "month": "2027-02",
-      "percentage": 0.0
+      "percentage": 0.3
     },
     {
       "id": 183,
-      "assignmentId": 8,
+      "assignmentId": 26,
       "staffId": 2,
-      "projectId": 3,
+      "projectId": 7,
       "month": "2027-03",
-      "percentage": 1.0
+      "percentage": 0.3
     },
     {
       "id": 184,
-      "assignmentId": 8,
+      "assignmentId": 26,
       "staffId": 2,
-      "projectId": 3,
+      "projectId": 7,
       "month": "2027-04",
-      "percentage": 1.0
+      "percentage": 0.3
     },
     {
       "id": 185,
-      "assignmentId": 8,
+      "assignmentId": 26,
       "staffId": 2,
-      "projectId": 3,
+      "projectId": 7,
       "month": "2027-05",
-      "percentage": 0.0
+      "percentage": 0.3
     },
     {
       "id": 186,
-      "assignmentId": 8,
+      "assignmentId": 26,
       "staffId": 2,
-      "projectId": 3,
+      "projectId": 7,
       "month": "2027-06",
-      "percentage": 1.0
+      "percentage": 0.3
     },
     {
       "id": 187,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2027-07",
-      "percentage": 0.0
+      "assignmentId": 27,
+      "staffId": 10,
+      "projectId": 7,
+      "month": "2027-02",
+      "percentage": 0.3
     },
     {
       "id": 188,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2027-08",
-      "percentage": 0.0
+      "assignmentId": 27,
+      "staffId": 10,
+      "projectId": 7,
+      "month": "2027-03",
+      "percentage": 0.3
     },
     {
       "id": 189,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2027-09",
-      "percentage": 0.25
+      "assignmentId": 27,
+      "staffId": 10,
+      "projectId": 7,
+      "month": "2027-04",
+      "percentage": 0.3
     },
     {
       "id": 190,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2027-10",
-      "percentage": 0.25
+      "assignmentId": 27,
+      "staffId": 10,
+      "projectId": 7,
+      "month": "2027-05",
+      "percentage": 0.3
     },
     {
       "id": 191,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2027-11",
-      "percentage": 1.0
+      "assignmentId": 27,
+      "staffId": 10,
+      "projectId": 7,
+      "month": "2027-06",
+      "percentage": 0.3
     },
     {
       "id": 192,
-      "assignmentId": 8,
-      "staffId": 2,
-      "projectId": 3,
-      "month": "2027-12",
-      "percentage": 0.0
+      "assignmentId": 28,
+      "staffId": 9,
+      "projectId": 7,
+      "month": "2027-02",
+      "percentage": 0.2
     },
     {
       "id": 193,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2026-01",
-      "percentage": 0.75
+      "assignmentId": 28,
+      "staffId": 9,
+      "projectId": 7,
+      "month": "2027-03",
+      "percentage": 0.2
     },
     {
       "id": 194,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2026-02",
-      "percentage": 1.0
+      "assignmentId": 28,
+      "staffId": 9,
+      "projectId": 7,
+      "month": "2027-04",
+      "percentage": 0.2
     },
     {
       "id": 195,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2026-03",
-      "percentage": 0.0
+      "assignmentId": 28,
+      "staffId": 9,
+      "projectId": 7,
+      "month": "2027-05",
+      "percentage": 0.2
     },
     {
       "id": 196,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2026-04",
-      "percentage": 0.25
+      "assignmentId": 28,
+      "staffId": 9,
+      "projectId": 7,
+      "month": "2027-06",
+      "percentage": 0.2
     },
     {
       "id": 197,
-      "assignmentId": 9,
+      "assignmentId": 29,
       "staffId": 3,
-      "projectId": 3,
-      "month": "2026-05",
-      "percentage": 0.25
+      "projectId": 8,
+      "month": "2027-05",
+      "percentage": 0.5
     },
     {
       "id": 198,
-      "assignmentId": 9,
+      "assignmentId": 29,
       "staffId": 3,
-      "projectId": 3,
-      "month": "2026-06",
-      "percentage": 0.25
+      "projectId": 8,
+      "month": "2027-06",
+      "percentage": 0.5
     },
     {
       "id": 199,
-      "assignmentId": 9,
+      "assignmentId": 29,
       "staffId": 3,
-      "projectId": 3,
-      "month": "2026-07",
-      "percentage": 0.0
+      "projectId": 8,
+      "month": "2027-07",
+      "percentage": 0.5
     },
     {
       "id": 200,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2026-08",
-      "percentage": 0.75
+      "assignmentId": 30,
+      "staffId": 5,
+      "projectId": 8,
+      "month": "2027-05",
+      "percentage": 0.4
     },
     {
       "id": 201,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2026-09",
-      "percentage": 1.0
+      "assignmentId": 30,
+      "staffId": 5,
+      "projectId": 8,
+      "month": "2027-06",
+      "percentage": 0.4
     },
     {
       "id": 202,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2026-10",
-      "percentage": 0.75
+      "assignmentId": 30,
+      "staffId": 5,
+      "projectId": 8,
+      "month": "2027-07",
+      "percentage": 0.4
     },
     {
       "id": 203,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2026-11",
-      "percentage": 0.0
+      "assignmentId": 31,
+      "staffId": 6,
+      "projectId": 8,
+      "month": "2027-05",
+      "percentage": 0.4
     },
     {
       "id": 204,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2026-12",
-      "percentage": 0.75
+      "assignmentId": 31,
+      "staffId": 6,
+      "projectId": 8,
+      "month": "2027-06",
+      "percentage": 0.4
     },
     {
       "id": 205,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-01",
-      "percentage": 0.75
+      "assignmentId": 31,
+      "staffId": 6,
+      "projectId": 8,
+      "month": "2027-07",
+      "percentage": 0.4
     },
     {
       "id": 206,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-02",
-      "percentage": 0.0
+      "assignmentId": 32,
+      "staffId": 8,
+      "projectId": 8,
+      "month": "2027-05",
+      "percentage": 0.2
     },
     {
       "id": 207,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-03",
-      "percentage": 0.75
+      "assignmentId": 32,
+      "staffId": 8,
+      "projectId": 8,
+      "month": "2027-06",
+      "percentage": 0.2
     },
     {
       "id": 208,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-04",
-      "percentage": 0.25
-    },
-    {
-      "id": 209,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 210,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-06",
-      "percentage": 0.75
-    },
-    {
-      "id": 211,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-07",
-      "percentage": 0.25
-    },
-    {
-      "id": 212,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-08",
-      "percentage": 0.75
-    },
-    {
-      "id": 213,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-09",
-      "percentage": 1.0
-    },
-    {
-      "id": 214,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-10",
-      "percentage": 1.0
-    },
-    {
-      "id": 215,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-11",
-      "percentage": 0.25
-    },
-    {
-      "id": 216,
-      "assignmentId": 9,
-      "staffId": 3,
-      "projectId": 3,
-      "month": "2027-12",
-      "percentage": 0.0
-    },
-    {
-      "id": 217,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-01",
-      "percentage": 0.25
-    },
-    {
-      "id": 218,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-02",
-      "percentage": 0.75
-    },
-    {
-      "id": 219,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-03",
-      "percentage": 0.0
-    },
-    {
-      "id": 220,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-04",
-      "percentage": 0.75
-    },
-    {
-      "id": 221,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-05",
-      "percentage": 0.75
-    },
-    {
-      "id": 222,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-06",
-      "percentage": 1.0
-    },
-    {
-      "id": 223,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-07",
-      "percentage": 0.0
-    },
-    {
-      "id": 224,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-08",
-      "percentage": 0.25
-    },
-    {
-      "id": 225,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-09",
-      "percentage": 0.0
-    },
-    {
-      "id": 226,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-10",
-      "percentage": 0.25
-    },
-    {
-      "id": 227,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-11",
-      "percentage": 1.0
-    },
-    {
-      "id": 228,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2026-12",
-      "percentage": 1.0
-    },
-    {
-      "id": 229,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-01",
-      "percentage": 0.25
-    },
-    {
-      "id": 230,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-02",
-      "percentage": 0.25
-    },
-    {
-      "id": 231,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-03",
-      "percentage": 0.75
-    },
-    {
-      "id": 232,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-04",
-      "percentage": 1.0
-    },
-    {
-      "id": 233,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-05",
-      "percentage": 1.0
-    },
-    {
-      "id": 234,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-06",
-      "percentage": 1.0
-    },
-    {
-      "id": 235,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-07",
-      "percentage": 0.75
-    },
-    {
-      "id": 236,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-08",
-      "percentage": 1.0
-    },
-    {
-      "id": 237,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-09",
-      "percentage": 0.0
-    },
-    {
-      "id": 238,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-10",
-      "percentage": 0.0
-    },
-    {
-      "id": 239,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-11",
-      "percentage": 0.75
-    },
-    {
-      "id": 240,
-      "assignmentId": 10,
-      "staffId": 5,
-      "projectId": 3,
-      "month": "2027-12",
-      "percentage": 0.25
-    },
-    {
-      "id": 241,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-01",
-      "percentage": 0.75
-    },
-    {
-      "id": 242,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-02",
-      "percentage": 0.25
-    },
-    {
-      "id": 243,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-03",
-      "percentage": 0.25
-    },
-    {
-      "id": 244,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-04",
-      "percentage": 1.0
-    },
-    {
-      "id": 245,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-05",
-      "percentage": 0.75
-    },
-    {
-      "id": 246,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-06",
-      "percentage": 0.75
-    },
-    {
-      "id": 247,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-07",
-      "percentage": 1.0
-    },
-    {
-      "id": 248,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-08",
-      "percentage": 1.0
-    },
-    {
-      "id": 249,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-09",
-      "percentage": 0.0
-    },
-    {
-      "id": 250,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-10",
-      "percentage": 0.0
-    },
-    {
-      "id": 251,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-11",
-      "percentage": 1.0
-    },
-    {
-      "id": 252,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2026-12",
-      "percentage": 0.25
-    },
-    {
-      "id": 253,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-01",
-      "percentage": 0.25
-    },
-    {
-      "id": 254,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-02",
-      "percentage": 0.25
-    },
-    {
-      "id": 255,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-03",
-      "percentage": 0.25
-    },
-    {
-      "id": 256,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-04",
-      "percentage": 0.0
-    },
-    {
-      "id": 257,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 258,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-06",
-      "percentage": 0.25
-    },
-    {
-      "id": 259,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-07",
-      "percentage": 1.0
-    },
-    {
-      "id": 260,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-08",
-      "percentage": 1.0
-    },
-    {
-      "id": 261,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-09",
-      "percentage": 0.75
-    },
-    {
-      "id": 262,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-10",
-      "percentage": 0.25
-    },
-    {
-      "id": 263,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-11",
-      "percentage": 0.25
-    },
-    {
-      "id": 264,
-      "assignmentId": 11,
-      "staffId": 13,
-      "projectId": 3,
-      "month": "2027-12",
-      "percentage": 0.25
-    },
-    {
-      "id": 265,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-01",
-      "percentage": 0.25
-    },
-    {
-      "id": 266,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-02",
-      "percentage": 0.0
-    },
-    {
-      "id": 267,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-03",
-      "percentage": 1.0
-    },
-    {
-      "id": 268,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-04",
-      "percentage": 1.0
-    },
-    {
-      "id": 269,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 270,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-06",
-      "percentage": 0.75
-    },
-    {
-      "id": 271,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-07",
-      "percentage": 0.0
-    },
-    {
-      "id": 272,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-08",
-      "percentage": 1.0
-    },
-    {
-      "id": 273,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-09",
-      "percentage": 1.0
-    },
-    {
-      "id": 274,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-10",
-      "percentage": 0.75
-    },
-    {
-      "id": 275,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-11",
-      "percentage": 1.0
-    },
-    {
-      "id": 276,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2026-12",
-      "percentage": 0.75
-    },
-    {
-      "id": 277,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-01",
-      "percentage": 1.0
-    },
-    {
-      "id": 278,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-02",
-      "percentage": 0.25
-    },
-    {
-      "id": 279,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-03",
-      "percentage": 0.75
-    },
-    {
-      "id": 280,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-04",
-      "percentage": 0.25
-    },
-    {
-      "id": 281,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-05",
-      "percentage": 0.75
-    },
-    {
-      "id": 282,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-06",
-      "percentage": 1.0
-    },
-    {
-      "id": 283,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-07",
-      "percentage": 0.25
-    },
-    {
-      "id": 284,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-08",
-      "percentage": 0.0
-    },
-    {
-      "id": 285,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-09",
-      "percentage": 0.0
-    },
-    {
-      "id": 286,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-10",
-      "percentage": 0.0
-    },
-    {
-      "id": 287,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-11",
-      "percentage": 0.0
-    },
-    {
-      "id": 288,
-      "assignmentId": 12,
-      "staffId": 10,
-      "projectId": 3,
-      "month": "2027-12",
-      "percentage": 1.0
-    },
-    {
-      "id": 289,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-01",
-      "percentage": 0.25
-    },
-    {
-      "id": 290,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-02",
-      "percentage": 0.75
-    },
-    {
-      "id": 291,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-03",
-      "percentage": 0.75
-    },
-    {
-      "id": 292,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-04",
-      "percentage": 0.0
-    },
-    {
-      "id": 293,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-05",
-      "percentage": 0.75
-    },
-    {
-      "id": 294,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-06",
-      "percentage": 1.0
-    },
-    {
-      "id": 295,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-07",
-      "percentage": 0.25
-    },
-    {
-      "id": 296,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-08",
-      "percentage": 1.0
-    },
-    {
-      "id": 297,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-09",
-      "percentage": 0.25
-    },
-    {
-      "id": 298,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-10",
-      "percentage": 0.75
-    },
-    {
-      "id": 299,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-11",
-      "percentage": 0.75
-    },
-    {
-      "id": 300,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2026-12",
-      "percentage": 1.0
-    },
-    {
-      "id": 301,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-01",
-      "percentage": 1.0
-    },
-    {
-      "id": 302,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-02",
-      "percentage": 0.75
-    },
-    {
-      "id": 303,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-03",
-      "percentage": 0.0
-    },
-    {
-      "id": 304,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-04",
-      "percentage": 0.25
-    },
-    {
-      "id": 305,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-05",
-      "percentage": 1.0
-    },
-    {
-      "id": 306,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-06",
-      "percentage": 0.75
-    },
-    {
-      "id": 307,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-07",
-      "percentage": 0.75
-    },
-    {
-      "id": 308,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-08",
-      "percentage": 1.0
-    },
-    {
-      "id": 309,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-09",
-      "percentage": 0.75
-    },
-    {
-      "id": 310,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-10",
-      "percentage": 1.0
-    },
-    {
-      "id": 311,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-11",
-      "percentage": 0.0
-    },
-    {
-      "id": 312,
-      "assignmentId": 13,
-      "staffId": 3,
-      "projectId": 4,
-      "month": "2027-12",
-      "percentage": 0.25
-    },
-    {
-      "id": 313,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-01",
-      "percentage": 0.25
-    },
-    {
-      "id": 314,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-02",
-      "percentage": 0.0
-    },
-    {
-      "id": 315,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-03",
-      "percentage": 0.25
-    },
-    {
-      "id": 316,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-04",
-      "percentage": 0.75
-    },
-    {
-      "id": 317,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-05",
-      "percentage": 0.75
-    },
-    {
-      "id": 318,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-06",
-      "percentage": 0.0
-    },
-    {
-      "id": 319,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-07",
-      "percentage": 0.75
-    },
-    {
-      "id": 320,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-08",
-      "percentage": 0.0
-    },
-    {
-      "id": 321,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-09",
-      "percentage": 0.0
-    },
-    {
-      "id": 322,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-10",
-      "percentage": 0.0
-    },
-    {
-      "id": 323,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-11",
-      "percentage": 0.75
-    },
-    {
-      "id": 324,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2026-12",
-      "percentage": 0.0
-    },
-    {
-      "id": 325,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-01",
-      "percentage": 0.0
-    },
-    {
-      "id": 326,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-02",
-      "percentage": 0.25
-    },
-    {
-      "id": 327,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-03",
-      "percentage": 0.25
-    },
-    {
-      "id": 328,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-04",
-      "percentage": 0.0
-    },
-    {
-      "id": 329,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 330,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-06",
-      "percentage": 0.0
-    },
-    {
-      "id": 331,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-07",
-      "percentage": 0.0
-    },
-    {
-      "id": 332,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-08",
-      "percentage": 1.0
-    },
-    {
-      "id": 333,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-09",
-      "percentage": 0.75
-    },
-    {
-      "id": 334,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-10",
-      "percentage": 0.75
-    },
-    {
-      "id": 335,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-11",
-      "percentage": 0.0
-    },
-    {
-      "id": 336,
-      "assignmentId": 14,
-      "staffId": 13,
-      "projectId": 4,
-      "month": "2027-12",
-      "percentage": 1.0
-    },
-    {
-      "id": 337,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-01",
-      "percentage": 0.25
-    },
-    {
-      "id": 338,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-02",
-      "percentage": 0.25
-    },
-    {
-      "id": 339,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-03",
-      "percentage": 0.75
-    },
-    {
-      "id": 340,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-04",
-      "percentage": 0.75
-    },
-    {
-      "id": 341,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-05",
-      "percentage": 1.0
-    },
-    {
-      "id": 342,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-06",
-      "percentage": 0.0
-    },
-    {
-      "id": 343,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-07",
-      "percentage": 1.0
-    },
-    {
-      "id": 344,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-08",
-      "percentage": 0.0
-    },
-    {
-      "id": 345,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-09",
-      "percentage": 0.75
-    },
-    {
-      "id": 346,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-10",
-      "percentage": 1.0
-    },
-    {
-      "id": 347,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-11",
-      "percentage": 1.0
-    },
-    {
-      "id": 348,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2026-12",
-      "percentage": 0.75
-    },
-    {
-      "id": 349,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-01",
-      "percentage": 1.0
-    },
-    {
-      "id": 350,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-02",
-      "percentage": 1.0
-    },
-    {
-      "id": 351,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-03",
-      "percentage": 0.25
-    },
-    {
-      "id": 352,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-04",
-      "percentage": 0.75
-    },
-    {
-      "id": 353,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 354,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-06",
-      "percentage": 1.0
-    },
-    {
-      "id": 355,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-07",
-      "percentage": 0.75
-    },
-    {
-      "id": 356,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-08",
-      "percentage": 0.75
-    },
-    {
-      "id": 357,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-09",
-      "percentage": 0.0
-    },
-    {
-      "id": 358,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-10",
-      "percentage": 1.0
-    },
-    {
-      "id": 359,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-11",
-      "percentage": 0.0
-    },
-    {
-      "id": 360,
-      "assignmentId": 15,
-      "staffId": 4,
-      "projectId": 4,
-      "month": "2027-12",
-      "percentage": 1.0
-    },
-    {
-      "id": 361,
-      "assignmentId": 16,
+      "assignmentId": 32,
       "staffId": 8,
-      "projectId": 5,
-      "month": "2026-01",
-      "percentage": 0.0
-    },
-    {
-      "id": 362,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2026-02",
-      "percentage": 0.75
-    },
-    {
-      "id": 363,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2026-03",
-      "percentage": 1.0
-    },
-    {
-      "id": 364,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2026-04",
-      "percentage": 0.25
-    },
-    {
-      "id": 365,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2026-05",
-      "percentage": 0.75
-    },
-    {
-      "id": 366,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2026-06",
-      "percentage": 0.0
-    },
-    {
-      "id": 367,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2026-07",
-      "percentage": 0.0
-    },
-    {
-      "id": 368,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2026-08",
-      "percentage": 0.75
-    },
-    {
-      "id": 369,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2026-09",
-      "percentage": 0.0
-    },
-    {
-      "id": 370,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2026-10",
-      "percentage": 0.75
-    },
-    {
-      "id": 371,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2026-11",
-      "percentage": 1.0
-    },
-    {
-      "id": 372,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2026-12",
-      "percentage": 0.25
-    },
-    {
-      "id": 373,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-01",
-      "percentage": 0.0
-    },
-    {
-      "id": 374,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-02",
-      "percentage": 1.0
-    },
-    {
-      "id": 375,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-03",
-      "percentage": 1.0
-    },
-    {
-      "id": 376,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-04",
-      "percentage": 1.0
-    },
-    {
-      "id": 377,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-05",
-      "percentage": 0.25
-    },
-    {
-      "id": 378,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-06",
-      "percentage": 0.0
-    },
-    {
-      "id": 379,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-07",
-      "percentage": 0.0
-    },
-    {
-      "id": 380,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-08",
-      "percentage": 0.75
-    },
-    {
-      "id": 381,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-09",
-      "percentage": 0.75
-    },
-    {
-      "id": 382,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-10",
-      "percentage": 1.0
-    },
-    {
-      "id": 383,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-11",
-      "percentage": 1.0
-    },
-    {
-      "id": 384,
-      "assignmentId": 16,
-      "staffId": 8,
-      "projectId": 5,
-      "month": "2027-12",
-      "percentage": 0.75
-    },
-    {
-      "id": 385,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-01",
-      "percentage": 0.75
-    },
-    {
-      "id": 386,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-02",
-      "percentage": 0.25
-    },
-    {
-      "id": 387,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-03",
-      "percentage": 0.0
-    },
-    {
-      "id": 388,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-04",
-      "percentage": 0.0
-    },
-    {
-      "id": 389,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 390,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-06",
-      "percentage": 1.0
-    },
-    {
-      "id": 391,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-07",
-      "percentage": 0.0
-    },
-    {
-      "id": 392,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-08",
-      "percentage": 0.0
-    },
-    {
-      "id": 393,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-09",
-      "percentage": 1.0
-    },
-    {
-      "id": 394,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-10",
-      "percentage": 1.0
-    },
-    {
-      "id": 395,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-11",
-      "percentage": 0.25
-    },
-    {
-      "id": 396,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2026-12",
-      "percentage": 0.75
-    },
-    {
-      "id": 397,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-01",
-      "percentage": 0.0
-    },
-    {
-      "id": 398,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-02",
-      "percentage": 0.0
-    },
-    {
-      "id": 399,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-03",
-      "percentage": 0.0
-    },
-    {
-      "id": 400,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-04",
-      "percentage": 0.75
-    },
-    {
-      "id": 401,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 402,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-06",
-      "percentage": 0.0
-    },
-    {
-      "id": 403,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-07",
-      "percentage": 0.0
-    },
-    {
-      "id": 404,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-08",
-      "percentage": 1.0
-    },
-    {
-      "id": 405,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-09",
-      "percentage": 0.75
-    },
-    {
-      "id": 406,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-10",
-      "percentage": 0.0
-    },
-    {
-      "id": 407,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-11",
-      "percentage": 0.0
-    },
-    {
-      "id": 408,
-      "assignmentId": 17,
-      "staffId": 7,
-      "projectId": 5,
-      "month": "2027-12",
-      "percentage": 0.0
-    },
-    {
-      "id": 409,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-01",
-      "percentage": 0.75
-    },
-    {
-      "id": 410,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-02",
-      "percentage": 0.0
-    },
-    {
-      "id": 411,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-03",
-      "percentage": 0.0
-    },
-    {
-      "id": 412,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-04",
-      "percentage": 0.75
-    },
-    {
-      "id": 413,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 414,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-06",
-      "percentage": 0.0
-    },
-    {
-      "id": 415,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-07",
-      "percentage": 1.0
-    },
-    {
-      "id": 416,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-08",
-      "percentage": 0.25
-    },
-    {
-      "id": 417,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-09",
-      "percentage": 0.0
-    },
-    {
-      "id": 418,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-10",
-      "percentage": 0.75
-    },
-    {
-      "id": 419,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-11",
-      "percentage": 0.0
-    },
-    {
-      "id": 420,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2026-12",
-      "percentage": 0.0
-    },
-    {
-      "id": 421,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-01",
-      "percentage": 0.75
-    },
-    {
-      "id": 422,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-02",
-      "percentage": 1.0
-    },
-    {
-      "id": 423,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-03",
-      "percentage": 0.0
-    },
-    {
-      "id": 424,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-04",
-      "percentage": 0.75
-    },
-    {
-      "id": 425,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-05",
-      "percentage": 0.75
-    },
-    {
-      "id": 426,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-06",
-      "percentage": 0.75
-    },
-    {
-      "id": 427,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-07",
-      "percentage": 1.0
-    },
-    {
-      "id": 428,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-08",
-      "percentage": 0.0
-    },
-    {
-      "id": 429,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-09",
-      "percentage": 0.25
-    },
-    {
-      "id": 430,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-10",
-      "percentage": 0.25
-    },
-    {
-      "id": 431,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-11",
-      "percentage": 0.75
-    },
-    {
-      "id": 432,
-      "assignmentId": 18,
-      "staffId": 10,
-      "projectId": 5,
-      "month": "2027-12",
-      "percentage": 0.25
-    },
-    {
-      "id": 433,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-01",
-      "percentage": 0.0
-    },
-    {
-      "id": 434,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-02",
-      "percentage": 0.25
-    },
-    {
-      "id": 435,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-03",
-      "percentage": 0.0
-    },
-    {
-      "id": 436,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-04",
-      "percentage": 1.0
-    },
-    {
-      "id": 437,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-05",
-      "percentage": 0.25
-    },
-    {
-      "id": 438,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-06",
-      "percentage": 0.0
-    },
-    {
-      "id": 439,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-07",
-      "percentage": 1.0
-    },
-    {
-      "id": 440,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-08",
-      "percentage": 0.25
-    },
-    {
-      "id": 441,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-09",
-      "percentage": 0.75
-    },
-    {
-      "id": 442,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-10",
-      "percentage": 1.0
-    },
-    {
-      "id": 443,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-11",
-      "percentage": 0.25
-    },
-    {
-      "id": 444,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2026-12",
-      "percentage": 1.0
-    },
-    {
-      "id": 445,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-01",
-      "percentage": 0.0
-    },
-    {
-      "id": 446,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-02",
-      "percentage": 0.0
-    },
-    {
-      "id": 447,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-03",
-      "percentage": 0.0
-    },
-    {
-      "id": 448,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-04",
-      "percentage": 0.0
-    },
-    {
-      "id": 449,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 450,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-06",
-      "percentage": 1.0
-    },
-    {
-      "id": 451,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-07",
-      "percentage": 1.0
-    },
-    {
-      "id": 452,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-08",
-      "percentage": 0.75
-    },
-    {
-      "id": 453,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-09",
-      "percentage": 0.0
-    },
-    {
-      "id": 454,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-10",
-      "percentage": 1.0
-    },
-    {
-      "id": 455,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-11",
-      "percentage": 0.75
-    },
-    {
-      "id": 456,
-      "assignmentId": 19,
-      "staffId": 5,
-      "projectId": 5,
-      "month": "2027-12",
-      "percentage": 0.75
-    },
-    {
-      "id": 457,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-01",
-      "percentage": 0.0
-    },
-    {
-      "id": 458,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-02",
-      "percentage": 0.0
-    },
-    {
-      "id": 459,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-03",
-      "percentage": 1.0
-    },
-    {
-      "id": 460,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-04",
-      "percentage": 0.25
-    },
-    {
-      "id": 461,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-05",
-      "percentage": 1.0
-    },
-    {
-      "id": 462,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-06",
-      "percentage": 1.0
-    },
-    {
-      "id": 463,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-07",
-      "percentage": 0.0
-    },
-    {
-      "id": 464,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-08",
-      "percentage": 0.75
-    },
-    {
-      "id": 465,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-09",
-      "percentage": 0.75
-    },
-    {
-      "id": 466,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-10",
-      "percentage": 0.25
-    },
-    {
-      "id": 467,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-11",
-      "percentage": 0.75
-    },
-    {
-      "id": 468,
-      "assignmentId": 20,
-      "staffId": 2,
-      "projectId": 6,
-      "month": "2026-12",
-      "percentage": 0.75
-    },
-    {
-      "id": 469,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-01",
-      "percentage": 0.75
-    },
-    {
-      "id": 470,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-02",
-      "percentage": 0.75
-    },
-    {
-      "id": 471,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-03",
-      "percentage": 0.25
-    },
-    {
-      "id": 472,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-04",
-      "percentage": 0.75
-    },
-    {
-      "id": 473,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-05",
-      "percentage": 0.75
-    },
-    {
-      "id": 474,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-06",
-      "percentage": 0.0
-    },
-    {
-      "id": 475,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-07",
-      "percentage": 1.0
-    },
-    {
-      "id": 476,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-08",
-      "percentage": 0.0
-    },
-    {
-      "id": 477,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-09",
-      "percentage": 0.0
-    },
-    {
-      "id": 478,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-10",
-      "percentage": 0.0
-    },
-    {
-      "id": 479,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-11",
-      "percentage": 0.0
-    },
-    {
-      "id": 480,
-      "assignmentId": 21,
-      "staffId": 10,
-      "projectId": 6,
-      "month": "2026-12",
-      "percentage": 1.0
-    },
-    {
-      "id": 481,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-01",
-      "percentage": 0.25
-    },
-    {
-      "id": 482,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-02",
-      "percentage": 1.0
-    },
-    {
-      "id": 483,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-03",
-      "percentage": 0.25
-    },
-    {
-      "id": 484,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-04",
-      "percentage": 0.0
-    },
-    {
-      "id": 485,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-05",
-      "percentage": 0.75
-    },
-    {
-      "id": 486,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-06",
-      "percentage": 0.25
-    },
-    {
-      "id": 487,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-07",
-      "percentage": 0.0
-    },
-    {
-      "id": 488,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-08",
-      "percentage": 0.75
-    },
-    {
-      "id": 489,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-09",
-      "percentage": 1.0
-    },
-    {
-      "id": 490,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-10",
-      "percentage": 0.25
-    },
-    {
-      "id": 491,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-11",
-      "percentage": 1.0
-    },
-    {
-      "id": 492,
-      "assignmentId": 22,
-      "staffId": 1,
-      "projectId": 6,
-      "month": "2026-12",
-      "percentage": 1.0
-    },
-    {
-      "id": 493,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-01",
-      "percentage": 0.0
-    },
-    {
-      "id": 494,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-02",
-      "percentage": 1.0
-    },
-    {
-      "id": 495,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-03",
-      "percentage": 0.25
-    },
-    {
-      "id": 496,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-04",
-      "percentage": 0.25
-    },
-    {
-      "id": 497,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-05",
-      "percentage": 0.25
-    },
-    {
-      "id": 498,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-06",
-      "percentage": 0.25
-    },
-    {
-      "id": 499,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-07",
-      "percentage": 1.0
-    },
-    {
-      "id": 500,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-08",
-      "percentage": 0.0
-    },
-    {
-      "id": 501,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-09",
-      "percentage": 0.75
-    },
-    {
-      "id": 502,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-10",
-      "percentage": 0.75
-    },
-    {
-      "id": 503,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-11",
-      "percentage": 0.0
-    },
-    {
-      "id": 504,
-      "assignmentId": 23,
-      "staffId": 7,
-      "projectId": 6,
-      "month": "2026-12",
-      "percentage": 0.75
-    },
-    {
-      "id": 505,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2026-06",
-      "percentage": 0.75
-    },
-    {
-      "id": 506,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2026-07",
-      "percentage": 1.0
-    },
-    {
-      "id": 507,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2026-08",
-      "percentage": 0.0
-    },
-    {
-      "id": 508,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2026-09",
-      "percentage": 0.0
-    },
-    {
-      "id": 509,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2026-10",
-      "percentage": 1.0
-    },
-    {
-      "id": 510,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2026-11",
-      "percentage": 1.0
-    },
-    {
-      "id": 511,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2026-12",
-      "percentage": 0.25
-    },
-    {
-      "id": 512,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2027-01",
-      "percentage": 0.75
-    },
-    {
-      "id": 513,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2027-02",
-      "percentage": 1.0
-    },
-    {
-      "id": 514,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2027-03",
-      "percentage": 0.75
-    },
-    {
-      "id": 515,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2027-04",
-      "percentage": 0.75
-    },
-    {
-      "id": 516,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2027-05",
-      "percentage": 1.0
-    },
-    {
-      "id": 517,
-      "assignmentId": 24,
-      "staffId": 10,
-      "projectId": 7,
-      "month": "2027-06",
-      "percentage": 0.0
-    },
-    {
-      "id": 518,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2026-06",
-      "percentage": 0.75
-    },
-    {
-      "id": 519,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2026-07",
-      "percentage": 0.0
-    },
-    {
-      "id": 520,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2026-08",
-      "percentage": 1.0
-    },
-    {
-      "id": 521,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2026-09",
-      "percentage": 0.75
-    },
-    {
-      "id": 522,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2026-10",
-      "percentage": 1.0
-    },
-    {
-      "id": 523,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2026-11",
-      "percentage": 1.0
-    },
-    {
-      "id": 524,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2026-12",
-      "percentage": 0.75
-    },
-    {
-      "id": 525,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2027-01",
-      "percentage": 0.25
-    },
-    {
-      "id": 526,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2027-02",
-      "percentage": 1.0
-    },
-    {
-      "id": 527,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2027-03",
-      "percentage": 0.25
-    },
-    {
-      "id": 528,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2027-04",
-      "percentage": 0.75
-    },
-    {
-      "id": 529,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2027-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 530,
-      "assignmentId": 25,
-      "staffId": 9,
-      "projectId": 7,
-      "month": "2027-06",
-      "percentage": 0.25
-    },
-    {
-      "id": 531,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2026-06",
-      "percentage": 0.75
-    },
-    {
-      "id": 532,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2026-07",
-      "percentage": 0.25
-    },
-    {
-      "id": 533,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2026-08",
-      "percentage": 0.0
-    },
-    {
-      "id": 534,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2026-09",
-      "percentage": 0.75
-    },
-    {
-      "id": 535,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2026-10",
-      "percentage": 1.0
-    },
-    {
-      "id": 536,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2026-11",
-      "percentage": 0.25
-    },
-    {
-      "id": 537,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2026-12",
-      "percentage": 1.0
-    },
-    {
-      "id": 538,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2027-01",
-      "percentage": 0.75
-    },
-    {
-      "id": 539,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2027-02",
-      "percentage": 1.0
-    },
-    {
-      "id": 540,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2027-03",
-      "percentage": 0.75
-    },
-    {
-      "id": 541,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2027-04",
-      "percentage": 0.25
-    },
-    {
-      "id": 542,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2027-05",
-      "percentage": 0.25
-    },
-    {
-      "id": 543,
-      "assignmentId": 26,
-      "staffId": 3,
-      "projectId": 7,
-      "month": "2027-06",
-      "percentage": 0.75
-    },
-    {
-      "id": 544,
-      "assignmentId": 27,
-      "staffId": 12,
-      "projectId": 8,
-      "month": "2027-01",
-      "percentage": 1.0
-    },
-    {
-      "id": 545,
-      "assignmentId": 27,
-      "staffId": 12,
-      "projectId": 8,
-      "month": "2027-02",
-      "percentage": 0.0
-    },
-    {
-      "id": 546,
-      "assignmentId": 27,
-      "staffId": 12,
-      "projectId": 8,
-      "month": "2027-03",
-      "percentage": 0.0
-    },
-    {
-      "id": 547,
-      "assignmentId": 27,
-      "staffId": 12,
-      "projectId": 8,
-      "month": "2027-04",
-      "percentage": 0.25
-    },
-    {
-      "id": 548,
-      "assignmentId": 27,
-      "staffId": 12,
-      "projectId": 8,
-      "month": "2027-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 549,
-      "assignmentId": 27,
-      "staffId": 12,
-      "projectId": 8,
-      "month": "2027-06",
-      "percentage": 0.25
-    },
-    {
-      "id": 550,
-      "assignmentId": 27,
-      "staffId": 12,
       "projectId": 8,
       "month": "2027-07",
-      "percentage": 0.0
-    },
-    {
-      "id": 551,
-      "assignmentId": 27,
-      "staffId": 12,
-      "projectId": 8,
-      "month": "2027-08",
-      "percentage": 1.0
-    },
-    {
-      "id": 552,
-      "assignmentId": 27,
-      "staffId": 12,
-      "projectId": 8,
-      "month": "2027-09",
-      "percentage": 0.25
-    },
-    {
-      "id": 553,
-      "assignmentId": 27,
-      "staffId": 12,
-      "projectId": 8,
-      "month": "2027-10",
-      "percentage": 0.0
-    },
-    {
-      "id": 554,
-      "assignmentId": 27,
-      "staffId": 12,
-      "projectId": 8,
-      "month": "2027-11",
-      "percentage": 0.75
-    },
-    {
-      "id": 555,
-      "assignmentId": 27,
-      "staffId": 12,
-      "projectId": 8,
-      "month": "2027-12",
-      "percentage": 0.25
-    },
-    {
-      "id": 556,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-01",
-      "percentage": 1.0
-    },
-    {
-      "id": 557,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-02",
-      "percentage": 0.0
-    },
-    {
-      "id": 558,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-03",
-      "percentage": 0.75
-    },
-    {
-      "id": 559,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-04",
-      "percentage": 1.0
-    },
-    {
-      "id": 560,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-05",
-      "percentage": 0.0
-    },
-    {
-      "id": 561,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-06",
-      "percentage": 0.75
-    },
-    {
-      "id": 562,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-07",
-      "percentage": 0.25
-    },
-    {
-      "id": 563,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-08",
-      "percentage": 0.0
-    },
-    {
-      "id": 564,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-09",
-      "percentage": 1.0
-    },
-    {
-      "id": 565,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-10",
-      "percentage": 0.0
-    },
-    {
-      "id": 566,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-11",
-      "percentage": 1.0
-    },
-    {
-      "id": 567,
-      "assignmentId": 28,
-      "staffId": 2,
-      "projectId": 8,
-      "month": "2027-12",
-      "percentage": 0.0
-    },
-    {
-      "id": 568,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-01",
-      "percentage": 0.25
-    },
-    {
-      "id": 569,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-02",
-      "percentage": 0.75
-    },
-    {
-      "id": 570,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-03",
-      "percentage": 0.0
-    },
-    {
-      "id": 571,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-04",
-      "percentage": 0.75
-    },
-    {
-      "id": 572,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-05",
-      "percentage": 1.0
-    },
-    {
-      "id": 573,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-06",
-      "percentage": 0.0
-    },
-    {
-      "id": 574,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-07",
-      "percentage": 1.0
-    },
-    {
-      "id": 575,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-08",
-      "percentage": 0.25
-    },
-    {
-      "id": 576,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-09",
-      "percentage": 1.0
-    },
-    {
-      "id": 577,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-10",
-      "percentage": 0.25
-    },
-    {
-      "id": 578,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-11",
-      "percentage": 1.0
-    },
-    {
-      "id": 579,
-      "assignmentId": 29,
-      "staffId": 7,
-      "projectId": 8,
-      "month": "2027-12",
-      "percentage": 0.75
+      "percentage": 0.2
     }
   ],
   "designations": [

@@ -15,6 +15,22 @@ interface MatrixHeaderProps {
   yearGroups: YearGroupItem[]
 }
 
+interface MatrixColumnGroupProps {
+  monthCount: number
+}
+
+export function MatrixColumnGroup({ monthCount }: MatrixColumnGroupProps) {
+  return (
+    <colgroup>
+      <col className="w-44" />
+      <col className="w-14" />
+      {Array.from({ length: monthCount }, (_, index) => (
+        <col key={index} className="w-14" />
+      ))}
+    </colgroup>
+  )
+}
+
 export function MatrixHeader({
   metadataTitle,
   countLabel,

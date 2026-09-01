@@ -4,7 +4,7 @@ import { toTitleCase } from "@/lib/string-utils"
 import { RoleBadge } from "@/components/ui/role-badge"
 import { useMatrixTimeline } from "@/hooks/use-matrix-timeline"
 import { MatrixTooltip } from "@/components/dashboard/matrix-tooltip"
-import { MatrixHeader } from "@/components/dashboard/matrix-header"
+import { MatrixColumnGroup, MatrixHeader } from "@/components/dashboard/matrix-header"
 import { useMatrixExpansion } from "@/hooks/use-matrix-expansion"
 import { useMatrixResponsiveLayout } from "@/hooks/use-matrix-responsive-layout"
 import { CollapseAllButton } from "@/components/ui/collapse-all-button"
@@ -55,7 +55,7 @@ export function ProjectTimelineMatrix({
   const { toggleExpand, isExpanded, toggleAll, isAllExpanded } = useMatrixExpansion(projectIds)
   const { months, yearGroups } = useMatrixTimeline(startMonth, endMonth)
 
-  const { containerRef, containerMaxWidthClass, tableWidthClass } = useMatrixResponsiveLayout({
+  const { containerRef, containerMaxWidthClass, tableWidthClass, tableStyle } = useMatrixResponsiveLayout({
     monthCount: months.length,
   })
 
@@ -84,7 +84,8 @@ export function ProjectTimelineMatrix({
         onScroll={onScroll}
         className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700"
       >
-        <table className={`project-timeline-table ${tableWidthClass} text-left border-collapse text-xs select-none`}>
+        <table className={`project-timeline-table ${tableWidthClass} text-left border-collapse text-xs select-none`} style={tableStyle}>
+          <MatrixColumnGroup monthCount={months.length} />
           <MatrixHeader
             metadataTitle="Project Metadata"
             countLabel="# Staff"

@@ -61,18 +61,9 @@ export function ManageDataView() {
   const handleClearData = async () => {
     setIsClearing(true)
     try {
-      await db.transaction(
-        "rw",
-        [db.staff, db.projects, db.assignments, db.allocations, db.designations],
-        async () => {
-          await db.staff.clear()
-          await db.projects.clear()
-          await db.assignments.clear()
-          await db.allocations.clear()
-          await db.designations.clear()
-        }
-      )
-      setDataMessage({ type: "success", text: "All workspace data has been cleared." })
+      await db.delete()
+      localStorage.removeItem("sam_onboarding_complete")
+      window.location.reload()
     } catch (error) {
       console.error("Failed to clear database:", error)
       setDataMessage({ type: "error", text: "Unable to clear workspace data. Please try again." })
@@ -313,7 +304,7 @@ export function ManageDataView() {
       <ConfirmDialog
         open={showClearDataConfirm}
         title="Clear All Data?"
-        description="This will permanently delete all staff members, projects, assignments, allocations, and custom designations. This action cannot be undone."
+        description="This will permanently delete the workspace IndexedDB database, including all staff, projects, assignments, allocations, and custom designations. This action cannot be undone."
         confirmLabel="Clear Data"
         cancelLabel="Cancel"
         isDestructive

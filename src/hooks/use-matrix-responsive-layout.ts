@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback, type CSSProperties } from "react"
 
 interface UseMatrixResponsiveLayoutProps {
   monthCount: number
@@ -13,11 +13,11 @@ export function useMatrixResponsiveLayout({
 }: UseMatrixResponsiveLayoutProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isOverflowing, setIsOverflowing] = useState(false)
+  const requiredWidth = metadataWidth + monthCount * colWidth
 
   const checkOverflow = useCallback(() => {
     if (!containerRef.current) return
     const containerWidth = containerRef.current.clientWidth
-    const requiredWidth = metadataWidth + monthCount * colWidth
     setIsOverflowing(requiredWidth > containerWidth)
   }, [monthCount, metadataWidth, colWidth])
 
@@ -31,12 +31,16 @@ export function useMatrixResponsiveLayout({
   }, [checkOverflow])
 
   const containerMaxWidthClass = isOverflowing ? "w-full max-w-none" : "w-full max-w-7xl mx-auto"
-  const tableWidthClass = isOverflowing ? "w-max min-w-full table-auto" : "w-full table-fixed"
+  const tableWidthClass = "min-w-full table-fixed"
+  const tableStyle: CSSProperties = isOverflowing
+    ? { width: `${requiredWidth}px` }
+    : { width: "100%" }
 
   return {
     containerRef,
     isOverflowing,
     containerMaxWidthClass,
     tableWidthClass,
+    tableStyle,
   }
 }
