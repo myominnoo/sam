@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Header, type TabType } from "@/components/header"
+import { Header, type TabType } from "@/components/Header"
 import { DashboardView } from "@/components/dashboard/dashboard-view"
 import { ManageDataView } from "@/components/manage/manage-data-view"
 import { SeedDialog } from "@/components/dashboard/seed-dialog"
