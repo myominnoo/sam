@@ -1,87 +1,80 @@
-import { LayoutDashboard, SlidersHorizontal } from "lucide-react";
-import logoIcon from "/favicon_io/favicon.ico?url"; // Uses Vite's built-in static asset loader
+import { LayoutGrid, SlidersHorizontal } from "lucide-react"
+import { ModeToggle } from "@/components/mode-toggle"
+
+export type TabType = "dashboard" | "manage"
 
 interface HeaderProps {
-  activeTab: "dashboard" | "manage";
-  setActiveTab: (tab: "dashboard" | "manage") => void;
+  activeTab?: TabType
+  onTabChange?: (tab: TabType) => void
 }
 
-export const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
+export function Header({ activeTab = "dashboard", onTabChange }: HeaderProps) {
   return (
-    <header className="sticky top-4 z-40 w-full mb-8 sm:mb-10">
-      <div className="w-full bg-white/80 backdrop-blur-xl border border-slate-300/80 ring-1 ring-slate-900/5 shadow-xl shadow-slate-900/10 rounded-2xl p-3 sm:px-5 sm:py-3.5 transition-all">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-          {/* Title & Favicon Logo */}
-          <div className="flex items-center gap-3.5 w-full sm:w-auto">
-            <div className="p-2 bg-indigo-50/80 border border-indigo-100/80 rounded-xl shrink-0 shadow-xs flex items-center justify-center">
-              <img
-                src={logoIcon}
-                alt="App Logo"
-                className="w-6 h-6 object-contain"
-              />
-            </div>
-            <div>
-              <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-                Staff Allocation Matrix (SAM)
-              </h1>
-              <p className="text-xs text-slate-500 mt-0.5 hidden sm:block">
-                Stay on top of team bandwidth and project workloads.
-              </p>
-            </div>
-          </div>
+    <header className="fixed top-3 left-4 right-4 sm:left-6 sm:right-6 max-w-7xl mx-auto z-50 flex flex-col md:grid md:grid-cols-3 items-center gap-3 p-2.5 px-4 rounded-3xl border border-neutral-300 dark:border-neutral-700 bg-gradient-to-b from-white/30 via-white/15 to-white/5 dark:from-white/10 dark:via-white/[0.04] dark:to-transparent backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_0_0_rgba(255,255,255,0.8)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.2)] text-left transition-all duration-300">
+      {/* 1. Brand Identity */}
+      <div className="flex items-center gap-2.5 w-full">
+        <div className="shrink-0 transition-transform duration-200 hover:scale-105 flex items-center justify-center">
+          <img
+            src="/icon.svg"
+            alt="Staff Allocation Manager"
+            className="h-8 w-8 object-contain filter drop-shadow-[0_1px_3px_rgba(0,0,0,0.15)]"
+          />
+        </div>
+        <div className="flex flex-col justify-center">
+          <h1 className="text-xs sm:text-sm font-bold tracking-tight text-foreground m-0 p-0 leading-tight drop-shadow-xs">
+            Staff Allocation Manager
+          </h1>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground font-medium m-0 mt-0.5 block leading-tight">
+            Stay on top of team bandwidth and project workloads.
+          </p>
+        </div>
+      </div>
 
-          {/* Smooth Pure CSS Tab Navigation */}
-          <nav className="relative flex items-center bg-slate-100/90 p-1 rounded-full border border-slate-300/60 shadow-inner w-full sm:w-auto justify-center">
-            {/* Sliding Pill Indicator */}
-            <span
-              className={`absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-slate-900 rounded-full border-l-4 border-l-indigo-500 shadow-md shadow-slate-900/20 transition-transform duration-300 ease-out pointer-events-none ${
-                activeTab === "manage" ? "translate-x-full" : "translate-x-0"
-              }`}
-            />
-
-            {/* Dashboard Tab */}
+      {/* 2. Navigation */}
+      <div className="flex items-center justify-between w-full md:contents">
+        <div className="flex justify-start md:justify-center">
+          <nav aria-label="Main Navigation" className="inline-flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setActiveTab("dashboard")}
-              className={`relative z-10 flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 cursor-pointer ${
+              onClick={() => onTabChange?.("dashboard")}
+              aria-current={activeTab === "dashboard" ? "page" : undefined}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 h-8 text-xs font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === "dashboard"
-                  ? "text-white"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-primary text-primary-foreground shadow-[0_2px_8px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.35)] border border-primary/30"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10 border border-transparent"
               }`}
             >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>Dashboard</span>
+              <LayoutGrid className="h-3.5 w-3.5" />
+              Dashboard
             </button>
-
-            {/* Manage Data Tab */}
             <button
               type="button"
-              onClick={() => setActiveTab("manage")}
-              className={`relative z-10 flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 cursor-pointer ${
+              onClick={() => onTabChange?.("manage")}
+              aria-current={activeTab === "manage" ? "page" : undefined}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 h-8 text-xs font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === "manage"
-                  ? "text-white"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-primary text-primary-foreground shadow-[0_2px_8px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.35)] border border-primary/30"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10 border border-transparent"
               }`}
             >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Manage Data</span>
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              Manage Data
             </button>
           </nav>
+        </div>
 
-          {/* Live Sync Badge - Right Aligned */}
-          <div className="hidden lg:flex items-center shrink-0">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50/90 border border-emerald-300/60 rounded-full shadow-xs">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="text-[11px] font-semibold text-emerald-700 tracking-wide">
-                Live Sync
-              </span>
-            </div>
+        {/* 3. Controls */}
+        <div className="flex items-center gap-2 justify-end">
+          <div className="inline-flex items-center gap-1.5 px-2.5 h-8 rounded-xl text-xs font-semibold border border-emerald-500/40 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] select-none">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+            </span>
+            <span className="hidden sm:inline">Live Sync</span>
           </div>
+          <ModeToggle />
         </div>
       </div>
     </header>
-  );
-};
+  )
+}

@@ -1,62 +1,67 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-import { VitePWA } from "vite-plugin-pwa";
+import path from "path"
+import react from "@vitejs/plugin-react"
+import tailwindcss from "@tailwindcss/vite"
+import { defineConfig } from "vite"
+import { VitePWA } from "vite-plugin-pwa"
 
 export default defineConfig({
-  base: process.env.NODE_ENV === "production" ? "/sam/" : "/",
-  build: {
-    chunkSizeWarningLimit: 1000,
-  },
   plugins: [
     react(),
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      injectRegister: "auto",
       includeAssets: [
         "favicon.ico",
-        "favicon.svg",
-        "icons.svg",
-        "favicon_io/apple-touch-icon.png",
-        "favicon_io/favicon-32x32.png",
-        "favicon_io/favicon-16x16.png",
-        "favicon_io/favicon.ico",
-        "staff_allocation_template.xlsx",
+        "apple-touch-icon-180x180.png",
+        "maskable-icon-512x512.png",
+        "icon.svg",
       ],
       devOptions: {
         enabled: true,
+        suppressWarnings: true,
       },
       manifest: {
-        name: "SAM",
+        name: "SAM - Staff Allocation Manager",
         short_name: "SAM",
-        description: "Standalone PWA for managing staff workload allocations",
-        theme_color: "#ffffff",
-        background_color: "#ffffff",
+        description: "Staff Allocation and Resource Management Application",
+        theme_color: "#16171d",
+        background_color: "#16171d",
         display: "standalone",
-        start_url: "./",
-        scope: "./",
+        orientation: "portrait",
+        scope: "/",
+        start_url: "/",
         icons: [
           {
-            src: "favicon_io/android-chrome-192x192.png",
+            src: "pwa-64x64.png",
+            sizes: "64x64",
+            type: "image/png",
+          },
+          {
+            src: "pwa-192x192.png",
             sizes: "192x192",
             type: "image/png",
-            purpose: "any",
           },
           {
-            src: "favicon_io/android-chrome-512x512.png",
+            src: "pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any",
           },
           {
-            src: "favicon_io/android-chrome-512x512.png",
+            src: "maskable-icon-512x512.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable",
           },
         ],
       },
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
+      },
     }),
   ],
-});
+  resolve: {
+    alias: {
+      "@": path.resolve(import.meta.dirname, "./src"),
+    },
+  },
+})

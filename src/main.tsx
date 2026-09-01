@@ -1,14 +1,13 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { registerSW } from "virtual:pwa-register";
-import App from "./App";
-import "./index.css";
-
-// Auto-register service worker for offline functionality and updates
-registerSW({ immediate: true });
+import { StrictMode } from "react"
+import { createRoot } from "react-dom/client"
+import { ThemeProvider } from "@/components/theme-provider"
+import { App } from "./App.tsx"
+import "./index.css"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
-);
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <App />
+    </ThemeProvider>
+  </StrictMode>
+)
