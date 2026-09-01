@@ -1,6 +1,6 @@
 export const Footer = () => {
   return (
-    <footer className="mt-8 border-t border-border/60 bg-card/45 backdrop-blur-md py-3.5 px-4 sm:px-6">
+    <footer className="mt-2 border-t border-border/60 bg-card/45 backdrop-blur-md py-3.5 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 text-xs text-muted-foreground">
         {/* Left: GitHub Icon Link */}
         <div className="flex items-center">

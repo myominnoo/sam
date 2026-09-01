@@ -129,7 +129,7 @@ export function ManageDataView() {
         onChange={handleFileChange}
       />
 
-      <div className="flex flex-col gap-6 w-full animate-in fade-in-50 duration-300 max-w-7xl mx-auto pb-12 px-1">
+      <div className="flex flex-col gap-6 w-full animate-in fade-in-50 duration-300 max-w-7xl mx-auto pb-2 px-1">
         {/* Action Bar - Single Row */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           {/* Left: Configuration Buttons */}
