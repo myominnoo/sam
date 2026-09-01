@@ -1,10 +1,31 @@
 import { useState, type Ref } from "react"
-import { FolderKanban, Search, Plus, Edit2, Trash2, Ban } from "lucide-react"
+import { FolderKanban, Search, Plus, Edit2, Trash2, Ban, Check, CheckCircle2, X } from "lucide-react"
 import { toTitleCase } from "@/lib/string-utils"
 import { cn } from "@/lib/utils"
 import { RoleBadge } from "@/components/ui/role-badge"
+import { Slider } from "@/components/ui/slider"
 import { db } from "@/db/schema"
-import type { Project, Staff, Assignment } from "@/types/sam"
+import { generateMonthRange } from "@/lib/date-utils"
+import type { Project, Staff, Assignment, RoleType } from "@/types/sam"
+
+const TIMELINE_MONTHS = generateMonthRange("2025-01", 72)
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+const ROLE_OPTIONS: { value: RoleType; label: string }[] = [
+  { value: "PL", label: "Project Lead" },
+  { value: "M", label: "Member" },
+  { value: "A", label: "Advisor" },
+]
+
+interface ProjectEditDraft {
+  name: string
+  startMonth: string
+  endMonth: string
+}
+
+function formatMonth(month: string) {
+  const [year, monthNumber] = month.split("-")
+  return `${MONTH_NAMES[Number(monthNumber) - 1] ?? month} ${year}`
+}
 
 interface ProjectsDirectorySectionProps {
   projectList: Project[]
@@ -25,6 +46,8 @@ export function ProjectsDirectorySection({
   const [newProjectName, setNewProjectName] = useState("")
   const [newProjectStart, setNewProjectStart] = useState("")
   const [newProjectEnd, setNewProjectEnd] = useState("")
+  const [editingProjectId, setEditingProjectId] = useState<number | null>(null)
+  const [editDraft, setEditDraft] = useState<ProjectEditDraft | null>(null)
 
   const handleAddProject = async () => {
     if (!newProjectName.trim()) return
@@ -44,6 +67,90 @@ export function ProjectsDirectorySection({
   const filteredProjects = projectList.filter((p) =>
     p.name.toLowerCase().includes(projectSearch.toLowerCase())
   )
+  const displayedProjects = filteredProjects.toSorted(
+    (a, b) => Number(b.isActive ?? true) - Number(a.isActive ?? true)
+  )
+
+  const startEditing = (project: Project) => {
+    const defaultStartMonth = TIMELINE_MONTHS[0].key
+    const defaultEndMonth = TIMELINE_MONTHS.at(-1)?.key ?? defaultStartMonth
+    setEditingProjectId(project.id)
+    setEditDraft({
+      name: project.name,
+      startMonth: TIMELINE_MONTHS.some((month) => month.key === project.startMonth)
+        ? project.startMonth
+        : defaultStartMonth,
+      endMonth: TIMELINE_MONTHS.some((month) => month.key === project.endMonth)
+        ? project.endMonth
+        : defaultEndMonth,
+    })
+  }
+
+  const cancelEditing = () => {
+    setEditingProjectId(null)
+    setEditDraft(null)
+  }
+
+  const saveProject = async (projectId: number) => {
+    if (!editDraft || !editDraft.name.trim()) return
+
+    await db.projects.update(projectId, {
+      name: editDraft.name.trim(),
+      startMonth: editDraft.startMonth,
+      endMonth: editDraft.endMonth,
+    })
+    cancelEditing()
+  }
+
+  const handleTimelineChange = ([startIndex, endIndex]: readonly number[]) => {
+    setEditDraft((draft) => draft ? {
+      ...draft,
+      startMonth: TIMELINE_MONTHS[startIndex]?.key ?? draft.startMonth,
+      endMonth: TIMELINE_MONTHS[endIndex]?.key ?? draft.endMonth,
+    } : draft)
+  }
+
+  const assignStaff = async (projectId: number, staffId: number) => {
+    if (!staffId || assignmentList.some((assignment) => assignment.projectId === projectId && assignment.staffId === staffId)) {
+      return
+    }
+
+    const nextAssignmentId = assignmentList.reduce(
+      (maxId, assignment) => Math.max(maxId, Number(assignment.id) || 0),
+      0
+    ) + 1
+    await db.assignments.add({ id: nextAssignmentId, projectId, staffId, role: "M" })
+  }
+
+  const updateAssignmentRole = async (assignmentId: number, role: RoleType) => {
+    await db.assignments.update(assignmentId, { role })
+  }
+
+  const removeAssignment = async (assignment: Assignment) => {
+    await db.transaction("rw", [db.assignments, db.allocations], async () => {
+      await db.allocations.where("assignmentId").equals(assignment.id).delete()
+      await db.assignments.delete(assignment.id)
+    })
+  }
+
+  const deleteInactiveProject = async (project: Project) => {
+    if (project.isActive ?? true) return
+
+    const projectAssignments = assignmentList.filter((assignment) => assignment.projectId === project.id)
+    const assignmentIds = projectAssignments.map((assignment) => assignment.id)
+
+    await db.transaction("rw", [db.projects, db.assignments, db.allocations], async () => {
+      if (assignmentIds.length > 0) {
+        await db.allocations.where("assignmentId").anyOf(assignmentIds).delete()
+      }
+      await db.assignments.where("projectId").equals(project.id).delete()
+      await db.projects.delete(project.id)
+    })
+  }
+
+  const toggleProjectActive = async (project: Project) => {
+    await db.projects.update(project.id, { isActive: !(project.isActive ?? true) })
+  }
 
   return (
     <section className="rounded-3xl border border-neutral-300 dark:border-neutral-700/80 bg-card/75 dark:bg-card/60 text-card-foreground shadow-xs overflow-hidden transition-all duration-300">
@@ -122,9 +229,14 @@ export function ProjectsDirectorySection({
             </tr>
           </thead>
           <tbody className="divide-y divide-border/30 font-medium">
-            {filteredProjects.map((p) => {
+            {displayedProjects.map((p) => {
               const projectAssignments = assignmentList.filter((a) => a.projectId === p.id)
               const isActive = p.isActive ?? true
+              const isEditing = isActive && editingProjectId === p.id
+              const assignedStaffIds = new Set(projectAssignments.map((assignment) => assignment.staffId))
+              const unassignedStaff = staffList.filter((staff) =>
+                (staff.isActive ?? true) && !assignedStaffIds.has(staff.id)
+              )
 
               return (
                 <tr key={p.id} className={cn("transition-colors hover:bg-muted/15", !isActive && "opacity-60 bg-muted/10")}>
@@ -139,17 +251,71 @@ export function ProjectsDirectorySection({
                       </span>
                     )}
                   </td>
-                  <td className="py-2.5 px-2 w-24 sm:w-28 font-bold text-foreground text-xs leading-snug align-top whitespace-normal break-words">{toTitleCase(p.name)}</td>
-                  <td className="py-2.5 px-2 w-30 sm:w-34 text-muted-foreground font-mono text-[11px] align-top">
-                    {p.startMonth || "—"} → {p.endMonth || "—"}
+                  <td className={cn("py-2.5 px-2 w-24 sm:w-28 text-foreground text-xs leading-snug align-top whitespace-normal break-words", !isActive && "pointer-events-none")}>
+                    {isEditing ? (
+                      <input
+                        value={editDraft?.name ?? ""}
+                        onChange={(event) => setEditDraft((draft) => draft ? { ...draft, name: event.target.value } : draft)}
+                        className="h-7 w-full rounded-lg border border-input bg-background px-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                        aria-label="Project name"
+                      />
+                    ) : (
+                      <span className="font-bold">{toTitleCase(p.name)}</span>
+                    )}
                   </td>
-                  <td className="py-2 px-2 align-top">
+                  <td className={cn("py-2.5 px-2 w-30 sm:w-34 text-muted-foreground text-[11px] align-top", !isActive && "pointer-events-none")}>
+                    {isEditing ? (() => {
+                      const startIndex = Math.max(0, TIMELINE_MONTHS.findIndex((month) => month.key === editDraft?.startMonth))
+                      const endIndex = Math.max(startIndex, TIMELINE_MONTHS.findIndex((month) => month.key === editDraft?.endMonth))
+                      return (
+                        <div className="min-w-[180px] space-y-1.5">
+                          <div className="flex justify-between gap-2 text-[10px] font-semibold text-foreground">
+                            <span>{formatMonth(editDraft?.startMonth ?? "")}</span>
+                            <span>{formatMonth(editDraft?.endMonth ?? "")}</span>
+                          </div>
+                          <Slider
+                            min={0}
+                            max={TIMELINE_MONTHS.length - 1}
+                            step={1}
+                            value={[startIndex, endIndex]}
+                            onValueChange={handleTimelineChange}
+                            aria-label="Project timeline"
+                          />
+                        </div>
+                      )
+                    })() : (
+                      <span className="font-mono">{p.startMonth || "—"} → {p.endMonth || "—"}</span>
+                    )}
+                  </td>
+                  <td className={cn("py-2 px-2 align-top", !isActive && "pointer-events-none")}>
                     <div className="flex flex-col md:flex-row md:flex-wrap gap-1.5 items-start md:items-center">
                       {projectAssignments.length > 0 ? (
                         projectAssignments.map((a) => {
                           const staff = staffList.find((s) => s.id === a.staffId)
                           if (!staff) return null
-                          return (
+                          return isEditing ? (
+                            <div key={a.id} className="inline-flex items-center gap-1.5 rounded-md border border-border/80 bg-background px-2 py-0.5 text-[11px] font-medium shadow-2xs whitespace-nowrap">
+                              {toTitleCase(staff.name)}
+                              <select
+                                value={a.role}
+                                onChange={(event) => void updateAssignmentRole(a.id, event.target.value as RoleType)}
+                                className="h-5 rounded border border-input bg-background px-1 text-[9px] font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                                aria-label={`Role for ${toTitleCase(staff.name)}`}
+                              >
+                                {ROLE_OPTIONS.map((roleOption) => (
+                                  <option key={roleOption.value} value={roleOption.value}>{roleOption.value}</option>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                onClick={() => void removeAssignment(a)}
+                                className="rounded text-muted-foreground transition-colors hover:text-rose-500 cursor-pointer"
+                                aria-label={`Remove ${toTitleCase(staff.name)} from project`}
+                              >
+                                <X className="size-3" />
+                              </button>
+                            </div>
+                          ) : (
                             <span key={a.id} className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-background border border-border/80 shadow-2xs whitespace-nowrap">
                               {toTitleCase(staff.name)}
                               <RoleBadge role={a.role} isSubRow />
@@ -159,18 +325,81 @@ export function ProjectsDirectorySection({
                       ) : (
                         <span className="text-muted-foreground italic text-[11px]">No team members</span>
                       )}
+                      {isEditing && unassignedStaff.length > 0 && (
+                        <select
+                          value=""
+                          onChange={(event) => void assignStaff(p.id, Number(event.target.value))}
+                          className="h-6 rounded-md border border-dashed border-input bg-background px-2 text-[10px] font-semibold text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                          <option value="">Assign staff…</option>
+                          {unassignedStaff.map((staff) => (
+                            <option key={staff.id} value={staff.id}>{toTitleCase(staff.name)}</option>
+                          ))}
+                        </select>
+                      )}
                     </div>
                   </td>
                   <td className="py-2.5 px-2 sm:px-3 w-20 text-right align-top">
                     <div className="flex items-center justify-end gap-0">
-                      <button title="Edit Project" type="button" className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer">
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </button>
-                      <button title="Delete Project" type="button" className="p-1 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer">
+                      {isEditing ? (
+                        <>
+                          <button
+                            type="button"
+                            title="Save changes"
+                            aria-label="Save project changes"
+                            onClick={() => void saveProject(p.id)}
+                            className="p-1 rounded-md text-emerald-600 hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            title="Cancel editing"
+                            aria-label="Cancel project editing"
+                            onClick={cancelEditing}
+                            className="p-1 rounded-md text-muted-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          title="Edit Project"
+                          aria-label="Edit project"
+                          type="button"
+                          onClick={() => startEditing(p)}
+                          disabled={!isActive}
+                          className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer disabled:pointer-events-none disabled:opacity-35"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                      <button
+                        title="Delete Project"
+                        aria-label="Delete project"
+                        type="button"
+                        onClick={() => void deleteInactiveProject(p)}
+                        disabled={isActive}
+                        className="p-1 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer disabled:pointer-events-none disabled:opacity-35"
+                      >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
-                      <button title="Deactivate" type="button" className="p-1 rounded-md text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10 transition-colors cursor-pointer">
-                        <Ban className="h-3.5 w-3.5" />
+                      <button
+                        title={isActive ? "Deactivate Project" : "Reactivate Project"}
+                        aria-label={isActive ? "Deactivate project" : "Reactivate project"}
+                        type="button"
+                        onClick={() => {
+                          if (isEditing) cancelEditing()
+                          void toggleProjectActive(p)
+                        }}
+                        className={cn(
+                          "p-1 rounded-md transition-colors cursor-pointer",
+                          isActive
+                            ? "text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10"
+                            : "text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10"
+                        )}
+                      >
+                        {isActive ? <Ban className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                       </button>
                     </div>
                   </td>

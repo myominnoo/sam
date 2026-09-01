@@ -63,6 +63,10 @@ export function StaffDirectorySection({
     handleToggleActive,
   } = useStaffTableState(staffList, designationList, setDesignation)
 
+  const displayedStaff = filteredStaff.toSorted(
+    (a, b) => Number(b.isActive ?? true) - Number(a.isActive ?? true)
+  )
+
   const startEditing = (staff: Staff) => {
     setEditingStaffId(staff.id)
     setEditDraft({
@@ -242,7 +246,7 @@ export function StaffDirectorySection({
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40 font-medium [&>tr>td]:!align-top">
-              {filteredStaff.map((s) => {
+              {displayedStaff.map((s) => {
                 const assignments = assignmentList.filter((a) => a.staffId === s.id)
                 const isActive = s.isActive ?? true
                 const isEditing = isActive && editingStaffId === s.id
