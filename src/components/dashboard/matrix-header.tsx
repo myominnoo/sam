@@ -41,7 +41,7 @@ export function MatrixHeader({
     <thead>
       {/* Upper Header Row */}
       <tr className="border-b border-border/40 bg-muted/20 text-[10px] uppercase font-bold text-muted-foreground">
-        <th className="p-2 px-2 sm:px-3 align-top sticky left-0 z-20 bg-muted/90 backdrop-blur-md border-r border-border/40 w-[120px] sm:w-[176px]">
+        <th className="p-2 px-2 sm:px-3 align-top text-left sticky left-0 z-20 bg-muted/90 backdrop-blur-md border-r border-border/40 w-[120px] sm:w-[176px]">
           {metadataTitle}
         </th>
         {/* Removed border-r here to avoid border doubling */}
@@ -62,7 +62,7 @@ export function MatrixHeader({
 
       {/* Lower Header Row */}
       <tr className="border-b border-border/60 bg-muted/50 font-bold text-[11px]">
-        <th className="p-2.5 px-2 sm:px-3 align-top w-[120px] sm:w-[176px] sticky left-0 z-20 bg-muted/90 backdrop-blur-md border-r border-border/40 truncate">
+        <th className="p-2.5 px-2 sm:px-3 align-top text-left w-[120px] sm:w-[176px] sticky left-0 z-20 bg-muted/90 backdrop-blur-md border-r border-border/40 truncate">
           {metadataTitle === "Staff Metadata" ? "Staff Name" : "Project Name"}
         </th>
 

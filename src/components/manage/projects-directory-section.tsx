@@ -265,7 +265,7 @@ export function ProjectsDirectorySection({
             isDuplicateProjectName ? "border-rose-500/60 focus:ring-rose-500" : "border-input focus:ring-primary"
           )}
         />
-        <div className="w-full min-w-[220px] sm:w-72">
+        <div className="w-full min-w-[220px] sm:mx-3 sm:w-72">
           <div className="mb-1 flex items-center justify-between gap-2">
             <span className="text-[10px] font-semibold text-muted-foreground">Timeline</span>
             <ToggleGroup

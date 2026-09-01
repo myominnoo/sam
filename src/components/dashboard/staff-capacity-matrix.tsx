@@ -119,7 +119,7 @@ export function StaffCapacityMatrix({
           onScroll={onScroll}
           className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700"
         >
-        <table className={`staff-capacity-table ${tableWidthClass} text-left border-collapse text-xs select-none`} style={tableStyle}>
+        <table className={`staff-capacity-table ${tableWidthClass} text-center border-collapse text-xs select-none [&_td]:!align-middle [&_th]:!align-middle`} style={tableStyle}>
           <MatrixColumnGroup monthCount={months.length} />
           <MatrixHeader
             metadataTitle="Staff Metadata"
@@ -128,7 +128,7 @@ export function StaffCapacityMatrix({
             yearGroups={yearGroups}
           />
 
-          <tbody className="divide-y divide-border/30 font-medium [&>tr>td]:!align-top">
+          <tbody className="divide-y divide-border/30 font-medium">
             {staffList.length > 0 ? (
               staffList.map((s) => {
                 const staffAssignments = assignmentsByStaffId.get(s.id) ?? []
@@ -140,9 +140,9 @@ export function StaffCapacityMatrix({
                     <tr className="group bg-neutral-200/50 dark:bg-neutral-900/80 hover:bg-neutral-200/80 dark:hover:bg-neutral-800/80 hover:[&>td]:brightness-[.97] dark:hover:[&>td]:brightness-110 transition-[color,background-color,filter] border-t-2 border-border/60">
                       <td
                         onClick={() => toggleExpand(s.id)}
-                        className="p-2 sm:p-2.5 px-2 sm:px-3 font-bold text-foreground whitespace-nowrap select-none cursor-pointer sticky left-0 z-10 bg-neutral-200/90 dark:bg-neutral-900/90 backdrop-blur-md border-r border-border/40 w-[120px] sm:w-[176px]"
+                        className="p-2 sm:p-2.5 px-2 sm:px-3 text-left font-bold text-foreground whitespace-nowrap select-none cursor-pointer sticky left-0 z-10 bg-neutral-200/90 dark:bg-neutral-900/90 backdrop-blur-md border-r border-border/40 w-[120px] sm:w-[176px]"
                       >
-                        <div className="flex items-center gap-1 sm:gap-1.5 truncate">
+                        <div className="flex items-center justify-start gap-1 sm:gap-1.5 truncate">
                           <button
                             type="button"
                             className="p-0.5 rounded-xs hover:bg-neutral-300 dark:hover:bg-neutral-800 text-primary transition-transform duration-150 shrink-0"
@@ -225,7 +225,7 @@ export function StaffCapacityMatrix({
                             key={`sub-${s.id}-${proj.id}`}
                             className="bg-black/5 dark:bg-black/30 hover:bg-black/10 dark:hover:bg-black/40 hover:[&>td]:brightness-[.97] dark:hover:[&>td]:brightness-110 border-b border-border/20 text-[11px] transition-[color,background-color,filter]"
                           >
-                            <td className="p-2 pl-4 sm:pl-7 font-normal text-muted-foreground italic border-r border-border/40 sticky left-0 z-10 bg-neutral-100/95 dark:bg-neutral-950/95 border-l-2 border-l-primary/60 w-[120px] sm:w-[176px]">
+                            <td className="p-2 pl-4 sm:pl-7 text-left font-normal text-muted-foreground italic border-r border-border/40 sticky left-0 z-10 bg-neutral-100/95 dark:bg-neutral-950/95 border-l-2 border-l-primary/60 w-[120px] sm:w-[176px]">
                               <span className="truncate text-[10px] sm:text-[11px]">↳ {toTitleCase(proj.name)}</span>
                             </td>
 
