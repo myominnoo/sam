@@ -1,5 +1,5 @@
-import { useState, type Ref } from "react"
-import { FolderKanban, Search, Plus, Edit2, Trash2, Ban, Check, CheckCircle2, X } from "lucide-react"
+import { Fragment, useState, type Ref } from "react"
+import { FolderKanban, Search, Plus, Edit2, Trash2, Ban, Check, CheckCircle2, X, ChevronDown } from "lucide-react"
 import { toTitleCase } from "@/lib/string-utils"
 import { cn } from "@/lib/utils"
 import { RoleBadge } from "@/components/ui/role-badge"
@@ -48,6 +48,7 @@ export function ProjectsDirectorySection({
   const [newProjectEnd, setNewProjectEnd] = useState("")
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null)
   const [editDraft, setEditDraft] = useState<ProjectEditDraft | null>(null)
+  const [showInactiveProjects, setShowInactiveProjects] = useState(false)
 
   const handleAddProject = async () => {
     if (!newProjectName.trim()) return
@@ -70,6 +71,10 @@ export function ProjectsDirectorySection({
   const displayedProjects = filteredProjects.toSorted(
     (a, b) => Number(b.isActive ?? true) - Number(a.isActive ?? true)
   )
+  const inactiveProjects = displayedProjects.filter((project) => !(project.isActive ?? true))
+  const visibleProjects = showInactiveProjects
+    ? displayedProjects
+    : displayedProjects.filter((project) => project.isActive ?? true)
 
   const startEditing = (project: Project) => {
     const defaultStartMonth = TIMELINE_MONTHS[0].key
@@ -229,16 +234,33 @@ export function ProjectsDirectorySection({
             </tr>
           </thead>
           <tbody className="divide-y divide-border/30 font-medium">
-            {displayedProjects.map((p) => {
+            {visibleProjects.map((p) => {
               const projectAssignments = assignmentList.filter((a) => a.projectId === p.id)
               const isActive = p.isActive ?? true
               const isEditing = isActive && editingProjectId === p.id
+              const isFirstInactiveProject = !isActive && p.id === inactiveProjects[0]?.id
               const assignedStaffIds = new Set(projectAssignments.map((assignment) => assignment.staffId))
               const unassignedStaff = staffList.filter((staff) =>
                 (staff.isActive ?? true) && !assignedStaffIds.has(staff.id)
               )
 
               return (
+                <Fragment key={p.id}>
+                  {isFirstInactiveProject && (
+                    <tr key="inactive-project-toggle" className="bg-muted/30">
+                      <td colSpan={5} className="px-3 py-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowInactiveProjects(false)}
+                          className="flex w-full items-center gap-2 text-left text-[10px] font-bold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+                          aria-expanded="true"
+                        >
+                          <ChevronDown className="size-3 transition-transform" />
+                          Inactive projects ({inactiveProjects.length})
+                        </button>
+                      </td>
+                    </tr>
+                  )}
                 <tr key={p.id} className={cn("transition-colors hover:bg-muted/15", !isActive && "opacity-60 bg-muted/10")}>
                   <td className="py-2.5 px-3 sm:px-4 w-20 align-top">
                     {isActive ? (
@@ -284,7 +306,7 @@ export function ProjectsDirectorySection({
                         </div>
                       )
                     })() : (
-                      <span className="font-mono">{p.startMonth || "—"} → {p.endMonth || "—"}</span>
+                      <span className="font-medium">{p.startMonth || "—"} → {p.endMonth || "—"}</span>
                     )}
                   </td>
                   <td className={cn("py-2 px-2 align-top", !isActive && "pointer-events-none")}>
@@ -404,8 +426,24 @@ export function ProjectsDirectorySection({
                     </div>
                   </td>
                 </tr>
+                </Fragment>
               )
             })}
+            {inactiveProjects.length > 0 && !showInactiveProjects && (
+              <tr className="bg-muted/30">
+                <td colSpan={5} className="px-3 py-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowInactiveProjects(true)}
+                    className="flex w-full items-center gap-2 text-left text-[10px] font-bold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+                    aria-expanded="false"
+                  >
+                    <ChevronDown className="size-3 -rotate-90 transition-transform" />
+                    Inactive projects ({inactiveProjects.length})
+                  </button>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

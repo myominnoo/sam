@@ -35,7 +35,13 @@ export function MatrixTooltip({
         className="absolute inset-0"
       />
       <Tooltip.Portal>
-        <Tooltip.Positioner side="bottom" sideOffset={8} align="center" collisionPadding={8}>
+        <Tooltip.Positioner
+          side="bottom"
+          sideOffset={8}
+          align="center"
+          collisionPadding={8}
+          className="z-[60]"
+        >
           <Tooltip.Popup className="flex min-w-[200px] flex-col gap-1 rounded-xl border border-border bg-popover/95 p-2.5 text-left text-[10px] text-popover-foreground shadow-2xl backdrop-blur-md transition-[opacity,transform] duration-150 data-ending-style:opacity-0 data-ending-style:[transform:scale(0.98)] data-starting-style:opacity-0 data-starting-style:[transform:scale(0.98)]">
             <div className="flex flex-col gap-0.5 border-b border-border/60 pb-1 font-bold">
               <div className="flex items-center justify-between gap-2">
@@ -43,7 +49,7 @@ export function MatrixTooltip({
                 {totalLabel && <span className="font-bold text-emerald-600 dark:text-emerald-400">{totalLabel}</span>}
               </div>
               {subtitle && (
-                <div className="flex items-center gap-2 text-[10px] font-medium text-muted-foreground">
+                <div className="flex w-full items-center gap-2 text-[10px] font-medium text-muted-foreground">
                   {subtitle}
                 </div>
               )}

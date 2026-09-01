@@ -1,5 +1,5 @@
-import { useState, type Ref } from "react"
-import { Users, Search, Plus, SlidersHorizontal, Edit2, Trash2, Ban, Check, CheckCircle2, AlertCircle, X } from "lucide-react"
+import { Fragment, useState, type Ref } from "react"
+import { Users, Search, Plus, SlidersHorizontal, Edit2, Trash2, Ban, Check, CheckCircle2, AlertCircle, X, ChevronDown } from "lucide-react"
 import { toTitleCase } from "@/lib/string-utils"
 import { RoleBadge } from "@/components/ui/role-badge"
 import { db } from "@/db/schema"
@@ -41,6 +41,7 @@ export function StaffDirectorySection({
 }: StaffDirectorySectionProps) {
   const [editingStaffId, setEditingStaffId] = useState<number | null>(null)
   const [editDraft, setEditDraft] = useState<StaffEditDraft | null>(null)
+  const [showInactiveStaff, setShowInactiveStaff] = useState(false)
   const {
     name,
     designation,
@@ -66,6 +67,10 @@ export function StaffDirectorySection({
   const displayedStaff = filteredStaff.toSorted(
     (a, b) => Number(b.isActive ?? true) - Number(a.isActive ?? true)
   )
+  const inactiveStaff = displayedStaff.filter((staff) => !(staff.isActive ?? true))
+  const visibleStaff = showInactiveStaff
+    ? displayedStaff
+    : displayedStaff.filter((staff) => staff.isActive ?? true)
 
   const startEditing = (staff: Staff) => {
     setEditingStaffId(staff.id)
@@ -246,15 +251,32 @@ export function StaffDirectorySection({
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40 font-medium [&>tr>td]:!align-top">
-              {displayedStaff.map((s) => {
+              {visibleStaff.map((s) => {
                 const assignments = assignmentList.filter((a) => a.staffId === s.id)
                 const isActive = s.isActive ?? true
                 const isEditing = isActive && editingStaffId === s.id
+                const isFirstInactiveStaff = !isActive && s.id === inactiveStaff[0]?.id
                 const unassignedProjects = projectList.filter(
                   (project) => !assignments.some((assignment) => assignment.projectId === project.id)
                 )
 
                 return (
+                  <Fragment key={s.id}>
+                    {isFirstInactiveStaff && (
+                      <tr key="inactive-staff-toggle" className="bg-muted/30">
+                        <td colSpan={6} className="px-3 py-2">
+                          <button
+                            type="button"
+                            onClick={() => setShowInactiveStaff(false)}
+                            className="flex w-full items-center gap-2 text-left text-[10px] font-bold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+                            aria-expanded="true"
+                          >
+                            <ChevronDown className="size-3 transition-transform" />
+                            Inactive staff ({inactiveStaff.length})
+                          </button>
+                        </td>
+                      </tr>
+                    )}
                   <tr
                     key={s.id}
                     className={cn(
@@ -492,8 +514,24 @@ export function StaffDirectorySection({
                       </div>
                     </td>
                   </tr>
+                  </Fragment>
                 )
               })}
+              {inactiveStaff.length > 0 && !showInactiveStaff && (
+                <tr className="bg-muted/30">
+                  <td colSpan={6} className="px-3 py-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowInactiveStaff(true)}
+                      className="flex w-full items-center gap-2 text-left text-[10px] font-bold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+                      aria-expanded="false"
+                    >
+                      <ChevronDown className="size-3 -rotate-90 transition-transform" />
+                      Inactive staff ({inactiveStaff.length})
+                    </button>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

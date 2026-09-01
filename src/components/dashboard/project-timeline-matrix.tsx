@@ -185,6 +185,12 @@ export function ProjectTimelineMatrix({
                             {monthAllocations.length > 0 && (
                               <MatrixTooltip
                                 title={`${m.monthLabel} Staffing`}
+                                subtitle={
+                                  <div className="flex w-full items-center justify-between gap-3">
+                                    <span>Start: {p.startMonth || "—"}</span>
+                                    <span>End: {p.endMonth || "—"}</span>
+                                  </div>
+                                }
                                 totalLabel={`${monthAllocations.length} Active`}
                                 items={monthAllocations.map((al) => {
                                   const staff = staffById.get(al.staffId)

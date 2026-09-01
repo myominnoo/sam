@@ -192,10 +192,10 @@ export function StaffCapacityMatrix({
                               <MatrixTooltip
                                 title={`${m.monthLabel} Breakdown`}
                                 subtitle={
-                                  <>
-                                    {s.designation && <span>Designation: {s.designation}</span>}
-                                    {s.fte !== undefined && <span>FTE: {s.fte}</span>}
-                                  </>
+                                  <div className="flex w-full items-center justify-between gap-3">
+                                    <span>Designation: {s.designation || "—"}</span>
+                                    <span>FTE: {s.fte ?? "—"}</span>
+                                  </div>
                                 }
                                 totalLabel={`${Math.round(rawSumPct)}%`}
                                 items={monthAllocations.map((al) => {
