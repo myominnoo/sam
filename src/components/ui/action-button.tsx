@@ -21,7 +21,7 @@ export function ActionButton({
       type="button"
       title={label}
       className={cn(
-        "inline-flex items-center gap-2 px-3.5 h-9 rounded-2xl border border-border/70 text-xs font-semibold transition-all cursor-pointer shadow-2xs shrink-0 active:scale-[0.98]",
+        "inline-flex items-center gap-2 px-3.5 h-9 rounded-2xl border border-border/70 text-xs font-semibold transition-all cursor-pointer shadow-2xs shrink-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50",
         destructive
           ? "bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/20 text-rose-600 dark:text-rose-400"
           : "bg-background hover:bg-muted border-border text-foreground hover:text-foreground/90",

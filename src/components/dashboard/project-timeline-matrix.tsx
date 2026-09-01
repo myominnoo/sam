@@ -1,6 +1,4 @@
-import type { Ref } from "react"
-import { useLiveQuery } from "dexie-react-hooks"
-import { db } from "@/db/schema"
+import { Fragment, useMemo, type Ref } from "react"
 import { FolderKanban, Check, FolderPlus, ChevronRight, ChevronDown } from "lucide-react"
 import { toTitleCase } from "@/lib/string-utils"
 import { RoleBadge } from "@/components/ui/role-badge"
@@ -10,8 +8,13 @@ import { MatrixHeader } from "@/components/dashboard/matrix-header"
 import { useMatrixExpansion } from "@/hooks/use-matrix-expansion"
 import { useMatrixResponsiveLayout } from "@/hooks/use-matrix-responsive-layout"
 import { CollapseAllButton } from "@/components/ui/collapse-all-button"
+import type { Allocation, Assignment, Project, Staff } from "@/types/sam"
 
 interface ProjectTimelineMatrixProps {
+  staffList: Staff[]
+  projectList: Project[]
+  assignmentList: Assignment[]
+  allocationList: Allocation[]
   startMonth?: string
   endMonth?: string
   scrollRef?: Ref<HTMLDivElement>
@@ -19,15 +22,34 @@ interface ProjectTimelineMatrixProps {
 }
 
 export function ProjectTimelineMatrix({
+  staffList,
+  projectList,
+  assignmentList,
+  allocationList,
   startMonth = "2026-08",
   endMonth = "2028-01",
   scrollRef,
   onScroll,
 }: ProjectTimelineMatrixProps) {
-  const projectList = useLiveQuery(() => db.projects.toArray(), []) ?? []
-  const staffList = useLiveQuery(() => db.staff.toArray(), []) ?? []
-  const assignmentList = useLiveQuery(() => db.assignments.toArray(), []) ?? []
-  const allocationList = useLiveQuery(() => db.allocations.toArray(), []) ?? []
+  const { staffById, assignmentsByProjectId, allocationsByProjectAndMonth, allocationsByAssignmentAndMonth } = useMemo(() => {
+    const staffById = new Map(staffList.map((staff) => [staff.id, staff]))
+    const assignmentsByProjectId = new Map<number, Assignment[]>()
+    const allocationsByProjectAndMonth = new Map<string, Allocation[]>()
+    const allocationsByAssignmentAndMonth = new Map<string, Allocation>()
+    for (const assignment of assignmentList) {
+      const assignments = assignmentsByProjectId.get(assignment.projectId) ?? []
+      assignments.push(assignment)
+      assignmentsByProjectId.set(assignment.projectId, assignments)
+    }
+    for (const allocation of allocationList) {
+      const key = `${allocation.projectId}:${allocation.month}`
+      const allocations = allocationsByProjectAndMonth.get(key) ?? []
+      allocations.push(allocation)
+      allocationsByProjectAndMonth.set(key, allocations)
+      allocationsByAssignmentAndMonth.set(`${allocation.assignmentId}:${allocation.month}`, allocation)
+    }
+    return { staffById, assignmentsByProjectId, allocationsByProjectAndMonth, allocationsByAssignmentAndMonth }
+  }, [staffList, assignmentList, allocationList])
 
   const projectIds = projectList.map((p) => p.id)
   const { toggleExpand, isExpanded, toggleAll, isAllExpanded } = useMatrixExpansion(projectIds)
@@ -62,7 +84,7 @@ export function ProjectTimelineMatrix({
         onScroll={onScroll}
         className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700"
       >
-        <table className={`${tableWidthClass} text-left border-collapse text-xs select-none`}>
+        <table className={`project-timeline-table ${tableWidthClass} text-left border-collapse text-xs select-none`}>
           <MatrixHeader
             metadataTitle="Project Metadata"
             countLabel="# Staff"
@@ -70,19 +92,19 @@ export function ProjectTimelineMatrix({
             yearGroups={yearGroups}
           />
 
-          <tbody className="divide-y divide-border/30 font-medium">
+          <tbody className="divide-y divide-border/30 font-medium [&>tr>td]:!align-top">
             {projectList.length > 0 ? (
               projectList.map((p) => {
-                const projectAssignments = assignmentList.filter((a) => a.projectId === p.id)
+                const projectAssignments = assignmentsByProjectId.get(p.id) ?? []
                 const assignedStaffIds = new Set(projectAssignments.map((a) => a.staffId))
                 const expanded = isExpanded(p.id)
 
                 return (
-                  <tr key={p.id} className="contents group">
-                    <tr className="bg-neutral-200/50 dark:bg-neutral-900/80 hover:bg-neutral-200/80 dark:hover:bg-neutral-800/80 transition-colors border-t-2 border-border/60">
+                  <Fragment key={p.id}>
+                    <tr className="group bg-neutral-200/50 dark:bg-neutral-900/80 hover:bg-neutral-200/80 dark:hover:bg-neutral-800/80 transition-colors border-t-2 border-border/60">
                       <td
                         onClick={() => toggleExpand(p.id)}
-                        className="p-2 sm:p-2.5 px-2 sm:px-3 font-bold text-foreground whitespace-nowrap select-none cursor-pointer sticky left-0 z-10 bg-neutral-200/90 dark:bg-neutral-900/90 backdrop-blur-md border-r border-border/40 w-[120px] sm:w-[176px]"
+                        className="p-2 sm:p-2.5 px-2 sm:px-3 align-top font-bold text-foreground whitespace-nowrap select-none cursor-pointer sticky left-0 z-10 bg-neutral-200/90 dark:bg-neutral-900/90 backdrop-blur-md border-r border-border/40 w-[120px] sm:w-[176px]"
                       >
                         <div className="flex items-center gap-1 sm:gap-1.5 truncate">
                           <button
@@ -101,7 +123,7 @@ export function ProjectTimelineMatrix({
                         </div>
                       </td>
 
-                      <td className="p-1 sm:p-2 text-center w-12 sm:w-16 sticky left-[120px] sm:left-[176px] z-10 bg-neutral-200/95 dark:bg-neutral-900/95 backdrop-blur-md border-r-0">
+                      <td className="p-1 sm:p-2 align-top text-center w-12 sm:w-16 sticky left-[120px] sm:left-[176px] z-10 bg-neutral-200/95 dark:bg-neutral-900/95 backdrop-blur-md border-r-0">
                         <span className="inline-flex items-center justify-center h-4.5 sm:h-5 min-w-4.5 sm:min-w-5 px-1 sm:px-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
                           {assignedStaffIds.size}
                         </span>
@@ -112,9 +134,8 @@ export function ProjectTimelineMatrix({
                           (!p.startMonth || m.key >= p.startMonth) &&
                           (!p.endMonth || m.key <= p.endMonth)
 
-                        const monthAllocations = allocationList.filter(
-                          (al) => al.projectId === p.id && al.month === m.key && al.percentage > 0
-                        )
+                        const monthAllocations = (allocationsByProjectAndMonth.get(`${p.id}:${m.key}`) ?? [])
+                          .filter((allocation) => allocation.percentage > 0)
 
                         const isProjectActiveInMonth =
                           isWithinProjectSchedule && monthAllocations.length > 0
@@ -122,7 +143,7 @@ export function ProjectTimelineMatrix({
                         return (
                           <td
                             key={m.key}
-                            className={`relative group/cell p-1 text-center w-14 min-w-[56px] border-r border-border/20 transition-colors ${
+                            className={`relative group/cell p-1 align-top text-center w-14 min-w-[56px] border-r border-border/20 transition-colors ${
                               idx === 0 ? "border-l-2 border-l-primary/50" : ""
                             } ${
                               isProjectActiveInMonth
@@ -142,7 +163,7 @@ export function ProjectTimelineMatrix({
                                 totalLabel={`${monthAllocations.length} Active`}
                                 isNearRightEdge={idx >= months.length - 3}
                                 items={monthAllocations.map((al) => {
-                                  const staff = staffList.find((s) => s.id === al.staffId)
+                                  const staff = staffById.get(al.staffId)
                                   const assign = projectAssignments.find((a) => a.staffId === al.staffId)
                                   return {
                                     id: al.id,
@@ -161,7 +182,7 @@ export function ProjectTimelineMatrix({
 
                     {expanded &&
                       projectAssignments.map((assignment) => {
-                        const staff = staffList.find((s) => s.id === assignment.staffId)
+                        const staff = staffById.get(assignment.staffId)
                         if (!staff) return null
 
                         return (
@@ -169,7 +190,7 @@ export function ProjectTimelineMatrix({
                             key={`sub-${p.id}-${staff.id}`}
                             className="bg-black/5 dark:bg-black/30 hover:bg-black/10 dark:hover:bg-black/40 border-b border-border/20 text-[11px] transition-colors"
                           >
-                            <td className="p-2 pl-4 sm:pl-7 font-normal text-muted-foreground italic border-r border-border/40 sticky left-0 z-10 bg-neutral-100/95 dark:bg-neutral-950/95 border-l-2 border-l-primary/60 w-[120px] sm:w-[176px]">
+                            <td className="p-2 pl-4 sm:pl-7 align-top font-normal text-muted-foreground italic border-r border-border/40 sticky left-0 z-10 bg-neutral-100/95 dark:bg-neutral-950/95 border-l-2 border-l-primary/60 w-[120px] sm:w-[176px]">
                               <span className="truncate text-[10px] sm:text-[11px]">
                                 ↳ {toTitleCase(staff.name)}
                                 {staff.designation && (
@@ -180,17 +201,12 @@ export function ProjectTimelineMatrix({
                               </span>
                             </td>
 
-                            <td className="p-1 sm:p-2 text-center w-12 sm:w-16 sticky left-[120px] sm:left-[176px] z-10 bg-neutral-100/95 dark:bg-neutral-950/95 border-r-0">
+                            <td className="p-1 sm:p-2 align-top text-center w-12 sm:w-16 sticky left-[120px] sm:left-[176px] z-10 bg-neutral-100/95 dark:bg-neutral-950/95 border-r-0">
                               <RoleBadge role={assignment.role} isSubRow />
                             </td>
 
                             {months.map((m, idx) => {
-                              const alloc = allocationList.find(
-                                (al) =>
-                                  al.projectId === p.id &&
-                                  al.staffId === staff.id &&
-                                  al.month === m.key
-                              )
+                              const alloc = allocationsByAssignmentAndMonth.get(`${assignment.id}:${m.key}`)
 
                               const pctVal = alloc
                                 ? alloc.percentage <= 1
@@ -201,7 +217,7 @@ export function ProjectTimelineMatrix({
                               return (
                                 <td
                                   key={m.key}
-                                  className={`p-1 text-center w-14 min-w-[56px] border-r border-border/20 text-[10px] text-muted-foreground/80 ${
+                                  className={`p-1 align-top text-center w-14 min-w-[56px] border-r border-border/20 text-[10px] text-muted-foreground/80 ${
                                     idx === 0 ? "border-l-2 border-l-primary/50" : ""
                                   }`}
                                 >
@@ -212,7 +228,7 @@ export function ProjectTimelineMatrix({
                           </tr>
                         )
                       })}
-                  </tr>
+                  </Fragment>
                 )
               })
             ) : (

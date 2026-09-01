@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "@/db/schema"
 import seedData from "@/db/seed.json"
@@ -7,16 +7,11 @@ import { Sparkles, Database, ArrowRight } from "lucide-react"
 
 export function SeedDialog() {
   const staffCount = useLiveQuery(() => db.staff.count(), [])
-  const [isOpen, setIsOpen] = useState(false)
+  const [isDismissed, setIsDismissed] = useState(() =>
+    localStorage.getItem("sam_onboarding_complete") === "true"
+  )
   const [isSeeding, setIsSeeding] = useState(false)
-
-  useEffect(() => {
-    if (staffCount === 0) {
-      setIsOpen(true)
-    } else if (staffCount !== undefined && staffCount > 0) {
-      setIsOpen(false)
-    }
-  }, [staffCount])
+  const isOpen = !isDismissed && staffCount === 0
 
   const handlePopulateSeedData = async () => {
     setIsSeeding(true)
@@ -27,13 +22,15 @@ export function SeedDialog() {
         role: a.role as RoleType,
       }))
 
-      await db.transaction("rw", [db.staff, db.projects, db.assignments, db.allocations], async () => {
+      await db.transaction("rw", [db.staff, db.projects, db.assignments, db.allocations, db.designations], async () => {
         await db.staff.bulkAdd(seedData.staff)
         await db.projects.bulkAdd(seedData.projects)
         await db.assignments.bulkAdd(typedAssignments)
         await db.allocations.bulkAdd(seedData.allocations)
+        await db.designations.bulkAdd(seedData.designations)
       })
-      setIsOpen(false)
+      localStorage.setItem("sam_onboarding_complete", "true")
+      setIsDismissed(true)
     } catch (error) {
       console.error("Failed to seed database:", error)
     } finally {
@@ -60,7 +57,10 @@ export function SeedDialog() {
         <div className="flex items-center justify-end gap-2.5 mt-6">
           <button
             type="button"
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              localStorage.setItem("sam_onboarding_complete", "true")
+              setIsDismissed(true)
+            }}
             className="px-3.5 h-9 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-transparent text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
           >
             Start with Blank Slate

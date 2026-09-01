@@ -192,3 +192,11 @@
     letter-spacing: var(--tracking-normal);
   }
 }
+
+/* Keep all directory and timeline cells pinned to the top of variable-height rows. */
+.project-timeline-table th,
+.project-timeline-table td,
+.staff-directory-table th,
+.staff-directory-table td {
+  vertical-align: top !important;
+}

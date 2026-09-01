@@ -8,6 +8,8 @@ import { ConfigureCapacityDialog } from "./configure-capacity-dialog"
 import { cn } from "@/lib/utils"
 import type { Staff, Assignment, Project, Designation } from "@/types/sam"
 
+const topAlignedCellStyle = { verticalAlign: "top" } as const
+
 interface StaffDirectorySectionProps {
   staffList: Staff[]
   projectList: Project[]
@@ -151,18 +153,18 @@ export function StaffDirectorySection({
 
         {/* Responsive Compact Staff Table */}
         <div ref={scrollRef} onScroll={onScroll} className="overflow-x-auto w-full">
-          <table className="w-full text-left border-collapse text-xs min-w-[580px] sm:min-w-full">
+          <table className="staff-directory-table w-full text-left border-collapse text-xs min-w-[580px] sm:min-w-full">
             <thead>
               <tr className="border-b border-border/60 bg-muted/20 text-muted-foreground font-semibold text-[11px]">
-                <th className="py-2.5 px-3 sm:px-4 w-20">Status</th>
-                <th className="py-2.5 px-2 w-24 sm:w-28">Name</th>
-                <th className="py-2.5 px-2 w-20 sm:w-24 text-center">Designation</th>
-                <th className="py-2.5 px-2 w-10 text-center">FTE</th>
-                <th className="py-2.5 px-2 w-auto min-w-[240px]">Assigned Projects</th>
-                <th className="py-2.5 px-3 sm:px-4 w-20 text-right">Actions</th>
+                <th className="py-2.5 px-3 sm:px-4 w-20 align-top">Status</th>
+                <th className="py-2.5 px-2 w-24 sm:w-28 align-top">Name</th>
+                <th className="py-2.5 px-2 w-20 sm:w-24 text-center align-top">Designation</th>
+                <th className="py-2.5 px-2 w-10 text-center align-top">FTE</th>
+                <th className="py-2.5 px-2 w-auto min-w-[240px] align-top">Assigned Projects</th>
+                <th className="py-2.5 px-3 sm:px-4 w-20 text-right align-top">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/40 font-medium">
+            <tbody className="divide-y divide-border/40 font-medium [&>tr>td]:!align-top">
               {filteredStaff.map((s) => {
                 const assignments = assignmentList.filter((a) => a.staffId === s.id)
                 const isActive = s.isActive ?? true
@@ -176,7 +178,7 @@ export function StaffDirectorySection({
                     )}
                   >
                     {/* Status Badge */}
-                    <td className="py-2.5 px-3 sm:px-4 align-middle">
+                    <td className="py-2.5 px-3 sm:px-4 w-20 align-top" style={topAlignedCellStyle}>
                       {isActive ? (
                         <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Active
@@ -189,25 +191,25 @@ export function StaffDirectorySection({
                     </td>
 
                     {/* Name */}
-                    <td className="py-2.5 px-2 font-bold text-foreground text-xs leading-snug align-middle whitespace-normal break-words">
+                    <td className="py-2.5 px-2 w-24 sm:w-28 font-bold text-foreground text-xs leading-snug align-top whitespace-normal break-words" style={topAlignedCellStyle}>
                       {toTitleCase(s.name)}
                     </td>
 
                     {/* Designation Code Badge */}
-                    <td className="py-2.5 px-2 text-center align-middle">
+                    <td className="py-2.5 px-2 w-20 sm:w-24 text-center align-top" style={topAlignedCellStyle}>
                       <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase font-mono bg-muted/60 text-muted-foreground border border-border/50">
                         {s.designation}
                       </span>
                     </td>
 
                     {/* FTE */}
-                    <td className="py-2.5 px-2 text-center font-bold text-foreground align-middle">
+                    <td className="py-2.5 px-2 w-10 text-center font-bold text-foreground align-top" style={topAlignedCellStyle}>
                       {s.fte ?? 1}
                     </td>
 
                     {/* Assigned Projects */}
-                    <td className="py-2 px-2 align-middle">
-                      <div className="flex flex-col md:flex-row md:flex-wrap gap-1.5 items-start md:items-center">
+                    <td className="py-2 px-2 align-top" style={topAlignedCellStyle}>
+                      <div className="flex flex-col md:flex-row md:flex-wrap gap-1.5 items-start">
                         {assignments.length > 0 ? (
                           assignments.map((a) => {
                             const proj = projectList.find((p) => p.id === a.projectId)
@@ -231,7 +233,7 @@ export function StaffDirectorySection({
                     </td>
 
                     {/* Action Buttons */}
-                    <td className="py-2.5 px-2 sm:px-3 text-right align-middle">
+                    <td className="py-2.5 px-2 sm:px-3 w-20 text-right align-top" style={topAlignedCellStyle}>
                       <div className="flex items-center justify-end gap-0">
                         {/* Configure Capacity Button */}
                         <div className="relative group">

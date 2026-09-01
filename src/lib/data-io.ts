@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx"
+import type * as XLSX from "xlsx"
 import { db } from "@/db/schema"
 import type { Staff, Project, Assignment, Allocation, Designation } from "@/types/sam"
 
@@ -26,6 +26,7 @@ export async function exportToJSON() {
  * Exports database content as XLSX workbook with tabs for each table
  */
 export async function exportToXLSX() {
+  const XLSX = await import("xlsx")
   const data = await getAllData()
   const wb = XLSX.utils.book_new()
 
@@ -53,19 +54,22 @@ export async function importDataFile(file: File): Promise<{ count: number }> {
     const text = await file.text()
     payload = JSON.parse(text)
   } else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
+    const XLSX = await import("xlsx")
     const buffer = await file.arrayBuffer()
     const wb = XLSX.read(buffer, { type: "array" })
 
     payload = {
-      staff: parseSheet<Staff>(wb, "Staff"),
-      projects: parseSheet<Project>(wb, "Projects"),
-      assignments: parseSheet<Assignment>(wb, "Assignments"),
-      allocations: parseSheet<Allocation>(wb, "Allocations"),
-      designations: parseSheet<Designation>(wb, "Designations"),
+      staff: parseSheet<Staff>(XLSX, wb, "Staff"),
+      projects: parseSheet<Project>(XLSX, wb, "Projects"),
+      assignments: parseSheet<Assignment>(XLSX, wb, "Assignments"),
+      allocations: parseSheet<Allocation>(XLSX, wb, "Allocations"),
+      designations: parseSheet<Designation>(XLSX, wb, "Designations"),
     }
   } else {
     throw new Error("Unsupported file format. Please upload a .json or .xlsx file.")
   }
+
+  validateImportPayload(payload)
 
   // Save parsed items to IndexedDB in a single transaction
   let totalRecords = 0
@@ -73,31 +77,18 @@ export async function importDataFile(file: File): Promise<{ count: number }> {
     "rw",
     [db.staff, db.projects, db.assignments, db.allocations, db.designations],
     async () => {
-      if (payload.staff?.length) {
-        await db.staff.clear()
-        await db.staff.bulkAdd(payload.staff as Staff[])
-        totalRecords += payload.staff.length
-      }
-      if (payload.projects?.length) {
-        await db.projects.clear()
-        await db.projects.bulkAdd(payload.projects as Project[])
-        totalRecords += payload.projects.length
-      }
-      if (payload.assignments?.length) {
-        await db.assignments.clear()
-        await db.assignments.bulkAdd(payload.assignments as Assignment[])
-        totalRecords += payload.assignments.length
-      }
-      if (payload.allocations?.length) {
-        await db.allocations.clear()
-        await db.allocations.bulkAdd(payload.allocations as Allocation[])
-        totalRecords += payload.allocations.length
-      }
-      if (payload.designations?.length) {
-        await db.designations.clear()
-        await db.designations.bulkAdd(payload.designations as Designation[])
-        totalRecords += payload.designations.length
-      }
+      await db.staff.clear()
+      await db.projects.clear()
+      await db.assignments.clear()
+      await db.allocations.clear()
+      await db.designations.clear()
+
+      await db.staff.bulkAdd(payload.staff as Staff[])
+      await db.projects.bulkAdd(payload.projects as Project[])
+      await db.assignments.bulkAdd(payload.assignments as Assignment[])
+      await db.allocations.bulkAdd(payload.allocations as Allocation[])
+      await db.designations.bulkAdd(payload.designations as Designation[])
+      totalRecords = payload.staff!.length + payload.projects!.length + payload.assignments!.length + payload.allocations!.length + payload.designations!.length
     }
   )
 
@@ -125,10 +116,19 @@ async function getAllData(): Promise<ExportDataPayload> {
   }
 }
 
-function parseSheet<T>(wb: XLSX.WorkBook, sheetName: string): T[] {
+function parseSheet<T>(xlsx: typeof XLSX, wb: XLSX.WorkBook, sheetName: string): T[] {
   const sheet = wb.Sheets[sheetName]
   if (!sheet) return []
-  return XLSX.utils.sheet_to_json<T>(sheet)
+  return xlsx.utils.sheet_to_json<T>(sheet)
+}
+
+function validateImportPayload(payload: Partial<ExportDataPayload>): asserts payload is Required<Pick<ExportDataPayload, "staff" | "projects" | "assignments" | "allocations" | "designations">> {
+  const requiredTables = ["staff", "projects", "assignments", "allocations", "designations"] as const
+  for (const table of requiredTables) {
+    if (!Array.isArray(payload[table])) {
+      throw new Error(`Invalid import: the ${table} table is missing or malformed.`)
+    }
+  }
 }
 
 function downloadBlob(blob: Blob, filename: string) {

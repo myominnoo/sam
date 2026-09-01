@@ -1,4 +1,6 @@
 import { useState } from "react"
+import { useLiveQuery } from "dexie-react-hooks"
+import { db } from "@/db/schema"
 import { StaffCapacityMatrix } from "@/components/dashboard/staff-capacity-matrix"
 import { ProjectTimelineMatrix } from "@/components/dashboard/project-timeline-matrix"
 import { TimelineFilterBar } from "@/components/controls/timeline-filter-bar"
@@ -6,6 +8,10 @@ import { useSyncScroll } from "@/hooks/use-sync-scroll"
 import { RoleBadge } from "@/components/ui/role-badge"
 
 export function DashboardView() {
+  const staffList = useLiveQuery(() => db.staff.toArray(), []) ?? []
+  const projectList = useLiveQuery(() => db.projects.toArray(), []) ?? []
+  const assignmentList = useLiveQuery(() => db.assignments.toArray(), []) ?? []
+  const allocationList = useLiveQuery(() => db.allocations.toArray(), []) ?? []
   const [timeline, setTimeline] = useState({
     preset: 12,
     startMonth: "2026-08",
@@ -34,6 +40,10 @@ export function DashboardView() {
 
       {/* Synchronized Matrices */}
       <StaffCapacityMatrix
+        staffList={staffList}
+        projectList={projectList}
+        assignmentList={assignmentList}
+        allocationList={allocationList}
         startMonth={timeline.startMonth}
         endMonth={timeline.endMonth}
         scrollRef={register(0)}
@@ -41,6 +51,10 @@ export function DashboardView() {
       />
 
       <ProjectTimelineMatrix
+        staffList={staffList}
+        projectList={projectList}
+        assignmentList={assignmentList}
+        allocationList={allocationList}
         startMonth={timeline.startMonth}
         endMonth={timeline.endMonth}
         scrollRef={register(1)}

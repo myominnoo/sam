@@ -1,6 +1,4 @@
-import type { Ref } from "react"
-import { useLiveQuery } from "dexie-react-hooks"
-import { db } from "@/db/schema"
+import { Fragment, useMemo, type Ref } from "react"
 import { Users, ChevronRight, ChevronDown, UserPlus } from "lucide-react"
 import { toTitleCase } from "@/lib/string-utils"
 import { RoleBadge } from "@/components/ui/role-badge"
@@ -10,8 +8,13 @@ import { MatrixHeader } from "@/components/dashboard/matrix-header"
 import { useMatrixExpansion } from "@/hooks/use-matrix-expansion"
 import { useMatrixResponsiveLayout } from "@/hooks/use-matrix-responsive-layout"
 import { CollapseAllButton } from "@/components/ui/collapse-all-button"
+import type { Allocation, Assignment, Project, Staff } from "@/types/sam"
 
 interface StaffCapacityMatrixProps {
+  staffList: Staff[]
+  projectList: Project[]
+  assignmentList: Assignment[]
+  allocationList: Allocation[]
   startMonth?: string
   endMonth?: string
   scrollRef?: Ref<HTMLDivElement>
@@ -19,15 +22,35 @@ interface StaffCapacityMatrixProps {
 }
 
 export function StaffCapacityMatrix({
+  staffList,
+  projectList,
+  assignmentList,
+  allocationList,
   startMonth = "2026-08",
   endMonth = "2028-01",
   scrollRef,
   onScroll,
 }: StaffCapacityMatrixProps) {
-  const staffList = useLiveQuery(() => db.staff.toArray(), []) ?? []
-  const projectList = useLiveQuery(() => db.projects.toArray(), []) ?? []
-  const assignmentList = useLiveQuery(() => db.assignments.toArray(), []) ?? []
-  const allocationList = useLiveQuery(() => db.allocations.toArray(), []) ?? []
+  const { projectsById, assignmentsByStaffId, allocationsByStaffAndMonth, allocationsByAssignmentAndMonth } = useMemo(() => {
+    const projectsById = new Map(projectList.map((project) => [project.id, project]))
+    const assignmentsByStaffId = new Map<number, Assignment[]>()
+    const allocationsByStaffAndMonth = new Map<string, Allocation[]>()
+    const allocationsByAssignmentAndMonth = new Map<string, Allocation>()
+
+    for (const assignment of assignmentList) {
+      const assignments = assignmentsByStaffId.get(assignment.staffId) ?? []
+      assignments.push(assignment)
+      assignmentsByStaffId.set(assignment.staffId, assignments)
+    }
+    for (const allocation of allocationList) {
+      const key = `${allocation.staffId}:${allocation.month}`
+      const allocations = allocationsByStaffAndMonth.get(key) ?? []
+      allocations.push(allocation)
+      allocationsByStaffAndMonth.set(key, allocations)
+      allocationsByAssignmentAndMonth.set(`${allocation.assignmentId}:${allocation.month}`, allocation)
+    }
+    return { projectsById, assignmentsByStaffId, allocationsByStaffAndMonth, allocationsByAssignmentAndMonth }
+  }, [projectList, assignmentList, allocationList])
 
   const staffIds = staffList.map((s) => s.id)
   const { toggleExpand, isExpanded, toggleAll, isAllExpanded } = useMatrixExpansion(staffIds)
@@ -81,13 +104,13 @@ export function StaffCapacityMatrix({
           <tbody className="divide-y divide-border/30 font-medium">
             {staffList.length > 0 ? (
               staffList.map((s) => {
-                const staffAssignments = assignmentList.filter((a) => a.staffId === s.id)
+                const staffAssignments = assignmentsByStaffId.get(s.id) ?? []
                 const assignedProjectIds = new Set(staffAssignments.map((a) => a.projectId))
                 const expanded = isExpanded(s.id)
 
                 return (
-                  <tr key={s.id} className="contents group">
-                    <tr className="bg-neutral-200/50 dark:bg-neutral-900/80 hover:bg-neutral-200/80 dark:hover:bg-neutral-800/80 transition-colors border-t-2 border-border/60">
+                  <Fragment key={s.id}>
+                    <tr className="group bg-neutral-200/50 dark:bg-neutral-900/80 hover:bg-neutral-200/80 dark:hover:bg-neutral-800/80 transition-colors border-t-2 border-border/60">
                       <td
                         onClick={() => toggleExpand(s.id)}
                         className="p-2 sm:p-2.5 px-2 sm:px-3 font-bold text-foreground whitespace-nowrap select-none cursor-pointer sticky left-0 z-10 bg-neutral-200/90 dark:bg-neutral-900/90 backdrop-blur-md border-r border-border/40 w-[120px] sm:w-[176px]"
@@ -121,9 +144,8 @@ export function StaffCapacityMatrix({
                       </td>
 
                       {months.map((m, idx) => {
-                        const monthAllocations = allocationList.filter(
-                          (al) => al.staffId === s.id && al.month === m.key && al.percentage > 0
-                        )
+                        const monthAllocations = (allocationsByStaffAndMonth.get(`${s.id}:${m.key}`) ?? [])
+                          .filter((allocation) => allocation.percentage > 0)
 
                         const rawSumPct = monthAllocations.reduce((sum, item) => {
                           const val = item.percentage ?? 0
@@ -151,7 +173,7 @@ export function StaffCapacityMatrix({
                                 totalLabel={`${Math.round(rawSumPct)}%`}
                                 isNearRightEdge={idx >= months.length - 3}
                                 items={monthAllocations.map((al) => {
-                                  const proj = projectList.find((p) => p.id === al.projectId)
+                                  const proj = projectsById.get(al.projectId)
                                   const assign = staffAssignments.find((a) => a.projectId === al.projectId)
                                   return {
                                     id: al.id,
@@ -169,7 +191,7 @@ export function StaffCapacityMatrix({
 
                     {expanded &&
                       staffAssignments.map((assignment) => {
-                        const proj = projectList.find((p) => p.id === assignment.projectId)
+                        const proj = projectsById.get(assignment.projectId)
                         if (!proj) return null
 
                         return (
@@ -186,12 +208,7 @@ export function StaffCapacityMatrix({
                             </td>
 
                             {months.map((m, idx) => {
-                              const alloc = allocationList.find(
-                                (al) =>
-                                  al.staffId === s.id &&
-                                  al.projectId === proj.id &&
-                                  al.month === m.key
-                              )
+                              const alloc = allocationsByAssignmentAndMonth.get(`${assignment.id}:${m.key}`)
 
                               const pctVal = alloc
                                 ? alloc.percentage <= 1
@@ -213,7 +230,7 @@ export function StaffCapacityMatrix({
                           </tr>
                         )
                       })}
-                  </tr>
+                  </Fragment>
                 )
               })
             ) : (

@@ -36,9 +36,10 @@ export function ManageDataView() {
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [showImportMenu, setShowImportMenu] = useState(false)
   const [isClearing, setIsClearing] = useState(false)
+  const [isTransferring, setIsTransferring] = useState(false)
+  const [dataMessage, setDataMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [selectedImportAccept, setSelectedImportAccept] = useState(".json")
 
   // Synchronized horizontal scroll hook
   const { register, handleScroll } = useSyncScroll()
@@ -71,8 +72,10 @@ export function ManageDataView() {
           await db.designations.clear()
         }
       )
+      setDataMessage({ type: "success", text: "All workspace data has been cleared." })
     } catch (error) {
       console.error("Failed to clear database:", error)
+      setDataMessage({ type: "error", text: "Unable to clear workspace data. Please try again." })
     } finally {
       setIsClearing(false)
       setShowClearDataConfirm(false)
@@ -80,25 +83,44 @@ export function ManageDataView() {
   }
 
   const triggerFileInput = (acceptType: string) => {
-    setSelectedImportAccept(acceptType)
     setShowImportMenu(false)
-    setTimeout(() => {
-      fileInputRef.current?.click()
-    }, 50)
+    if (fileInputRef.current) {
+      fileInputRef.current.accept = acceptType
+      fileInputRef.current.click()
+    }
   }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      setIsTransferring(true)
+      setDataMessage(null)
       try {
         const { count } = await importDataFile(file)
-        console.log(`Successfully imported ${count} records from ${file.name}`)
+        setDataMessage({ type: "success", text: `Imported ${count} records from ${file.name}.` })
       } catch (error) {
         console.error("Import failed:", error)
-        alert((error as Error).message)
+        setDataMessage({ type: "error", text: (error as Error).message })
+      } finally {
+        setIsTransferring(false)
       }
     }
     e.target.value = ""
+  }
+
+  const handleExport = async (format: "json" | "xlsx") => {
+    setIsTransferring(true)
+    setDataMessage(null)
+    setShowExportMenu(false)
+    try {
+      await (format === "json" ? exportToJSON() : exportToXLSX())
+      setDataMessage({ type: "success", text: `Your ${format.toUpperCase()} export is ready.` })
+    } catch (error) {
+      console.error("Export failed:", error)
+      setDataMessage({ type: "error", text: `Unable to export ${format.toUpperCase()} data. Please try again.` })
+    } finally {
+      setIsTransferring(false)
+    }
   }
 
   return (
@@ -107,7 +129,7 @@ export function ManageDataView() {
       <input
         type="file"
         ref={fileInputRef}
-        accept={selectedImportAccept}
+        accept=".json,.xlsx,.xls"
         className="hidden"
         onChange={handleFileChange}
       />
@@ -139,10 +161,11 @@ export function ManageDataView() {
                 icon={Upload}
                 label="Import"
                 color="sky"
-                onClick={() => {
+              onClick={() => {
                   setShowImportMenu((prev) => !prev)
                   setShowExportMenu(false)
-                }}
+              }}
+              disabled={isTransferring || isClearing}
               />
 
               {showImportMenu && (
@@ -204,10 +227,7 @@ export function ManageDataView() {
                   <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-border/60 bg-card text-card-foreground shadow-xl z-50 p-1.5 flex flex-col gap-1 animate-in fade-in-50 zoom-in-95 duration-150">
                     <button
                       type="button"
-                      onClick={() => {
-                        exportToJSON()
-                        setShowExportMenu(false)
-                      }}
+                      onClick={() => handleExport("json")}
                       className="flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl hover:bg-purple-500/10 hover:text-purple-600 dark:hover:text-purple-400 transition-colors w-full cursor-pointer group"
                     >
                       <div className="flex items-center gap-2">
@@ -220,10 +240,7 @@ export function ManageDataView() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        exportToXLSX()
-                        setShowExportMenu(false)
-                      }}
+                      onClick={() => handleExport("xlsx")}
                       className="flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors w-full cursor-pointer group"
                     >
                       <div className="flex items-center gap-2">
@@ -246,9 +263,16 @@ export function ManageDataView() {
               color="rose"
               onClick={() => setShowClearDataConfirm(true)}
               destructive
+              disabled={isTransferring || isClearing}
             />
           </div>
         </div>
+
+        {dataMessage && (
+          <div className={`rounded-2xl border px-3.5 py-2.5 text-xs font-medium ${dataMessage.type === "success" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}>
+            {dataMessage.text}
+          </div>
+        )}
 
         {/* Directory Sections with Synchronized Scroll */}
         <div className="flex flex-col gap-6">
