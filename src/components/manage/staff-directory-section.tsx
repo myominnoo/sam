@@ -1,14 +1,26 @@
-import type { Ref } from "react"
-import { Users, Search, Plus, SlidersHorizontal, Edit2, Trash2, Ban, CheckCircle2, AlertCircle } from "lucide-react"
+import { useState, type Ref } from "react"
+import { Users, Search, Plus, SlidersHorizontal, Edit2, Trash2, Ban, Check, CheckCircle2, AlertCircle, X } from "lucide-react"
 import { toTitleCase } from "@/lib/string-utils"
 import { RoleBadge } from "@/components/ui/role-badge"
+import { db } from "@/db/schema"
 import { useAddStaff } from "@/hooks/use-add-staff"
 import { useStaffTableState } from "@/hooks/use-staff-table-state"
 import { ConfigureCapacityDialog } from "./configure-capacity-dialog"
 import { cn } from "@/lib/utils"
-import type { Staff, Assignment, Project, Designation } from "@/types/sam"
+import type { Staff, Assignment, Project, Designation, RoleType } from "@/types/sam"
 
 const topAlignedCellStyle = { verticalAlign: "top" } as const
+const ROLE_OPTIONS: { value: RoleType; label: string }[] = [
+  { value: "PL", label: "Project Lead" },
+  { value: "M", label: "Member" },
+  { value: "A", label: "Advisor" },
+]
+
+interface StaffEditDraft {
+  name: string
+  designation: string
+  fte: number
+}
 
 interface StaffDirectorySectionProps {
   staffList: Staff[]
@@ -27,6 +39,8 @@ export function StaffDirectorySection({
   scrollRef,
   onScroll,
 }: StaffDirectorySectionProps) {
+  const [editingStaffId, setEditingStaffId] = useState<number | null>(null)
+  const [editDraft, setEditDraft] = useState<StaffEditDraft | null>(null)
   const {
     name,
     designation,
@@ -48,6 +62,69 @@ export function StaffDirectorySection({
     setSelectedCapacityStaff,
     handleToggleActive,
   } = useStaffTableState(staffList, designationList, setDesignation)
+
+  const startEditing = (staff: Staff) => {
+    setEditingStaffId(staff.id)
+    setEditDraft({
+      name: staff.name,
+      designation: staff.designation,
+      fte: staff.fte ?? 1,
+    })
+  }
+
+  const cancelEditing = () => {
+    setEditingStaffId(null)
+    setEditDraft(null)
+  }
+
+  const saveStaff = async (staffId: number) => {
+    if (!editDraft || !editDraft.name.trim() || editDraft.fte < 0 || editDraft.fte > 1) return
+
+    await db.staff.update(staffId, {
+      name: editDraft.name.trim(),
+      designation: editDraft.designation,
+      fte: editDraft.fte,
+    })
+    cancelEditing()
+  }
+
+  const assignProject = async (staffId: number, projectId: number) => {
+    if (!projectId || assignmentList.some((assignment) => assignment.staffId === staffId && assignment.projectId === projectId)) {
+      return
+    }
+
+    const nextAssignmentId = assignmentList.reduce(
+      (maxId, assignment) => Math.max(maxId, Number(assignment.id) || 0),
+      0
+    ) + 1
+    await db.assignments.add({ id: nextAssignmentId, staffId, projectId, role: "M" })
+  }
+
+  const updateAssignmentRole = async (assignmentId: number, role: RoleType) => {
+    await db.assignments.update(assignmentId, { role })
+  }
+
+  const removeAssignment = async (assignment: Assignment) => {
+    await db.transaction("rw", [db.assignments, db.allocations], async () => {
+      await db.allocations.where("assignmentId").equals(assignment.id).delete()
+      await db.assignments.delete(assignment.id)
+    })
+  }
+
+  const deleteInactiveStaff = async (staff: Staff) => {
+    if (staff.isActive ?? true) return
+
+    const staffAssignments = assignmentList.filter((assignment) => assignment.staffId === staff.id)
+    const assignmentIds = staffAssignments.map((assignment) => assignment.id)
+
+    await db.transaction("rw", [db.staff, db.assignments, db.allocations], async () => {
+      if (assignmentIds.length > 0) {
+        await db.allocations.where("assignmentId").anyOf(assignmentIds).delete()
+      }
+      await db.assignments.where("staffId").equals(staff.id).delete()
+      await db.staff.delete(staff.id)
+    })
+  }
 
   return (
     <>
@@ -168,6 +245,10 @@ export function StaffDirectorySection({
               {filteredStaff.map((s) => {
                 const assignments = assignmentList.filter((a) => a.staffId === s.id)
                 const isActive = s.isActive ?? true
+                const isEditing = isActive && editingStaffId === s.id
+                const unassignedProjects = projectList.filter(
+                  (project) => !assignments.some((assignment) => assignment.projectId === project.id)
+                )
 
                 return (
                   <tr
@@ -191,30 +272,87 @@ export function StaffDirectorySection({
                     </td>
 
                     {/* Name */}
-                    <td className="py-2.5 px-2 w-24 sm:w-28 font-bold text-foreground text-xs leading-snug align-top whitespace-normal break-words" style={topAlignedCellStyle}>
-                      {toTitleCase(s.name)}
+                    <td className={cn("py-2.5 px-2 w-24 sm:w-28 text-xs leading-snug align-top whitespace-normal break-words", !isActive && "pointer-events-none")} style={topAlignedCellStyle}>
+                      {isEditing ? (
+                        <input
+                          value={editDraft?.name ?? ""}
+                          onChange={(event) => setEditDraft((draft) => draft ? { ...draft, name: event.target.value } : draft)}
+                          className="h-7 w-full rounded-lg border border-input bg-background px-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                        />
+                      ) : (
+                        <span className="font-bold text-foreground">{toTitleCase(s.name)}</span>
+                      )}
                     </td>
 
                     {/* Designation Code Badge */}
-                    <td className="py-2.5 px-2 w-20 sm:w-24 text-center align-top" style={topAlignedCellStyle}>
-                      <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase font-mono bg-muted/60 text-muted-foreground border border-border/50">
-                        {s.designation}
-                      </span>
+                    <td className={cn("py-2.5 px-2 w-20 sm:w-24 text-center align-top", !isActive && "pointer-events-none")} style={topAlignedCellStyle}>
+                      {isEditing ? (
+                        <select
+                          value={editDraft?.designation ?? ""}
+                          onChange={(event) => setEditDraft((draft) => draft ? { ...draft, designation: event.target.value } : draft)}
+                          className="h-7 w-full rounded-lg border border-input bg-background px-1 text-[10px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                          {designationList.map((item) => (
+                            <option key={item.id ?? item.code} value={item.code}>{item.code}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase font-mono bg-muted/60 text-muted-foreground border border-border/50">
+                          {s.designation}
+                        </span>
+                      )}
                     </td>
 
                     {/* FTE */}
-                    <td className="py-2.5 px-2 w-10 text-center font-bold text-foreground align-top" style={topAlignedCellStyle}>
-                      {s.fte ?? 1}
+                    <td className={cn("py-2.5 px-2 w-10 text-center text-foreground align-top", !isActive && "pointer-events-none")} style={topAlignedCellStyle}>
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          value={editDraft?.fte ?? 1}
+                          onChange={(event) => setEditDraft((draft) => draft ? { ...draft, fte: Number(event.target.value) || 0 } : draft)}
+                          className="h-7 w-12 rounded-lg border border-input bg-background px-1 text-center text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
+                        />
+                      ) : (
+                        <span className="font-medium">{s.fte ?? 1}</span>
+                      )}
                     </td>
 
                     {/* Assigned Projects */}
-                    <td className="py-2 px-2 align-top" style={topAlignedCellStyle}>
+                    <td className={cn("py-2 px-2 align-top", !isActive && "pointer-events-none")} style={topAlignedCellStyle}>
                       <div className="flex flex-col md:flex-row md:flex-wrap gap-1.5 items-start">
                         {assignments.length > 0 ? (
                           assignments.map((a) => {
                             const proj = projectList.find((p) => p.id === a.projectId)
                             if (!proj) return null
-                            return (
+                            return isEditing ? (
+                              <div
+                                key={a.id}
+                                className="inline-flex items-center gap-1.5 rounded-md border border-border/80 bg-background px-2 py-0.5 text-[11px] font-medium shadow-2xs whitespace-nowrap"
+                              >
+                                {toTitleCase(proj.name)}
+                                <select
+                                  value={a.role}
+                                  onChange={(event) => void updateAssignmentRole(a.id, event.target.value as RoleType)}
+                                  className="h-5 rounded border border-input bg-background px-1 text-[9px] font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                                  aria-label={`Role on ${toTitleCase(proj.name)}`}
+                                >
+                                  {ROLE_OPTIONS.map((roleOption) => (
+                                    <option key={roleOption.value} value={roleOption.value}>{roleOption.value}</option>
+                                  ))}
+                                </select>
+                                <button
+                                  type="button"
+                                  onClick={() => void removeAssignment(a)}
+                                  className="rounded text-muted-foreground transition-colors hover:text-rose-500 cursor-pointer"
+                                  aria-label={`Remove ${toTitleCase(proj.name)} assignment`}
+                                >
+                                  <X className="size-3" />
+                                </button>
+                              </div>
+                            ) : (
                               <span
                                 key={a.id}
                                 className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-background border border-border/80 shadow-2xs whitespace-nowrap"
@@ -229,6 +367,18 @@ export function StaffDirectorySection({
                             No projects assigned
                           </span>
                         )}
+                        {isEditing && unassignedProjects.length > 0 && (
+                          <select
+                            value=""
+                            onChange={(event) => void assignProject(s.id, Number(event.target.value))}
+                            className="h-6 rounded-md border border-dashed border-input bg-background px-2 text-[10px] font-semibold text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                          >
+                            <option value="">Assign project…</option>
+                            {unassignedProjects.map((project) => (
+                              <option key={project.id} value={project.id}>{toTitleCase(project.name)}</option>
+                            ))}
+                          </select>
+                        )}
                       </div>
                     </td>
 
@@ -242,7 +392,8 @@ export function StaffDirectorySection({
                             title="Configure Capacity"
                             aria-label="Configure Capacity"
                             onClick={() => setSelectedCapacityStaff(s)}
-                            className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+                            disabled={!isActive || isEditing}
+                            className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer disabled:pointer-events-none disabled:opacity-35"
                           >
                             <SlidersHorizontal className="h-3.5 w-3.5" />
                           </button>
@@ -251,20 +402,44 @@ export function StaffDirectorySection({
                           </div>
                         </div>
 
-                        {/* Edit Staff Button */}
-                        <div className="relative group">
-                          <button
-                            type="button"
-                            title="Edit Staff Member"
-                            aria-label="Edit Staff Member"
-                            className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
-                          >
-                            <Edit2 className="h-3.5 w-3.5" />
-                          </button>
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-30 pointer-events-none whitespace-nowrap rounded-md bg-neutral-900 dark:bg-neutral-100 px-2 py-1 text-[10px] font-semibold text-neutral-100 dark:text-neutral-900 shadow-md">
-                            Edit Staff
+                        {isEditing ? (
+                          <>
+                            <button
+                              type="button"
+                              title="Save changes"
+                              aria-label="Save changes"
+                              onClick={() => void saveStaff(s.id)}
+                              className="p-1 rounded-md text-emerald-600 hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              title="Cancel editing"
+                              aria-label="Cancel editing"
+                              onClick={cancelEditing}
+                              className="p-1 rounded-md text-muted-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </>
+                        ) : (
+                          <div className="relative group">
+                            <button
+                              type="button"
+                              title="Edit Staff Member"
+                              aria-label="Edit Staff Member"
+                              onClick={() => startEditing(s)}
+                              disabled={!isActive}
+                              className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer disabled:pointer-events-none disabled:opacity-35"
+                            >
+                              <Edit2 className="h-3.5 w-3.5" />
+                            </button>
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-30 pointer-events-none whitespace-nowrap rounded-md bg-neutral-900 dark:bg-neutral-100 px-2 py-1 text-[10px] font-semibold text-neutral-100 dark:text-neutral-900 shadow-md">
+                              Edit Staff
+                            </div>
                           </div>
-                        </div>
+                        )}
 
                         {/* Delete Staff Button */}
                         <div className="relative group">
@@ -272,7 +447,9 @@ export function StaffDirectorySection({
                             type="button"
                             title="Delete Staff Member"
                             aria-label="Delete Staff Member"
-                            className="p-1 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                            onClick={() => void deleteInactiveStaff(s)}
+                            disabled={isActive}
+                            className="p-1 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer disabled:pointer-events-none disabled:opacity-35"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -287,7 +464,10 @@ export function StaffDirectorySection({
                             type="button"
                             title={isActive ? "Deactivate Staff Member" : "Reactivate Staff Member"}
                             aria-label={isActive ? "Deactivate Staff Member" : "Reactivate Staff Member"}
-                            onClick={() => handleToggleActive(s)}
+                            onClick={() => {
+                              if (isEditing) cancelEditing()
+                              void handleToggleActive(s)
+                            }}
                             className={cn(
                               "p-1 rounded-md transition-colors cursor-pointer",
                               isActive

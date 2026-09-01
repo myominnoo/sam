@@ -3,6 +3,7 @@ import { SlidersHorizontal, X, Check, FolderKanban, AlertCircle, Loader2, Divide
 import { db } from "@/db/schema"
 import { toTitleCase } from "@/lib/string-utils"
 import { generateMonthRange, getCurrentYearMonth } from "@/lib/date-utils"
+import { Slider } from "@/components/ui/slider"
 import type { Staff, Assignment, Project, Allocation } from "@/types/sam"
 
 interface ConfigureCapacityDialogProps {
@@ -11,6 +12,71 @@ interface ConfigureCapacityDialogProps {
   assignmentList: Assignment[]
   projectList: Project[]
   onClose: () => void
+}
+
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+function formatProjectMonth(month: string) {
+  const [year, monthNumber] = month.split("-")
+  return `${MONTH_NAMES[Number(monthNumber) - 1] ?? month} ${year}`
+}
+
+interface ProjectSelectionGroupProps {
+  projects: Project[]
+  selectedProjectIds: (string | number)[]
+  onToggle: (id: string | number) => void
+}
+
+function ProjectSelectionGroup({
+  projects,
+  selectedProjectIds,
+  onToggle,
+}: ProjectSelectionGroupProps) {
+  if (projects.length === 0) return null
+
+  const isActive = projects[0].isActive
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between px-1">
+        <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+          {isActive ? "Active projects" : "Inactive projects"} ({projects.length})
+        </span>
+      </div>
+      {projects.map((project) => {
+        const isChecked = selectedProjectIds.includes(project.id)
+
+        return (
+          <label
+            key={project.id}
+            className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium transition-colors hover:bg-muted/50 cursor-pointer"
+          >
+            <input
+              type="checkbox"
+              checked={isChecked}
+              onChange={() => onToggle(project.id)}
+              className="size-4 rounded accent-primary cursor-pointer"
+            />
+            <span className="flex min-w-0 flex-1 items-center gap-2">
+              <span className="min-w-0 flex-1 truncate text-foreground">{toTitleCase(project.name)}</span>
+              <span className="shrink-0 whitespace-nowrap text-[10px] font-medium text-muted-foreground">
+                {formatProjectMonth(project.startMonth)} – {formatProjectMonth(project.endMonth)}
+              </span>
+              <span
+                className={`shrink-0 rounded-full border px-1.5 py-0.5 text-[9px] font-bold ${
+                  project.isActive
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    : "border-border bg-muted text-muted-foreground"
+                }`}
+              >
+                {project.isActive ? "Active" : "Inactive"}
+              </span>
+            </span>
+          </label>
+        )
+      })}
+    </div>
+  )
 }
 
 export function ConfigureCapacityDialog({
@@ -32,6 +98,11 @@ export function ConfigureCapacityDialog({
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const availableMonths = generateMonthRange("2025-01", 72)
+  const fromMonthIndex = Math.max(0, availableMonths.findIndex((month) => month.key === fromMonth))
+  const toMonthIndex = Math.max(
+    fromMonthIndex,
+    availableMonths.findIndex((month) => month.key === toMonth)
+  )
 
   const staffAssignments = staff
     ? assignmentList.filter((a) => a.staffId === staff.id)
@@ -40,6 +111,8 @@ export function ConfigureCapacityDialog({
   const assignedProjects = projectList.filter((p) =>
     staffAssignments.some((a) => a.projectId === p.id)
   )
+  const activeAssignedProjects = assignedProjects.filter((project) => project.isActive)
+  const inactiveAssignedProjects = assignedProjects.filter((project) => !project.isActive)
 
   const isAllSelected =
     assignedProjects.length > 0 && selectedProjectIds.length === assignedProjects.length
@@ -87,6 +160,14 @@ export function ConfigureCapacityDialog({
     } else {
       setSelectedProjectIds(assignedProjects.map((p) => p.id))
     }
+  }
+
+  const handleCustomRangeChange = ([newFromIndex, newToIndex]: readonly number[]) => {
+    const newFromMonth = availableMonths[newFromIndex]?.key ?? fromMonth
+    const newToMonth = availableMonths[newToIndex]?.key ?? toMonth
+
+    setFromMonth(newFromMonth)
+    setToMonth(newToMonth)
   }
 
   const handleApply = async () => {
@@ -269,28 +350,21 @@ export function ConfigureCapacityDialog({
             </div>
 
             {assignedProjects.length > 0 ? (
-              <div className="flex flex-col gap-1.5 max-h-36 overflow-y-auto p-2 border border-border/60 rounded-2xl bg-muted/20">
-                {assignedProjects.map((p) => {
-                  const isChecked = selectedProjectIds.includes(p.id)
-                  return (
-                    <label
-                      key={p.id}
-                      className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors text-xs font-medium"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => toggleProject(p.id)}
-                        className="h-4 w-4 rounded accent-primary cursor-pointer"
-                      />
-                      <span className="text-foreground">{toTitleCase(p.name)}</span>
-                    </label>
-                  )
-                })}
+              <div className="flex max-h-48 flex-col gap-3 overflow-y-auto rounded-2xl border border-border/60 bg-muted/20 p-2">
+                <ProjectSelectionGroup
+                  projects={activeAssignedProjects}
+                  selectedProjectIds={selectedProjectIds}
+                  onToggle={toggleProject}
+                />
+                <ProjectSelectionGroup
+                  projects={inactiveAssignedProjects}
+                  selectedProjectIds={selectedProjectIds}
+                  onToggle={toggleProject}
+                />
               </div>
             ) : (
               <p className="text-xs italic text-muted-foreground p-2 border border-border/40 rounded-2xl bg-muted/10">
-                No active projects assigned to this staff member.
+                No projects assigned to this staff member.
               </p>
             )}
 
@@ -342,42 +416,31 @@ export function ConfigureCapacityDialog({
               </label>
             </div>
 
-            {/* Custom Date Range Selectors */}
+            {/* Custom Date Range */}
             {scope === "custom" && (
-              <div className="grid grid-cols-2 gap-3 mt-1 pl-6">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-medium text-muted-foreground">
-                    From:
-                  </label>
-                  <select
-                    value={fromMonth}
-                    onChange={(e) => setFromMonth(e.target.value)}
-                    className="h-10 px-3 rounded-xl bg-background border border-input text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    {availableMonths.map((m) => (
-                      <option key={`from-${m.key}`} value={m.key}>
-                        {m.monthLabel} {m.year}
-                      </option>
-                    ))}
-                  </select>
+              <div className="mt-1 ml-6 rounded-xl border border-border/70 bg-muted/30 px-3 py-2.5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">From</span>
+                    <span className="text-xs font-semibold text-foreground">
+                      {formatProjectMonth(fromMonth)}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-end gap-0.5">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">To</span>
+                    <span className="text-xs font-semibold text-foreground">
+                      {formatProjectMonth(toMonth)}
+                    </span>
+                  </div>
                 </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-medium text-muted-foreground">
-                    To:
-                  </label>
-                  <select
-                    value={toMonth}
-                    onChange={(e) => setToMonth(e.target.value)}
-                    className="h-10 px-3 rounded-xl bg-background border border-input text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    {availableMonths.map((m) => (
-                      <option key={`to-${m.key}`} value={m.key}>
-                        {m.monthLabel} {m.year}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <Slider
+                  min={0}
+                  max={availableMonths.length - 1}
+                  step={1}
+                  value={[fromMonthIndex, toMonthIndex]}
+                  thumbCollisionBehavior="none"
+                  onValueChange={handleCustomRangeChange}
+                />
               </div>
             )}
           </div>

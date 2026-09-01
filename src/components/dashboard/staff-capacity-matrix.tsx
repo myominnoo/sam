@@ -1,4 +1,4 @@
-import { Fragment, useMemo, type Ref } from "react"
+import { Fragment, useEffect, useMemo, useState, type Ref } from "react"
 import { Users, ChevronRight, ChevronDown, UserPlus } from "lucide-react"
 import { toTitleCase } from "@/lib/string-utils"
 import { RoleBadge } from "@/components/ui/role-badge"
@@ -21,6 +21,9 @@ interface StaffCapacityMatrixProps {
   onScroll?: () => void
 }
 
+const STAFF_MATRIX_COLLAPSED_KEY = "sam_staff_matrix_collapsed"
+const STAFF_MATRIX_EXPANDED_ROWS_KEY = "sam_staff_matrix_expanded_rows"
+
 export function StaffCapacityMatrix({
   staffList,
   projectList,
@@ -31,6 +34,9 @@ export function StaffCapacityMatrix({
   scrollRef,
   onScroll,
 }: StaffCapacityMatrixProps) {
+  const [isMatrixCollapsed, setIsMatrixCollapsed] = useState(
+    () => localStorage.getItem(STAFF_MATRIX_COLLAPSED_KEY) === "true"
+  )
   const { projectsById, assignmentsByStaffId, allocationsByStaffAndMonth, allocationsByAssignmentAndMonth } = useMemo(() => {
     const projectsById = new Map(projectList.map((project) => [project.id, project]))
     const assignmentsByStaffId = new Map<number, Assignment[]>()
@@ -53,8 +59,15 @@ export function StaffCapacityMatrix({
   }, [projectList, assignmentList, allocationList])
 
   const staffIds = staffList.map((s) => s.id)
-  const { toggleExpand, isExpanded, toggleAll, isAllExpanded } = useMatrixExpansion(staffIds)
+  const { toggleExpand, isExpanded, toggleAll, isAllExpanded } = useMatrixExpansion(
+    staffIds,
+    STAFF_MATRIX_EXPANDED_ROWS_KEY
+  )
   const { months, yearGroups } = useMatrixTimeline(startMonth, endMonth)
+
+  useEffect(() => {
+    localStorage.setItem(STAFF_MATRIX_COLLAPSED_KEY, String(isMatrixCollapsed))
+  }, [isMatrixCollapsed])
 
   const { containerRef, containerMaxWidthClass, tableWidthClass, tableStyle } = useMatrixResponsiveLayout({
     monthCount: months.length,
@@ -83,18 +96,29 @@ export function StaffCapacityMatrix({
           </h2>
         </div>
         <div className="flex items-center gap-2">
-          <CollapseAllButton isAllExpanded={isAllExpanded} onToggle={toggleAll} />
+          {!isMatrixCollapsed && <CollapseAllButton isAllExpanded={isAllExpanded} onToggle={toggleAll} />}
           <span className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary font-bold border border-primary/20 shadow-2xs">
             {staffList.length} Staff Members
           </span>
+          <button
+            type="button"
+            onClick={() => setIsMatrixCollapsed((collapsed) => !collapsed)}
+            aria-expanded={!isMatrixCollapsed}
+            aria-label={isMatrixCollapsed ? "Expand staff capacity matrix" : "Collapse staff capacity matrix"}
+            title={isMatrixCollapsed ? "Expand matrix" : "Collapse matrix"}
+            className="inline-flex size-7 items-center justify-center rounded-xl border border-border/60 bg-muted text-muted-foreground shadow-2xs transition-all hover:bg-muted/80 hover:text-foreground cursor-pointer"
+          >
+            <ChevronDown className={`size-4 text-primary transition-transform ${isMatrixCollapsed ? "-rotate-90" : ""}`} />
+          </button>
         </div>
       </div>
 
-      <div
-        ref={scrollRef}
-        onScroll={onScroll}
-        className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700"
-      >
+      {!isMatrixCollapsed && (
+        <div
+          ref={scrollRef}
+          onScroll={onScroll}
+          className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700"
+        >
         <table className={`staff-capacity-table ${tableWidthClass} text-left border-collapse text-xs select-none`} style={tableStyle}>
           <MatrixColumnGroup monthCount={months.length} />
           <MatrixHeader
@@ -174,7 +198,6 @@ export function StaffCapacityMatrix({
                                   </>
                                 }
                                 totalLabel={`${Math.round(rawSumPct)}%`}
-                                isNearRightEdge={idx >= months.length - 3}
                                 items={monthAllocations.map((al) => {
                                   const proj = projectsById.get(al.projectId)
                                   const assign = staffAssignments.find((a) => a.projectId === al.projectId)
@@ -248,7 +271,8 @@ export function StaffCapacityMatrix({
             )}
           </tbody>
         </table>
-      </div>
+        </div>
+      )}
     </section>
   )
 }

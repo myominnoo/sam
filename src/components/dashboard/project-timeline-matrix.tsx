@@ -1,4 +1,4 @@
-import { Fragment, useMemo, type Ref } from "react"
+import { Fragment, useEffect, useMemo, useState, type Ref } from "react"
 import { FolderKanban, Check, FolderPlus, ChevronRight, ChevronDown } from "lucide-react"
 import { toTitleCase } from "@/lib/string-utils"
 import { RoleBadge } from "@/components/ui/role-badge"
@@ -21,6 +21,9 @@ interface ProjectTimelineMatrixProps {
   onScroll?: () => void
 }
 
+const PROJECT_MATRIX_COLLAPSED_KEY = "sam_project_matrix_collapsed"
+const PROJECT_MATRIX_EXPANDED_ROWS_KEY = "sam_project_matrix_expanded_rows"
+
 export function ProjectTimelineMatrix({
   staffList,
   projectList,
@@ -31,6 +34,9 @@ export function ProjectTimelineMatrix({
   scrollRef,
   onScroll,
 }: ProjectTimelineMatrixProps) {
+  const [isMatrixCollapsed, setIsMatrixCollapsed] = useState(
+    () => localStorage.getItem(PROJECT_MATRIX_COLLAPSED_KEY) === "true"
+  )
   const { staffById, assignmentsByProjectId, allocationsByProjectAndMonth, allocationsByAssignmentAndMonth } = useMemo(() => {
     const staffById = new Map(staffList.map((staff) => [staff.id, staff]))
     const assignmentsByProjectId = new Map<number, Assignment[]>()
@@ -52,8 +58,15 @@ export function ProjectTimelineMatrix({
   }, [staffList, assignmentList, allocationList])
 
   const projectIds = projectList.map((p) => p.id)
-  const { toggleExpand, isExpanded, toggleAll, isAllExpanded } = useMatrixExpansion(projectIds)
+  const { toggleExpand, isExpanded, toggleAll, isAllExpanded } = useMatrixExpansion(
+    projectIds,
+    PROJECT_MATRIX_EXPANDED_ROWS_KEY
+  )
   const { months, yearGroups } = useMatrixTimeline(startMonth, endMonth)
+
+  useEffect(() => {
+    localStorage.setItem(PROJECT_MATRIX_COLLAPSED_KEY, String(isMatrixCollapsed))
+  }, [isMatrixCollapsed])
 
   const { containerRef, containerMaxWidthClass, tableWidthClass, tableStyle } = useMatrixResponsiveLayout({
     monthCount: months.length,
@@ -72,18 +85,29 @@ export function ProjectTimelineMatrix({
           </h2>
         </div>
         <div className="flex items-center gap-2">
-          <CollapseAllButton isAllExpanded={isAllExpanded} onToggle={toggleAll} />
+          {!isMatrixCollapsed && <CollapseAllButton isAllExpanded={isAllExpanded} onToggle={toggleAll} />}
           <span className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary font-bold border border-primary/20 shadow-2xs">
             {projectList.length} Projects
           </span>
+          <button
+            type="button"
+            onClick={() => setIsMatrixCollapsed((collapsed) => !collapsed)}
+            aria-expanded={!isMatrixCollapsed}
+            aria-label={isMatrixCollapsed ? "Expand project timeline matrix" : "Collapse project timeline matrix"}
+            title={isMatrixCollapsed ? "Expand matrix" : "Collapse matrix"}
+            className="inline-flex size-7 items-center justify-center rounded-xl border border-border/60 bg-muted text-muted-foreground shadow-2xs transition-all hover:bg-muted/80 hover:text-foreground cursor-pointer"
+          >
+            <ChevronDown className={`size-4 text-primary transition-transform ${isMatrixCollapsed ? "-rotate-90" : ""}`} />
+          </button>
         </div>
       </div>
 
-      <div
-        ref={scrollRef}
-        onScroll={onScroll}
-        className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700"
-      >
+      {!isMatrixCollapsed && (
+        <div
+          ref={scrollRef}
+          onScroll={onScroll}
+          className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700"
+        >
         <table className={`project-timeline-table ${tableWidthClass} text-left border-collapse text-xs select-none`} style={tableStyle}>
           <MatrixColumnGroup monthCount={months.length} />
           <MatrixHeader
@@ -162,7 +186,6 @@ export function ProjectTimelineMatrix({
                               <MatrixTooltip
                                 title={`${m.monthLabel} Staffing`}
                                 totalLabel={`${monthAllocations.length} Active`}
-                                isNearRightEdge={idx >= months.length - 3}
                                 items={monthAllocations.map((al) => {
                                   const staff = staffById.get(al.staffId)
                                   const assign = projectAssignments.find((a) => a.staffId === al.staffId)
@@ -244,7 +267,8 @@ export function ProjectTimelineMatrix({
             )}
           </tbody>
         </table>
-      </div>
+        </div>
+      )}
     </section>
   )
 }

@@ -62,7 +62,11 @@ export function ManageDataView() {
     setIsClearing(true)
     try {
       await db.delete()
-      localStorage.removeItem("sam_onboarding_complete")
+      for (const key of Object.keys(localStorage)) {
+        if (key.startsWith("sam_") || key === "vite-ui-theme") {
+          localStorage.removeItem(key)
+        }
+      }
       window.location.reload()
     } catch (error) {
       console.error("Failed to clear database:", error)
@@ -304,7 +308,7 @@ export function ManageDataView() {
       <ConfirmDialog
         open={showClearDataConfirm}
         title="Clear All Data?"
-        description="This will permanently delete the workspace IndexedDB database, including all staff, projects, assignments, allocations, and custom designations. This action cannot be undone."
+        description="This will permanently delete the workspace IndexedDB database and reset saved app preferences, including all staff, projects, assignments, allocations, custom designations, and saved matrix views. This action cannot be undone."
         confirmLabel="Clear Data"
         cancelLabel="Cancel"
         isDestructive
