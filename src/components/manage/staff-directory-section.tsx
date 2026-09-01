@@ -1,4 +1,4 @@
-import { Fragment, useState, type Ref } from "react"
+import { Fragment, useEffect, useState, type Ref } from "react"
 import { Users, Search, Plus, SlidersHorizontal, Edit2, Trash2, Ban, Check, CheckCircle2, AlertCircle, X, ChevronDown } from "lucide-react"
 import { toTitleCase } from "@/lib/string-utils"
 import { RoleBadge } from "@/components/ui/role-badge"
@@ -10,11 +10,13 @@ import { cn } from "@/lib/utils"
 import type { Staff, Assignment, Project, Designation, RoleType } from "@/types/sam"
 
 const topAlignedCellStyle = { verticalAlign: "top" } as const
+const STAFF_DIRECTORY_COLLAPSED_KEY = "sam_staff_directory_collapsed"
 const ROLE_OPTIONS: { value: RoleType; label: string }[] = [
   { value: "PL", label: "Project Lead" },
   { value: "M", label: "Member" },
-  { value: "A", label: "Advisor" },
+  { value: "A", label: "Assisting" },
 ]
+const ROLE_ORDER: Record<RoleType, number> = { PL: 0, M: 1, A: 2 }
 
 interface StaffEditDraft {
   name: string
@@ -42,6 +44,9 @@ export function StaffDirectorySection({
   const [editingStaffId, setEditingStaffId] = useState<number | null>(null)
   const [editDraft, setEditDraft] = useState<StaffEditDraft | null>(null)
   const [showInactiveStaff, setShowInactiveStaff] = useState(false)
+  const [isDirectoryCollapsed, setIsDirectoryCollapsed] = useState(
+    () => localStorage.getItem(STAFF_DIRECTORY_COLLAPSED_KEY) === "true"
+  )
   const {
     name,
     designation,
@@ -71,6 +76,10 @@ export function StaffDirectorySection({
   const visibleStaff = showInactiveStaff
     ? displayedStaff
     : displayedStaff.filter((staff) => staff.isActive ?? true)
+
+  useEffect(() => {
+    localStorage.setItem(STAFF_DIRECTORY_COLLAPSED_KEY, String(isDirectoryCollapsed))
+  }, [isDirectoryCollapsed])
 
   const startEditing = (staff: Staff) => {
     setEditingStaffId(staff.id)
@@ -159,15 +168,27 @@ export function StaffDirectorySection({
                 placeholder="Filter staff..."
                 value={staffSearch}
                 onChange={(e) => setStaffSearch(e.target.value)}
-                className="h-8 pl-8 pr-3 rounded-xl text-xs bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-48"
+                className="h-8 pl-8 pr-3 rounded-xl text-xs text-foreground placeholder:text-foreground/55 bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-48"
               />
             </div>
             <span className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary font-bold border border-primary/20 shadow-2xs shrink-0">
               {staffList.length} Members
             </span>
+            <button
+              type="button"
+              onClick={() => setIsDirectoryCollapsed((collapsed) => !collapsed)}
+              aria-expanded={!isDirectoryCollapsed}
+              aria-label={isDirectoryCollapsed ? "Expand staff directory" : "Collapse staff directory"}
+              title={isDirectoryCollapsed ? "Expand directory" : "Collapse directory"}
+              className="inline-flex size-7 items-center justify-center rounded-xl border border-border/60 bg-muted text-muted-foreground shadow-2xs transition-all hover:bg-muted/80 hover:text-foreground cursor-pointer shrink-0"
+            >
+              <ChevronDown className={`size-4 text-primary transition-transform ${isDirectoryCollapsed ? "-rotate-90" : ""}`} />
+            </button>
           </div>
         </div>
 
+        {!isDirectoryCollapsed && (
+          <>
         {/* Add Staff Quick Form Row */}
         <div className="p-3.5 bg-muted/20 border-b border-border/60 flex flex-col gap-2">
           <form
@@ -180,7 +201,7 @@ export function StaffDirectorySection({
               value={name}
               onChange={(e) => setName(e.target.value)}
               className={cn(
-                "flex-1 min-w-[140px] h-9 px-3.5 rounded-xl text-xs bg-background border font-medium transition-colors focus:outline-none focus:ring-1",
+                "flex-1 min-w-[140px] h-9 px-3.5 rounded-xl text-xs text-foreground placeholder:text-foreground/55 bg-background border font-medium transition-colors focus:outline-none focus:ring-1",
                 error
                   ? "border-rose-500/60 focus:ring-rose-500"
                   : "border-input focus:ring-primary"
@@ -191,7 +212,7 @@ export function StaffDirectorySection({
             <select
               value={designation}
               onChange={(e) => setDesignation(e.target.value)}
-              className="h-9 px-3 rounded-xl text-xs bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary font-medium"
+              className="h-9 px-3 rounded-xl text-xs text-foreground bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary font-medium"
             >
               {designationList.map((d) => (
                 <option key={d.id || d.code} value={d.code}>
@@ -212,7 +233,7 @@ export function StaffDirectorySection({
                   const val = parseFloat(e.target.value)
                   setFte(isNaN(val) ? 0 : val)
                 }}
-                className="w-16 h-9 px-2 text-center rounded-xl text-xs bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary font-medium"
+                className="w-16 h-9 px-2 text-center rounded-xl text-xs text-foreground bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary font-medium"
               />
               <span className="text-xs font-semibold text-muted-foreground select-none">
                 FTE
@@ -253,6 +274,9 @@ export function StaffDirectorySection({
             <tbody className="divide-y divide-border/40 font-medium [&>tr>td]:!align-top">
               {visibleStaff.map((s) => {
                 const assignments = assignmentList.filter((a) => a.staffId === s.id)
+                const orderedAssignments = assignments.toSorted(
+                  (a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role]
+                )
                 const isActive = s.isActive ?? true
                 const isEditing = isActive && editingStaffId === s.id
                 const isFirstInactiveStaff = !isActive && s.id === inactiveStaff[0]?.id
@@ -280,7 +304,7 @@ export function StaffDirectorySection({
                   <tr
                     key={s.id}
                     className={cn(
-                      "transition-colors hover:bg-muted/15",
+                      "transition-colors hover:[&>td]:bg-muted/40",
                       !isActive && "opacity-60 bg-muted/10"
                     )}
                   >
@@ -350,7 +374,7 @@ export function StaffDirectorySection({
                     <td className={cn("py-2 px-2 align-top", !isActive && "pointer-events-none")} style={topAlignedCellStyle}>
                       <div className="flex flex-col md:flex-row md:flex-wrap gap-1.5 items-start">
                         {assignments.length > 0 ? (
-                          assignments.map((a) => {
+                          orderedAssignments.map((a) => {
                             const proj = projectList.find((p) => p.id === a.projectId)
                             if (!proj) return null
                             return isEditing ? (
@@ -535,6 +559,8 @@ export function StaffDirectorySection({
             </tbody>
           </table>
         </div>
+          </>
+        )}
       </section>
 
       {/* Configure Capacity Modal */}

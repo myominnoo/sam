@@ -1,20 +1,26 @@
-import { Fragment, useState, type Ref } from "react"
+import { Fragment, useEffect, useState, type Ref } from "react"
 import { FolderKanban, Search, Plus, Edit2, Trash2, Ban, Check, CheckCircle2, X, ChevronDown } from "lucide-react"
 import { toTitleCase } from "@/lib/string-utils"
 import { cn } from "@/lib/utils"
 import { RoleBadge } from "@/components/ui/role-badge"
 import { Slider } from "@/components/ui/slider"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { db } from "@/db/schema"
-import { generateMonthRange } from "@/lib/date-utils"
+import { calculateEndMonth, generateMonthRange, getCurrentYearMonth } from "@/lib/date-utils"
 import type { Project, Staff, Assignment, RoleType } from "@/types/sam"
 
 const TIMELINE_MONTHS = generateMonthRange("2025-01", 72)
+const PROJECT_DIRECTORY_COLLAPSED_KEY = "sam_project_directory_collapsed"
+const DEFAULT_NEW_PROJECT_START = getCurrentYearMonth()
+const PRESET_OPTIONS = [3, 6, 12, 24, 36, 48] as const
+const DEFAULT_NEW_PROJECT_END = calculateEndMonth(DEFAULT_NEW_PROJECT_START, 12)
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 const ROLE_OPTIONS: { value: RoleType; label: string }[] = [
   { value: "PL", label: "Project Lead" },
   { value: "M", label: "Member" },
-  { value: "A", label: "Advisor" },
+  { value: "A", label: "Assisting" },
 ]
+const ROLE_ORDER: Record<RoleType, number> = { PL: 0, M: 1, A: 2 }
 
 interface ProjectEditDraft {
   name: string
@@ -44,25 +50,44 @@ export function ProjectsDirectorySection({
 }: ProjectsDirectorySectionProps) {
   const [projectSearch, setProjectSearch] = useState("")
   const [newProjectName, setNewProjectName] = useState("")
-  const [newProjectStart, setNewProjectStart] = useState("")
-  const [newProjectEnd, setNewProjectEnd] = useState("")
+  const [newProjectStart, setNewProjectStart] = useState(DEFAULT_NEW_PROJECT_START)
+  const [newProjectEnd, setNewProjectEnd] = useState(DEFAULT_NEW_PROJECT_END)
+  const [newProjectPreset, setNewProjectPreset] = useState<number>(12)
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null)
   const [editDraft, setEditDraft] = useState<ProjectEditDraft | null>(null)
   const [showInactiveProjects, setShowInactiveProjects] = useState(false)
+  const [isDirectoryCollapsed, setIsDirectoryCollapsed] = useState(
+    () => localStorage.getItem(PROJECT_DIRECTORY_COLLAPSED_KEY) === "true"
+  )
+
+  const normalizedNewProjectName = newProjectName.trim().toLocaleLowerCase()
+  const isDuplicateProjectName = projectList.some(
+    (project) => project.name.trim().toLocaleLowerCase() === normalizedNewProjectName
+  )
+  const canCreateProject = Boolean(
+    normalizedNewProjectName && newProjectStart && newProjectEnd && !isDuplicateProjectName
+  )
 
   const handleAddProject = async () => {
-    if (!newProjectName.trim()) return
+    if (!canCreateProject) return
+
+    const nextProjectId = projectList.reduce(
+      (maxId, project) => Math.max(maxId, Number(project.id) || 0),
+      0
+    ) + 1
 
     await db.projects.add({
+      id: nextProjectId,
       name: newProjectName.trim(),
-      startMonth: newProjectStart || "",
-      endMonth: newProjectEnd || "",
+      startMonth: newProjectStart,
+      endMonth: newProjectEnd,
       isActive: true,
-    } as any)
+    })
 
     setNewProjectName("")
-    setNewProjectStart("")
-    setNewProjectEnd("")
+    setNewProjectStart(DEFAULT_NEW_PROJECT_START)
+    setNewProjectEnd(DEFAULT_NEW_PROJECT_END)
+    setNewProjectPreset(12)
   }
 
   const filteredProjects = projectList.filter((p) =>
@@ -75,6 +100,33 @@ export function ProjectsDirectorySection({
   const visibleProjects = showInactiveProjects
     ? displayedProjects
     : displayedProjects.filter((project) => project.isActive ?? true)
+
+  useEffect(() => {
+    localStorage.setItem(PROJECT_DIRECTORY_COLLAPSED_KEY, String(isDirectoryCollapsed))
+  }, [isDirectoryCollapsed])
+
+  const handleNewProjectTimelineChange = ([startIndex, endIndex]: readonly number[]) => {
+    setNewProjectStart(TIMELINE_MONTHS[startIndex]?.key ?? "")
+    setNewProjectEnd(TIMELINE_MONTHS[endIndex]?.key ?? "")
+    const selectedDuration = endIndex - startIndex + 1
+    setNewProjectPreset(
+      PRESET_OPTIONS.includes(selectedDuration as (typeof PRESET_OPTIONS)[number])
+        ? selectedDuration
+        : 0
+    )
+  }
+
+  const handleNewProjectPresetChange = ([presetValue]: string[]) => {
+    const selectedDuration = Number(presetValue)
+    if (!selectedDuration) return
+
+    const startIndex = Math.max(
+      0,
+      TIMELINE_MONTHS.findIndex((month) => month.key === newProjectStart)
+    )
+    const endIndex = Math.min(startIndex + selectedDuration - 1, TIMELINE_MONTHS.length - 1)
+    handleNewProjectTimelineChange([startIndex, endIndex])
+  }
 
   const startEditing = (project: Project) => {
     const defaultStartMonth = TIMELINE_MONTHS[0].key
@@ -180,45 +232,84 @@ export function ProjectsDirectorySection({
               placeholder="Filter projects..."
               value={projectSearch}
               onChange={(e) => setProjectSearch(e.target.value)}
-              className="h-8 pl-8 pr-3 rounded-xl text-xs bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-48"
+              className="h-8 pl-8 pr-3 rounded-xl text-xs text-foreground placeholder:text-foreground/55 bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-48"
             />
           </div>
           <span className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary font-bold border border-primary/20 shadow-2xs shrink-0">
             {projectList.length} Projects
           </span>
+          <button
+            type="button"
+            onClick={() => setIsDirectoryCollapsed((collapsed) => !collapsed)}
+            aria-expanded={!isDirectoryCollapsed}
+            aria-label={isDirectoryCollapsed ? "Expand projects directory" : "Collapse projects directory"}
+            title={isDirectoryCollapsed ? "Expand directory" : "Collapse directory"}
+            className="inline-flex size-7 items-center justify-center rounded-xl border border-border/60 bg-muted text-muted-foreground shadow-2xs transition-all hover:bg-muted/80 hover:text-foreground cursor-pointer shrink-0"
+          >
+            <ChevronDown className={`size-4 text-primary transition-transform ${isDirectoryCollapsed ? "-rotate-90" : ""}`} />
+          </button>
         </div>
       </div>
 
+      {!isDirectoryCollapsed && (
+        <>
       {/* Add Project Quick Form Row */}
-      <div className="p-3.5 bg-muted/20 border-b border-border/60 flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+      <div className="p-3.5 bg-muted/20 border-b border-border/60 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center">
         <input
           type="text"
           placeholder="New Project Name..."
           value={newProjectName}
           onChange={(e) => setNewProjectName(e.target.value)}
-          className="flex-1 min-w-[140px] h-9 px-3.5 rounded-xl text-xs bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary font-medium"
+          className={cn(
+            "min-w-[140px] flex-1 h-9 px-3.5 rounded-xl text-xs text-foreground placeholder:text-foreground/55 bg-background border focus:outline-none focus:ring-1 font-medium",
+            isDuplicateProjectName ? "border-rose-500/60 focus:ring-rose-500" : "border-input focus:ring-primary"
+          )}
         />
-        <input
-          type="text"
-          placeholder="Start Month (e.g. 2026-08)"
-          value={newProjectStart}
-          onChange={(e) => setNewProjectStart(e.target.value)}
-          className="w-40 h-9 px-3 rounded-xl text-xs bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary font-medium"
-        />
-        <input
-          type="text"
-          placeholder="End Month (e.g. 2027-07)"
-          value={newProjectEnd}
-          onChange={(e) => setNewProjectEnd(e.target.value)}
-          className="w-40 h-9 px-3 rounded-xl text-xs bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary font-medium"
-        />
+        <div className="w-full min-w-[220px] sm:w-72">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <span className="text-[10px] font-semibold text-muted-foreground">Timeline</span>
+            <ToggleGroup
+              aria-label="New project duration preset"
+              value={newProjectPreset ? [String(newProjectPreset)] : []}
+              onValueChange={handleNewProjectPresetChange}
+              className="scale-90 origin-right"
+            >
+              {PRESET_OPTIONS.map((months) => (
+                <ToggleGroupItem key={months} value={String(months)} aria-label={`${months} months`}>
+                  {months}M
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
+          <div className="flex items-center justify-between gap-2 text-[10px] font-semibold text-muted-foreground">
+            <span>{formatMonth(newProjectStart)}</span>
+            <span>{formatMonth(newProjectEnd)}</span>
+          </div>
+          <Slider
+            min={0}
+            max={TIMELINE_MONTHS.length - 1}
+            step={1}
+            value={[
+              Math.max(0, TIMELINE_MONTHS.findIndex((month) => month.key === newProjectStart)),
+              Math.max(0, TIMELINE_MONTHS.findIndex((month) => month.key === newProjectEnd)),
+            ]}
+            onValueChange={handleNewProjectTimelineChange}
+            aria-label="New project timeline"
+          />
+        </div>
         <button
           type="button"
           onClick={handleAddProject}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 h-9 rounded-xl text-xs font-bold bg-primary text-primary-foreground hover:opacity-90 shadow-xs cursor-pointer transition-all shrink-0"
+          disabled={!canCreateProject}
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 h-9 rounded-xl text-xs font-bold bg-primary text-primary-foreground hover:opacity-90 shadow-xs cursor-pointer transition-all shrink-0 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Plus className="h-3.5 w-3.5" /> Create Project
         </button>
+        {isDuplicateProjectName && (
+          <span className="w-full text-[10px] font-medium text-rose-600 dark:text-rose-400">
+            A project with this name already exists.
+          </span>
+        )}
       </div>
 
       {/* Projects Table */}
@@ -236,6 +327,9 @@ export function ProjectsDirectorySection({
           <tbody className="divide-y divide-border/30 font-medium">
             {visibleProjects.map((p) => {
               const projectAssignments = assignmentList.filter((a) => a.projectId === p.id)
+              const orderedProjectAssignments = projectAssignments.toSorted(
+                (a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role]
+              )
               const isActive = p.isActive ?? true
               const isEditing = isActive && editingProjectId === p.id
               const isFirstInactiveProject = !isActive && p.id === inactiveProjects[0]?.id
@@ -261,7 +355,7 @@ export function ProjectsDirectorySection({
                       </td>
                     </tr>
                   )}
-                <tr key={p.id} className={cn("transition-colors hover:bg-muted/15", !isActive && "opacity-60 bg-muted/10")}>
+                <tr key={p.id} className={cn("transition-colors hover:[&>td]:bg-muted/40", !isActive && "opacity-60 bg-muted/10")}>
                   <td className="py-2.5 px-3 sm:px-4 w-20 align-top">
                     {isActive ? (
                       <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -312,7 +406,7 @@ export function ProjectsDirectorySection({
                   <td className={cn("py-2 px-2 align-top", !isActive && "pointer-events-none")}>
                     <div className="flex flex-col md:flex-row md:flex-wrap gap-1.5 items-start md:items-center">
                       {projectAssignments.length > 0 ? (
-                        projectAssignments.map((a) => {
+                        orderedProjectAssignments.map((a) => {
                           const staff = staffList.find((s) => s.id === a.staffId)
                           if (!staff) return null
                           return isEditing ? (
@@ -447,6 +541,8 @@ export function ProjectsDirectorySection({
           </tbody>
         </table>
       </div>
+        </>
+      )}
     </section>
   )
 }

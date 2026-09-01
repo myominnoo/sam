@@ -100,7 +100,7 @@ def generate_seed_data():
         "projectRoles": [
             {"code": "PL", "name": "Project Lead"},
             {"code": "M", "name": "Member"},
-            {"code": "A", "name": "Advisor"},
+            {"code": "A", "name": "Assisting"},
         ],
     }
 
