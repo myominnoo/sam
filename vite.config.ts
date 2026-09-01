@@ -5,6 +5,8 @@ import { defineConfig } from "vite"
 import { VitePWA } from "vite-plugin-pwa"
 
 export default defineConfig({
+  // Fix 1: Explicitly set base path for GitHub Pages repository subdirectory
+  base: "/sam/",
   plugins: [
     react(),
     tailwindcss(),
@@ -28,8 +30,9 @@ export default defineConfig({
         background_color: "#16171d",
         display: "standalone",
         orientation: "portrait",
-        scope: "/",
-        start_url: "/",
+        // Fix 2: Update PWA scope and start_url to match '/sam/'
+        scope: "/sam/",
+        start_url: "/sam/",
         icons: [
           {
             src: "pwa-64x64.png",
