@@ -1,7 +1,7 @@
 export const Footer = () => {
   return (
-    <footer className="mt-8 border-t border-slate-200/80 bg-white/60 backdrop-blur-xs py-4 px-6">
-      <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-slate-500">
+    <footer className="mt-8 border-t border-border/60 bg-card/45 backdrop-blur-md py-3.5 px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 text-xs text-muted-foreground">
         {/* Left: GitHub Icon Link */}
         <div className="flex items-center">
           <a
@@ -9,7 +9,7 @@ export const Footer = () => {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub Repository"
-            className="p-1.5 -ml-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100/80 transition-all duration-150 cursor-pointer"
+            className="p-1.5 -ml-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-all duration-150 cursor-pointer"
             title="View on GitHub"
           >
             <svg
@@ -27,14 +27,14 @@ export const Footer = () => {
         </div>
 
         {/* Center: Copyright */}
-        <div className="font-medium text-slate-600 tracking-tight">
+        <div className="text-center font-medium tracking-tight text-muted-foreground">
           © {new Date().getFullYear()} Myo Minn Oo. All rights reserved.
         </div>
 
         {/* Right: Version Pill */}
         <div className="flex items-center">
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono font-medium bg-slate-100/80 text-slate-500 border border-slate-200/60 shadow-2xs">
-            v1.5
+          <span className="inline-flex items-center rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-primary shadow-2xs">
+            v1.6 beta
           </span>
         </div>
       </div>
