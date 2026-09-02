@@ -23,16 +23,16 @@ export function useAddStaff(staffList: Staff[]) {
     if (error) setError(null)
   }
 
-  const addStaff = async (e?: React.FormEvent) => {
+  const addStaff = async (e?: React.FormEvent): Promise<{ success: boolean; name?: string; error?: string }> => {
     if (e) e.preventDefault()
     setError(null)
 
     const trimmedName = name.trim()
-    if (!trimmedName) return
+    if (!trimmedName) return { success: false, error: "Enter a staff name." }
 
     if (fte < 0 || fte > 1) {
       setError("FTE must be between 0 and 1.")
-      return
+      return { success: false, error: "FTE must be between 0 and 1." }
     }
 
     // Case-insensitive duplicate check
@@ -42,7 +42,7 @@ export function useAddStaff(staffList: Staff[]) {
 
     if (isDuplicate) {
       setError(`Staff member "${toTitleCase(trimmedName)}" already exists.`)
-      return
+      return { success: false, error: `Staff member "${toTitleCase(trimmedName)}" already exists.` }
     }
 
     setIsSubmitting(true)
@@ -60,8 +60,10 @@ export function useAddStaff(staffList: Staff[]) {
 
       setName("")
       setError(null)
+      return { success: true, name: toTitleCase(trimmedName) }
     } catch (err) {
       setError(`Failed to add staff member: ${(err as Error).message}`)
+      return { success: false, error: `Failed to add staff member: ${(err as Error).message}` }
     } finally {
       setIsSubmitting(false)
     }

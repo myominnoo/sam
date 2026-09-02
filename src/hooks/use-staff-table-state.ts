@@ -19,8 +19,10 @@ export function useStaffTableState(
   const handleToggleActive = async (s: Staff) => {
     try {
       await localSamRepository.saveStaff({ ...s, isActive: !(s.isActive ?? true) })
+      return true
     } catch (err) {
       console.error("Failed to update staff status:", err)
+      return false
     }
   }
 

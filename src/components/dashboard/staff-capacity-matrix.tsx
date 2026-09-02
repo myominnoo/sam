@@ -8,6 +8,8 @@ import { getMonthBoundaryClass, MatrixColumnGroup, MatrixHeader } from "@/compon
 import { useMatrixExpansion } from "@/hooks/use-matrix-expansion"
 import { useMatrixResponsiveLayout } from "@/hooks/use-matrix-responsive-layout"
 import { CollapseAllButton } from "@/components/ui/collapse-all-button"
+import { useThresholdSettings } from "@/hooks/use-threshold-settings"
+import { CountLimitBadge } from "@/components/dashboard/count-limit-badge"
 import type { Allocation, Assignment, Project, Staff } from "@/types/sam"
 
 interface StaffCapacityMatrixProps {
@@ -64,6 +66,7 @@ export function StaffCapacityMatrix({
     STAFF_MATRIX_EXPANDED_ROWS_KEY
   )
   const { months, yearGroups } = useMatrixTimeline(startMonth, endMonth)
+  const { maxProjectsPerStaff } = useThresholdSettings()
 
   useEffect(() => {
     localStorage.setItem(STAFF_MATRIX_COLLAPSED_KEY, String(isMatrixCollapsed))
@@ -166,9 +169,7 @@ export function StaffCapacityMatrix({
                       </td>
 
                       <td className="p-1 sm:p-2 text-center w-12 sm:w-16 sticky left-[120px] sm:left-[176px] z-10 bg-neutral-200/95 dark:bg-neutral-900/95 backdrop-blur-md border-r-0">
-                        <span className="inline-flex items-center justify-center h-4.5 sm:h-5 min-w-4.5 sm:min-w-5 px-1 sm:px-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-                          {assignedProjectIds.size}
-                        </span>
+                        <CountLimitBadge count={assignedProjectIds.size} limit={maxProjectsPerStaff} noun="projects" />
                       </td>
 
                       {months.map((m, idx) => {

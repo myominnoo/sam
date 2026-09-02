@@ -25,6 +25,7 @@ import {
   type ThresholdSettings,
 } from "./manage-thresholds-dialog"
 import { exportToJSON, exportToXLSX, importDataFile, previewImportDataFile, type ImportPreview } from "@/lib/data-io"
+import { toast } from "sonner"
 
 export function ManageDataView() {
   const staffList = useLiveQuery(() => db.staff.toArray(), []) ?? []
@@ -42,7 +43,6 @@ export function ManageDataView() {
   const [isTransferring, setIsTransferring] = useState(false)
   const [pendingImport, setPendingImport] = useState<ImportPreview | null>(null)
   const [pendingImportName, setPendingImportName] = useState("")
-  const [dataMessage, setDataMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -69,6 +69,7 @@ export function ManageDataView() {
       "sam_flagging_thresholds",
       JSON.stringify(newThresholds)
     )
+    window.dispatchEvent(new Event("sam:thresholds-changed"))
   }
 
   const handleClearData = async () => {
@@ -80,10 +81,11 @@ export function ManageDataView() {
           localStorage.removeItem(key)
         }
       }
-      window.location.reload()
+      toast.success("Local workspace cleared", { description: "Restarting SAM with a clean workspace." })
+      window.setTimeout(() => window.location.reload(), 600)
     } catch (error) {
       console.error("Failed to clear database:", error)
-      setDataMessage({ type: "error", text: "Unable to clear workspace data. Please try again." })
+      toast.error("Could not clear workspace data", { description: "Please try again." })
     } finally {
       setIsClearing(false)
       setShowClearDataConfirm(false)
@@ -102,14 +104,14 @@ export function ManageDataView() {
     const file = e.target.files?.[0]
     if (file) {
       setIsTransferring(true)
-      setDataMessage(null)
       try {
         const preview = await previewImportDataFile(file)
         setPendingImport(preview)
         setPendingImportName(file.name)
+        toast.success("Import file validated", { description: `${preview.count} records are ready to review.` })
       } catch (error) {
         console.error("Import failed:", error)
-        setDataMessage({ type: "error", text: (error as Error).message })
+        toast.error("Could not read import file", { description: (error as Error).message })
       } finally {
         setIsTransferring(false)
       }
@@ -122,10 +124,10 @@ export function ManageDataView() {
     setIsTransferring(true)
     try {
       const { count } = await importDataFile(pendingImport)
-      setDataMessage({ type: "success", text: `Imported ${count} records from ${pendingImportName}.` })
+      toast.success("Data imported", { description: `${count} records from ${pendingImportName} are now available.` })
       setPendingImport(null)
     } catch (error) {
-      setDataMessage({ type: "error", text: (error as Error).message })
+      toast.error("Could not import data", { description: (error as Error).message })
     } finally {
       setIsTransferring(false)
     }
@@ -133,9 +135,8 @@ export function ManageDataView() {
 
   const handleLoadSampleData = async () => {
     setShowImportMenu(false)
-    setDataMessage(null)
     if (staffList.length > 0 || projectList.length > 0 || assignmentList.length > 0) {
-      setDataMessage({ type: "error", text: "Sample data can only be loaded into an empty workspace. Clear data first if you want to replace it." })
+      toast.error("Sample data needs an empty workspace", { description: "Clear local data first if you want to replace it." })
       return
     }
 
@@ -154,10 +155,10 @@ export function ManageDataView() {
       })
       localStorage.setItem("sam_onboarding_complete", "true")
       const count = seedData.staff.length + seedData.projects.length + seedData.assignments.length + seedData.allocations.length + seedData.designations.length
-      setDataMessage({ type: "success", text: `Loaded ${count} sample records.` })
+      toast.success("Sample data loaded", { description: `${count} records are ready to explore.` })
     } catch (error) {
       console.error("Failed to load sample data:", error)
-      setDataMessage({ type: "error", text: "Unable to load sample data. Please try again." })
+      toast.error("Could not load sample data", { description: "Please try again." })
     } finally {
       setIsTransferring(false)
     }
@@ -165,14 +166,13 @@ export function ManageDataView() {
 
   const handleExport = async (format: "json" | "xlsx") => {
     setIsTransferring(true)
-    setDataMessage(null)
     setShowExportMenu(false)
     try {
       await (format === "json" ? exportToJSON() : exportToXLSX())
-      setDataMessage({ type: "success", text: `Your ${format.toUpperCase()} export is ready.` })
+      toast.success("Export ready", { description: `Your ${format.toUpperCase()} file has been downloaded.` })
     } catch (error) {
       console.error("Export failed:", error)
-      setDataMessage({ type: "error", text: `Unable to export ${format.toUpperCase()} data. Please try again.` })
+      toast.error("Could not export data", { description: `Unable to create the ${format.toUpperCase()} file. Please try again.` })
     } finally {
       setIsTransferring(false)
     }
@@ -333,12 +333,6 @@ export function ManageDataView() {
             />
           </div>
         </div>
-
-        {dataMessage && (
-          <div className={`rounded-2xl border px-3.5 py-2.5 text-xs font-medium ${dataMessage.type === "success" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}>
-            {dataMessage.text}
-          </div>
-        )}
 
         {/* Directory Sections with Synchronized Scroll */}
         <div className="flex flex-col gap-6">

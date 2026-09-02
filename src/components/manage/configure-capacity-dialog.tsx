@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from "react"
-import { SlidersHorizontal, X, Check, FolderKanban, AlertCircle, Loader2, Divide } from "lucide-react"
+import { SlidersHorizontal, X, Check, FolderKanban, Loader2, Divide } from "lucide-react"
+import { toast } from "sonner"
 import { db } from "@/db/schema"
 import { toTitleCase } from "@/lib/string-utils"
 import { generateMonthRange, getCurrentYearMonth } from "@/lib/date-utils"
@@ -95,7 +96,6 @@ export function ConfigureCapacityDialog({
   const [selectedProjectIds, setSelectedProjectIds] = useState<(string | number)[]>([])
   const [divideEqually, setDivideEqually] = useState<boolean>(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // Keep the range broad enough for planning, while “all” below is constrained
   // to the selected projects' actual timelines.
@@ -132,7 +132,6 @@ export function ConfigureCapacityDialog({
     setSelectedProjectIds([])
     setDivideEqually(false)
     setIsSaving(false)
-    setErrorMessage(null)
   }
 
   const handleClose = () => {
@@ -148,7 +147,6 @@ export function ConfigureCapacityDialog({
       setToMonth("2028-02")
       setSelectedProjectIds(assignedProjects.map((p) => p.id))
       setDivideEqually(false)
-      setErrorMessage(null)
     }
   }, [open, staff])
 
@@ -177,13 +175,12 @@ export function ConfigureCapacityDialog({
   }
 
   const handleApply = async () => {
-    setErrorMessage(null)
     const targetAssignments = staffAssignments.filter((a) =>
       selectedProjectIds.includes(a.projectId)
     )
 
     if (targetAssignments.length === 0) {
-      setErrorMessage("Please select at least one project.")
+      toast.error("Select at least one assigned project.")
       return
     }
 
@@ -216,7 +213,7 @@ export function ConfigureCapacityDialog({
       }
 
       if (!Number.isFinite(capacity) || capacity < 0 || capacity > 100) {
-        setErrorMessage("Target capacity must be between 0% and 100%.")
+        toast.error("Target capacity must be between 0% and 100%.")
         return
       }
 
@@ -235,7 +232,7 @@ export function ConfigureCapacityDialog({
       }
 
       if (applicableAssignmentsByMonth.size === 0) {
-        setErrorMessage("The selected projects do not overlap the chosen date range.")
+        toast.error("The selected projects do not overlap the chosen date range.")
         return
       }
 
@@ -262,11 +259,9 @@ export function ConfigureCapacityDialog({
           const monthLabel = monthObj
             ? `${monthObj.monthLabel} ${monthObj.year}`
             : monthKey
-          setErrorMessage(
-            `Total capacity for ${toTitleCase(staff.name)} in ${monthLabel} would exceed 100% (calculated: ${Math.round(
-              predictedTotal * 100
-            )}%).`
-          )
+          toast.error(`Capacity would exceed 100% in ${monthLabel}.`, {
+            description: `${toTitleCase(staff.name)} would reach ${Math.round(predictedTotal * 100)}%.`,
+          })
           setIsSaving(false)
           return
         }
@@ -300,20 +295,25 @@ export function ConfigureCapacityDialog({
         await db.allocations.bulkPut(allocationsToSave)
       })
 
+      toast.success("Capacity updated", {
+        description: `Updated ${allocationsToSave.length} allocation${allocationsToSave.length === 1 ? "" : "s"} for ${toTitleCase(staff.name)}.`,
+      })
       handleClose()
     } catch (err) {
       console.error("Failed to apply capacity:", err)
-      setErrorMessage(`Failed to save: ${(err as Error).message || "Unknown error"}`)
+      toast.error("Could not update capacity", {
+        description: (err as Error).message || "Please try again.",
+      })
     } finally {
       setIsSaving(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in-50 duration-200">
-      <div className="w-[min(96vw,42rem)] max-w-none rounded-3xl border border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="sam-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="sam-dialog w-[min(96vw,42rem)] max-w-none overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-border/60 bg-muted/30">
+        <div className="sam-dialog-header flex items-center justify-between p-5">
           <div className="flex items-center gap-2.5">
             <SlidersHorizontal className="h-5 w-5 text-primary shrink-0" />
             <h2 className="text-base font-bold text-foreground">
@@ -323,19 +323,11 @@ export function ConfigureCapacityDialog({
           <button
             type="button"
             onClick={handleClose}
-            className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors cursor-pointer"
+            className="sam-dialog-close"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
-
-        {/* Error Feedback Banner */}
-        {errorMessage && (
-          <div className="mx-6 mt-4 flex items-center gap-2 px-3.5 py-2.5 text-xs font-medium text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-2xl animate-in fade-in-50">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            <span>{errorMessage}</span>
-          </div>
-        )}
 
         {/* Body */}
         <div className="p-6 flex flex-col gap-5 max-h-[80vh] overflow-y-auto">

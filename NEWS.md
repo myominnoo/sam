@@ -12,9 +12,12 @@
 - Improved bulk capacity editing with project-timeline-aware writes, month-aware equal allocation, preserved non-target allocations, custom-range validation, and a strict 0–100% target range.
 - Archived staff and projects are now excluded from planning matrices while their historical records remain intact; the directory actions use clearer Archive and Restore labels.
 - Added dashboard warnings for legacy or imported staff-month workloads that exceed 100%.
+- Added configurable staffing thresholds. The `# Proj` and `# Staff` matrix badges now show a shared green check at or below the limit, or an amber warning above it, with an accessible count-and-limit tooltip.
 - Added light, dark, and system theme support; new installations follow the system preference.
 - Added an in-app Driver.js walkthrough, launched automatically once on first use after confirmation and replayable from the footer Compass button.
-- Refined compact mobile navigation, local-only status, dropdown consistency, and responsive spacing.
+- Added Sonner-based, theme-aware toast feedback for capacity updates and workspace actions, including staff/project changes, imports, exports, sample data, and clearing local data.
+- Standardized confirmations, seed-data, capacity, designation, and threshold dialogs with SAM’s shared theme-aware dialog surface, header, close control, and motion.
+- Refined compact mobile navigation, local-only status, dropdown consistency, responsive spacing, and the reusable count-limit tooltip interaction.
 
 ## Earlier releases
 

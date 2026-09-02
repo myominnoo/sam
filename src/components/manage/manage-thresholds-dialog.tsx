@@ -1,16 +1,9 @@
 import { useState } from "react"
 import { AlertTriangle, RotateCcw, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { DEFAULT_THRESHOLDS, type ThresholdSettings } from "@/hooks/use-threshold-settings"
 
-export interface ThresholdSettings {
-  maxProjectsPerStaff: number
-  maxStaffPerProject: number
-}
-
-export const DEFAULT_THRESHOLDS: ThresholdSettings = {
-  maxProjectsPerStaff: 3,
-  maxStaffPerProject: 4,
-}
+export { DEFAULT_THRESHOLDS, type ThresholdSettings } from "@/hooks/use-threshold-settings"
 
 interface ManageThresholdsDialogProps {
   open: boolean
@@ -62,7 +55,7 @@ export function ManageThresholdsDialog({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity animate-in fade-in-50 duration-200"
+        className="sam-dialog-backdrop"
         onClick={handleClose}
         aria-hidden="true"
       />
@@ -73,14 +66,12 @@ export function ManageThresholdsDialog({
         aria-modal="true"
         aria-labelledby="thresholds-dialog-title"
         className={cn(
-          "relative z-10 w-full max-w-md rounded-3xl border border-border/60",
-          "bg-card text-card-foreground shadow-2xl",
-          "overflow-hidden animate-in fade-in-50 zoom-in-95 duration-200"
+          "sam-dialog relative z-10 w-full max-w-md overflow-hidden"
         )}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-5 px-6 border-b border-border/50 bg-muted/20">
+        <div className="sam-dialog-header flex items-start justify-between p-5 px-6">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center shadow-xs">
               <AlertTriangle className="h-5 w-5" />
@@ -101,7 +92,7 @@ export function ManageThresholdsDialog({
           <button
             type="button"
             onClick={handleClose}
-            className="p-1.5 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+            className="sam-dialog-close shrink-0"
             title="Close dialog"
           >
             <X className="h-4 w-4" />

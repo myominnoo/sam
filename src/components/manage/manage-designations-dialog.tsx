@@ -97,7 +97,7 @@ export function ManageDesignationsDialog({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity animate-in fade-in-50 duration-200"
+        className="sam-dialog-backdrop"
         onClick={handleClose}
         aria-hidden="true"
       />
@@ -108,14 +108,12 @@ export function ManageDesignationsDialog({
         aria-modal="true"
         aria-labelledby="designations-dialog-title"
         className={cn(
-          "relative z-10 w-full max-w-lg rounded-3xl border border-border/60",
-          "bg-card text-card-foreground shadow-2xl",
-          "overflow-hidden animate-in fade-in-50 zoom-in-95 duration-200"
+          "sam-dialog relative z-10 w-full max-w-lg overflow-hidden"
         )}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 px-6 border-b border-border/50 bg-muted/20">
+        <div className="sam-dialog-header flex items-center justify-between p-5 px-6">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shadow-xs">
               <BadgeCheck className="h-5 w-5" />
@@ -131,7 +129,7 @@ export function ManageDesignationsDialog({
           <button
             type="button"
             onClick={handleClose}
-            className="p-1.5 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="sam-dialog-close"
             title="Close dialog"
           >
             <X className="h-4 w-4" />

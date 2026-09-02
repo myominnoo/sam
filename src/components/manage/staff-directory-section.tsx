@@ -8,6 +8,7 @@ import { useStaffTableState } from "@/hooks/use-staff-table-state"
 import { ConfigureCapacityDialog } from "./configure-capacity-dialog"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 import type { Staff, Assignment, Project, Designation, RoleType } from "@/types/sam"
 
 const topAlignedCellStyle = { verticalAlign: "top" } as const
@@ -108,13 +109,19 @@ export function StaffDirectorySection({
 
   const saveStaff = async (staffId: number) => {
     if (!editDraft || !editDraft.name.trim() || editDraft.fte < 0 || editDraft.fte > 1) return
+    try {
+      await db.staff.update(staffId, { name: editDraft.name.trim(), designation: editDraft.designation, fte: editDraft.fte })
+      toast.success("Staff member updated", { description: `${toTitleCase(editDraft.name)} has been saved.` })
+      cancelEditing()
+    } catch (error) {
+      toast.error("Could not update staff member", { description: (error as Error).message })
+    }
+  }
 
-    await db.staff.update(staffId, {
-      name: editDraft.name.trim(),
-      designation: editDraft.designation,
-      fte: editDraft.fte,
-    })
-    cancelEditing()
+  const handleAddStaff = async (event: React.FormEvent) => {
+    const result = await addStaff(event)
+    if (result.success) toast.success("Staff member added", { description: `${result.name} is ready for project assignments.` })
+    else if (result.error) toast.error("Could not add staff member", { description: result.error })
   }
 
   const assignProject = async (staffId: number, projectId: number) => {
@@ -126,11 +133,17 @@ export function StaffDirectorySection({
       (maxId, assignment) => Math.max(maxId, Number(assignment.id) || 0),
       0
     ) + 1
-    await db.assignments.add({ id: nextAssignmentId, staffId, projectId, role: "M" })
+    try {
+      await db.assignments.add({ id: nextAssignmentId, staffId, projectId, role: "M" })
+      toast.success("Project assigned", { description: "The staff member was added to the project." })
+    } catch (error) {
+      toast.error("Could not assign project", { description: (error as Error).message })
+    }
   }
 
   const updateAssignmentRole = async (assignmentId: number, role: RoleType) => {
     await db.assignments.update(assignmentId, { role })
+    toast.success("Project role updated")
   }
 
   const removeAssignment = async (assignment: Assignment) => {
@@ -138,6 +151,7 @@ export function StaffDirectorySection({
       await db.allocations.where("assignmentId").equals(assignment.id).delete()
       await db.assignments.delete(assignment.id)
     })
+    toast.success("Project assignment removed")
   }
 
   const deleteInactiveStaff = async (staff: Staff) => {
@@ -160,6 +174,7 @@ export function StaffDirectorySection({
     setIsDeletingStaff(true)
     try {
       await deleteInactiveStaff(staffPendingDeletion)
+      toast.success("Staff member deleted")
       setStaffPendingDeletion(null)
     } finally {
       setIsDeletingStaff(false)
@@ -215,7 +230,7 @@ export function StaffDirectorySection({
         <div className="p-3.5 bg-muted/20 border-b border-border/60 flex flex-col gap-2">
           <form
             id="sam-add-staff"
-            onSubmit={addStaff}
+            onSubmit={(event) => void handleAddStaff(event)}
             className="flex flex-wrap sm:flex-nowrap items-center gap-2.5"
           >
             <input
@@ -539,7 +554,10 @@ export function StaffDirectorySection({
                             aria-label={isActive ? "Archive Staff Member" : "Restore Staff Member"}
                             onClick={() => {
                               if (isEditing) cancelEditing()
-                              void handleToggleActive(s)
+                              void handleToggleActive(s).then((wasUpdated) => {
+                                if (wasUpdated) toast.success(isActive ? "Staff member archived" : "Staff member restored")
+                                else toast.error("Could not update staff status")
+                              })
                             }}
                             className={cn(
                               "p-1 rounded-md transition-colors cursor-pointer",

@@ -88,7 +88,7 @@ export function ConfirmDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop with Blur */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity animate-in fade-in-50 duration-200"
+        className="sam-dialog-backdrop"
         onClick={onCancel}
         aria-hidden="true"
       />
@@ -100,9 +100,7 @@ export function ConfirmDialog({
         aria-labelledby="dialog-title"
         aria-describedby="dialog-description"
         className={cn(
-          "relative z-10 w-full max-w-md rounded-3xl border border-neutral-300 dark:border-neutral-700/80",
-          "bg-card/90 dark:bg-neutral-900/90 backdrop-blur-2xl text-card-foreground shadow-2xl",
-          "p-6 flex flex-col gap-5 animate-in fade-in-50 zoom-in-95 duration-200"
+          "sam-dialog relative z-10 w-full max-w-md p-6 flex flex-col gap-5"
         )}
         onClick={(e) => e.stopPropagation()}
       >

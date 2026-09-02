@@ -50,8 +50,8 @@ export function SeedDialog({ onComplete }: SeedDialogProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in-50 duration-200">
-      <div className="relative w-full max-w-md p-6 rounded-3xl border border-white/40 dark:border-white/15 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-2xl shadow-2xl text-foreground text-left transition-all">
+    <div className="sam-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="sam-dialog relative w-full max-w-md p-6 text-left">
         <div className="flex items-center justify-center h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 text-primary mb-4 shadow-2xs">
           <Sparkles className="h-6 w-6" />
         </div>
@@ -71,7 +71,7 @@ export function SeedDialog({ onComplete }: SeedDialogProps) {
               setIsDismissed(true)
               onComplete?.()
             }}
-            className="px-3.5 h-9 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-transparent text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+            className="px-3.5 h-9 rounded-xl border border-border bg-background text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
           >
             Start with Blank Slate
           </button>

@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState, type Ref } from "react"
 import { FolderKanban, Search, Plus, Edit2, Trash2, Ban, Check, CheckCircle2, X, ChevronDown } from "lucide-react"
 import { toTitleCase } from "@/lib/string-utils"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 import { RoleBadge } from "@/components/ui/role-badge"
 import { Slider } from "@/components/ui/slider"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
@@ -80,18 +81,16 @@ export function ProjectsDirectorySection({
       0
     ) + 1
 
-    await db.projects.add({
-      id: nextProjectId,
-      name: newProjectName.trim(),
-      startMonth: newProjectStart,
-      endMonth: newProjectEnd,
-      isActive: true,
-    })
-
-    setNewProjectName("")
-    setNewProjectStart(DEFAULT_NEW_PROJECT_START)
-    setNewProjectEnd(DEFAULT_NEW_PROJECT_END)
-    setNewProjectPreset(12)
+    try {
+      await db.projects.add({ id: nextProjectId, name: newProjectName.trim(), startMonth: newProjectStart, endMonth: newProjectEnd, isActive: true })
+      toast.success("Project created", { description: `${toTitleCase(newProjectName.trim())} is ready for staffing.` })
+      setNewProjectName("")
+      setNewProjectStart(DEFAULT_NEW_PROJECT_START)
+      setNewProjectEnd(DEFAULT_NEW_PROJECT_END)
+      setNewProjectPreset(12)
+    } catch (error) {
+      toast.error("Could not create project", { description: (error as Error).message })
+    }
   }
 
   const filteredProjects = projectList.filter((p) =>
@@ -164,12 +163,13 @@ export function ProjectsDirectorySection({
   const saveProject = async (projectId: number) => {
     if (!editDraft || !editDraft.name.trim()) return
 
-    await db.projects.update(projectId, {
-      name: editDraft.name.trim(),
-      startMonth: editDraft.startMonth,
-      endMonth: editDraft.endMonth,
-    })
-    cancelEditing()
+    try {
+      await db.projects.update(projectId, { name: editDraft.name.trim(), startMonth: editDraft.startMonth, endMonth: editDraft.endMonth })
+      toast.success("Project updated", { description: `${toTitleCase(editDraft.name)} has been saved.` })
+      cancelEditing()
+    } catch (error) {
+      toast.error("Could not update project", { description: (error as Error).message })
+    }
   }
 
   const handleTimelineChange = ([startIndex, endIndex]: readonly number[]) => {
@@ -190,10 +190,12 @@ export function ProjectsDirectorySection({
       0
     ) + 1
     await db.assignments.add({ id: nextAssignmentId, projectId, staffId, role: "M" })
+    toast.success("Staff member assigned")
   }
 
   const updateAssignmentRole = async (assignmentId: number, role: RoleType) => {
     await db.assignments.update(assignmentId, { role })
+    toast.success("Project role updated")
   }
 
   const removeAssignment = async (assignment: Assignment) => {
@@ -201,6 +203,7 @@ export function ProjectsDirectorySection({
       await db.allocations.where("assignmentId").equals(assignment.id).delete()
       await db.assignments.delete(assignment.id)
     })
+    toast.success("Staff assignment removed")
   }
 
   const deleteInactiveProject = async (project: Project) => {
@@ -223,6 +226,7 @@ export function ProjectsDirectorySection({
     setIsDeletingProject(true)
     try {
       await deleteInactiveProject(projectPendingDeletion)
+      toast.success("Project deleted")
       setProjectPendingDeletion(null)
     } finally {
       setIsDeletingProject(false)
@@ -231,6 +235,7 @@ export function ProjectsDirectorySection({
 
   const toggleProjectActive = async (project: Project) => {
     await db.projects.update(project.id, { isActive: !(project.isActive ?? true) })
+    toast.success((project.isActive ?? true) ? "Project archived" : "Project restored")
   }
 
   return (
