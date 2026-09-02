@@ -202,22 +202,61 @@
 }
 
 .sam-driver-popover {
-  border: 1px solid var(--border);
-  border-radius: 1rem;
+  --driver-popover-font-family: var(--font-sans);
+  min-width: min(18rem, calc(100vw - 2rem));
+  max-width: min(21rem, calc(100vw - 2rem));
+  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  border-radius: var(--radius-2xl);
   background: var(--card);
   color: var(--card-foreground);
-  box-shadow: var(--shadow-xl);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-2xl);
 }
 
 .sam-driver-popover .driver-popover-title {
   color: var(--foreground);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.25;
 }
 
 .sam-driver-popover .driver-popover-description,
 .sam-driver-popover .driver-popover-progress-text {
   color: var(--muted-foreground);
+}
+
+.sam-driver-popover .driver-popover-description {
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.sam-driver-popover .driver-popover-footer {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid color-mix(in oklab, var(--border) 65%, transparent);
+}
+
+.sam-driver-popover .driver-popover-progress-text {
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.sam-driver-popover .driver-popover-footer-btn {
+  border-color: var(--border);
+  border-radius: calc(var(--radius) * 0.7);
+  background: var(--background);
+  color: var(--foreground);
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-shadow: none;
+  transition: background-color 150ms, color 150ms, opacity 150ms;
+}
+
+.sam-driver-popover .driver-popover-footer-btn:hover,
+.sam-driver-popover .driver-popover-footer-btn:focus-visible {
+  background: var(--muted);
 }
 
 .sam-driver-popover .driver-popover-next-btn,
@@ -228,8 +267,44 @@
   text-shadow: none;
 }
 
+.sam-driver-popover .driver-popover-next-btn:hover,
+.sam-driver-popover .driver-popover-next-btn:focus-visible,
+.sam-driver-popover .driver-popover-done-btn:hover,
+.sam-driver-popover .driver-popover-done-btn:focus-visible {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  opacity: 0.9;
+}
+
 .sam-driver-popover .driver-popover-prev-btn {
   border-color: var(--border);
   color: var(--foreground);
   text-shadow: none;
+}
+
+.sam-driver-popover .driver-popover-close-btn {
+  color: var(--muted-foreground);
+  border-radius: calc(var(--radius) * 0.55);
+}
+
+.sam-driver-popover .driver-popover-close-btn:hover,
+.sam-driver-popover .driver-popover-close-btn:focus-visible {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.sam-driver-popover .driver-popover-arrow-side-left {
+  border-left-color: var(--card);
+}
+
+.sam-driver-popover .driver-popover-arrow-side-right {
+  border-right-color: var(--card);
+}
+
+.sam-driver-popover .driver-popover-arrow-side-top {
+  border-top-color: var(--card);
+}
+
+.sam-driver-popover .driver-popover-arrow-side-bottom {
+  border-bottom-color: var(--card);
 }

@@ -1,17 +1,25 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "@/db/schema"
 import seedData from "@/db/seed.json"
 import type { Assignment, RoleType } from "@/types/sam"
 import { Sparkles, Database, ArrowRight } from "lucide-react"
 
-export function SeedDialog() {
+interface SeedDialogProps {
+  onComplete?: () => void
+}
+
+export function SeedDialog({ onComplete }: SeedDialogProps) {
   const staffCount = useLiveQuery(() => db.staff.count(), [])
   const [isDismissed, setIsDismissed] = useState(() =>
     localStorage.getItem("sam_onboarding_complete") === "true"
   )
   const [isSeeding, setIsSeeding] = useState(false)
   const isOpen = !isDismissed && staffCount === 0
+
+  useEffect(() => {
+    if (staffCount !== undefined && staffCount > 0) onComplete?.()
+  }, [staffCount, onComplete])
 
   const handlePopulateSeedData = async () => {
     setIsSeeding(true)
@@ -31,6 +39,7 @@ export function SeedDialog() {
       })
       localStorage.setItem("sam_onboarding_complete", "true")
       setIsDismissed(true)
+      onComplete?.()
     } catch (error) {
       console.error("Failed to seed database:", error)
     } finally {
@@ -60,6 +69,7 @@ export function SeedDialog() {
             onClick={() => {
               localStorage.setItem("sam_onboarding_complete", "true")
               setIsDismissed(true)
+              onComplete?.()
             }}
             className="px-3.5 h-9 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-transparent text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
           >

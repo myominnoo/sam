@@ -1,4 +1,4 @@
-import { Info } from "lucide-react"
+import { Compass } from "lucide-react"
 
 interface FooterProps {
   onStartOnboarding?: () => void
@@ -37,7 +37,7 @@ export const Footer = ({ onStartOnboarding }: FooterProps) => {
             className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-all duration-150 cursor-pointer"
             title="Learn how to use SAM"
           >
-            <Info className="size-4" aria-hidden="true" />
+            <Compass className="size-4" aria-hidden="true" />
           </button>
         </div>
 
@@ -49,7 +49,7 @@ export const Footer = ({ onStartOnboarding }: FooterProps) => {
         {/* Right: Version Pill */}
         <div className="flex items-center">
           <span className="inline-flex items-center rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-primary shadow-2xs">
-            v1.6 beta
+            v1.6
           </span>
         </div>
       </div>
