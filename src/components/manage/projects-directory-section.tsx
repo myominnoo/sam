@@ -109,6 +109,15 @@ export function ProjectsDirectorySection({
     localStorage.setItem(PROJECT_DIRECTORY_COLLAPSED_KEY, String(isDirectoryCollapsed))
   }, [isDirectoryCollapsed])
 
+  useEffect(() => {
+    const expandForTour = (event: Event) => {
+      const target = (event as CustomEvent<string>).detail
+      if (target === "#sam-add-project" || target === "#sam-project-directory") setIsDirectoryCollapsed(false)
+    }
+    window.addEventListener("sam:tour-target", expandForTour)
+    return () => window.removeEventListener("sam:tour-target", expandForTour)
+  }, [])
+
   const handleNewProjectTimelineChange = ([startIndex, endIndex]: readonly number[]) => {
     setNewProjectStart(TIMELINE_MONTHS[startIndex]?.key ?? "")
     setNewProjectEnd(TIMELINE_MONTHS[endIndex]?.key ?? "")
@@ -523,8 +532,8 @@ export function ProjectsDirectorySection({
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                       <button
-                        title={isActive ? "Deactivate Project" : "Reactivate Project"}
-                        aria-label={isActive ? "Deactivate project" : "Reactivate project"}
+                        title={isActive ? "Archive Project" : "Restore Project"}
+                        aria-label={isActive ? "Archive project" : "Restore project"}
                         type="button"
                         onClick={() => {
                           if (isEditing) cancelEditing()

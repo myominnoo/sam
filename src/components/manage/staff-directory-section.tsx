@@ -84,6 +84,14 @@ export function StaffDirectorySection({
     localStorage.setItem(STAFF_DIRECTORY_COLLAPSED_KEY, String(isDirectoryCollapsed))
   }, [isDirectoryCollapsed])
 
+  useEffect(() => {
+    const expandForTour = (event: Event) => {
+      if ((event as CustomEvent<string>).detail === "#sam-add-staff") setIsDirectoryCollapsed(false)
+    }
+    window.addEventListener("sam:tour-target", expandForTour)
+    return () => window.removeEventListener("sam:tour-target", expandForTour)
+  }, [])
+
   const startEditing = (staff: Staff) => {
     setEditingStaffId(staff.id)
     setEditDraft({
@@ -236,7 +244,7 @@ export function StaffDirectorySection({
               ))}
             </select>
 
-            {/* FTE Input with inline label */}
+            {/* FTE is reference metadata; allocation percentages remain a person's own 100% workload. */}
             <div className="flex items-center gap-1.5 mr-2">
               <input
                 type="number"
@@ -250,7 +258,7 @@ export function StaffDirectorySection({
                 }}
                 className="w-16 h-9 px-2 text-center rounded-xl text-xs text-foreground bg-background border border-input focus:outline-none focus:ring-1 focus:ring-primary font-medium"
               />
-              <span className="text-xs font-semibold text-muted-foreground select-none">
+              <span title="Reference only — 100% allocation is this person's full workload." className="text-xs font-semibold text-muted-foreground select-none cursor-help">
                 FTE
               </span>
             </div>
@@ -527,8 +535,8 @@ export function StaffDirectorySection({
                         <div className="relative group">
                           <button
                             type="button"
-                            title={isActive ? "Deactivate Staff Member" : "Reactivate Staff Member"}
-                            aria-label={isActive ? "Deactivate Staff Member" : "Reactivate Staff Member"}
+                            title={isActive ? "Archive Staff Member" : "Restore Staff Member"}
+                            aria-label={isActive ? "Archive Staff Member" : "Restore Staff Member"}
                             onClick={() => {
                               if (isEditing) cancelEditing()
                               void handleToggleActive(s)
@@ -547,7 +555,7 @@ export function StaffDirectorySection({
                             )}
                           </button>
                           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-30 pointer-events-none whitespace-nowrap rounded-md bg-neutral-900 dark:bg-neutral-100 px-2 py-1 text-[10px] font-semibold text-neutral-100 dark:text-neutral-900 shadow-md">
-                            {isActive ? "Deactivate Staff" : "Reactivate Staff"}
+                            {isActive ? "Archive Staff" : "Restore Staff"}
                           </div>
                         </div>
                       </div>

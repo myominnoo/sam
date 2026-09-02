@@ -14,11 +14,14 @@ const TOUR_STEPS: { element: string; title: string; description: string; tab: Ta
 
 export function useSamTour(setActiveTab: (tab: TabType) => void) {
   return useCallback(() => {
-    const showStep = (index: number, continueTour: () => void) => {
-      const nextStep = TOUR_STEPS[index]
-      setActiveTab(nextStep.tab)
-      window.setTimeout(continueTour, 150)
-    }
+  const showStep = (index: number, continueTour: () => void) => {
+    const nextStep = TOUR_STEPS[index]
+    setActiveTab(nextStep.tab)
+    window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("sam:tour-target", { detail: nextStep.element }))
+      window.setTimeout(continueTour, 100)
+    }, 150)
+  }
 
     const tour = driver({
       animate: true,

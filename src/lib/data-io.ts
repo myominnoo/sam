@@ -1,6 +1,7 @@
 import type * as XLSX from "xlsx"
 import { db } from "@/db/schema"
 import type { Staff, Project, Assignment, Allocation, Designation } from "@/types/sam"
+import { validateWorkspaceData } from "@/lib/workspace-validation"
 
 export interface ExportDataPayload {
   version: number
@@ -10,6 +11,11 @@ export interface ExportDataPayload {
   assignments: Assignment[]
   allocations?: Allocation[]
   designations?: Designation[]
+}
+
+export interface ImportPreview {
+  payload: Required<Pick<ExportDataPayload, "staff" | "projects" | "assignments" | "allocations" | "designations">>
+  count: number
 }
 
 /**
@@ -46,7 +52,7 @@ export async function exportToXLSX() {
 /**
  * Imports file (autodetects JSON vs XLSX) into Dexie IndexedDB
  */
-export async function importDataFile(file: File): Promise<{ count: number }> {
+export async function previewImportDataFile(file: File): Promise<ImportPreview> {
   const filename = file.name.toLowerCase()
   let payload: Partial<ExportDataPayload> = {}
 
@@ -70,9 +76,18 @@ export async function importDataFile(file: File): Promise<{ count: number }> {
   }
 
   validateImportPayload(payload)
+  validateWorkspaceData(payload)
+  return {
+    payload,
+    count: payload.staff.length + payload.projects.length + payload.assignments.length + payload.allocations.length + payload.designations.length,
+  }
+}
+
+/** Replaces the local workspace only after a validated preview is confirmed. */
+export async function importDataFile(preview: ImportPreview): Promise<{ count: number }> {
+  const { payload, count } = preview
 
   // Save parsed items to IndexedDB in a single transaction
-  let totalRecords = 0
   await db.transaction(
     "rw",
     [db.staff, db.projects, db.assignments, db.allocations, db.designations],
@@ -88,11 +103,10 @@ export async function importDataFile(file: File): Promise<{ count: number }> {
       await db.assignments.bulkAdd(payload.assignments as Assignment[])
       await db.allocations.bulkAdd(payload.allocations as Allocation[])
       await db.designations.bulkAdd(payload.designations as Designation[])
-      totalRecords = payload.staff!.length + payload.projects!.length + payload.assignments!.length + payload.allocations!.length + payload.designations!.length
     }
   )
 
-  return { count: totalRecords }
+  return { count }
 }
 
 // Internal Helpers

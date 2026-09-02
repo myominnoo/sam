@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { SlidersHorizontal, X, Check, FolderKanban, AlertCircle, Loader2, Divide } from "lucide-react"
 import { db } from "@/db/schema"
 import { toTitleCase } from "@/lib/string-utils"
@@ -97,6 +97,8 @@ export function ConfigureCapacityDialog({
   const [isSaving, setIsSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
+  // Keep the range broad enough for planning, while “all” below is constrained
+  // to the selected projects' actual timelines.
   const availableMonths = generateMonthRange("2025-01", 72)
   const fromMonthIndex = Math.max(0, availableMonths.findIndex((month) => month.key === fromMonth))
   const toMonthIndex = Math.max(
@@ -110,6 +112,10 @@ export function ConfigureCapacityDialog({
 
   const assignedProjects = projectList.filter((p) =>
     staffAssignments.some((a) => a.projectId === p.id)
+  )
+  const projectById = useMemo(
+    () => new Map(assignedProjects.map((project) => [project.id, project])),
+    [assignedProjects]
   )
   const activeAssignedProjects = assignedProjects.filter((project) => project.isActive)
   const inactiveAssignedProjects = assignedProjects.filter((project) => !project.isActive)
@@ -186,7 +192,16 @@ export function ConfigureCapacityDialog({
       let monthsToApply: string[] = []
 
       if (scope === "all") {
-        monthsToApply = availableMonths.map((m) => m.key)
+        const selectedProjects = targetAssignments
+          .map((assignment) => projectById.get(assignment.projectId))
+          .filter((project): project is Project => Boolean(project))
+        const firstMonth = selectedProjects.reduce((earliest, project) =>
+          project.startMonth < earliest ? project.startMonth : earliest, selectedProjects[0].startMonth)
+        const lastMonth = selectedProjects.reduce((latest, project) =>
+          project.endMonth > latest ? project.endMonth : latest, selectedProjects[0].endMonth)
+        monthsToApply = availableMonths
+          .filter((month) => month.key >= firstMonth && month.key <= lastMonth)
+          .map((month) => month.key)
       } else {
         const startIndex = availableMonths.findIndex((m) => m.key === fromMonth)
         const endIndex = availableMonths.findIndex((m) => m.key === toMonth)
@@ -200,25 +215,40 @@ export function ConfigureCapacityDialog({
         }
       }
 
-      const rawTargetPercentage =
-        canDivideEqually && divideEqually
-          ? 100 / targetAssignments.length
-          : capacity
-      const percentageValue = rawTargetPercentage / 100
+      if (!Number.isFinite(capacity) || capacity < 0 || capacity > 100) {
+        setErrorMessage("Target capacity must be between 0% and 100%.")
+        return
+      }
 
       const currentAllocations = (await db.allocations.toArray()) as Allocation[]
       const allocationsByAssignmentAndMonth = new Map(
         currentAllocations.map((allocation) => [`${allocation.assignmentId}:${allocation.month}`, allocation])
       )
-      const targetAssignmentIds = new Set(targetAssignments.map((assignment) => assignment.id))
 
+      const applicableAssignmentsByMonth = new Map<string, Assignment[]>()
       for (const monthKey of monthsToApply) {
+        const applicable = targetAssignments.filter((assignment) => {
+          const project = projectById.get(assignment.projectId)
+          return project && monthKey >= project.startMonth && monthKey <= project.endMonth
+        })
+        if (applicable.length > 0) applicableAssignmentsByMonth.set(monthKey, applicable)
+      }
+
+      if (applicableAssignmentsByMonth.size === 0) {
+        setErrorMessage("The selected projects do not overlap the chosen date range.")
+        return
+      }
+
+      for (const [monthKey, applicableAssignments] of applicableAssignmentsByMonth) {
         let predictedTotal = 0
+        const applicableAssignmentIds = new Set(applicableAssignments.map((assignment) => assignment.id))
+        const targetPercentage = divideEqually && canDivideEqually
+          ? 1 / applicableAssignments.length
+          : capacity / 100
 
         for (const assignment of staffAssignments) {
-          const isTargeted = targetAssignmentIds.has(assignment.id)
-          if (isTargeted) {
-            predictedTotal += percentageValue
+          if (applicableAssignmentIds.has(assignment.id)) {
+            predictedTotal += targetPercentage
           } else {
             const existing = allocationsByAssignmentAndMonth.get(`${assignment.id}:${monthKey}`)
             if (existing) {
@@ -248,8 +278,11 @@ export function ConfigureCapacityDialog({
       )
 
       const allocationsToSave: Allocation[] = []
-      for (const assignment of targetAssignments) {
-        for (const monthKey of monthsToApply) {
+      for (const [monthKey, applicableAssignments] of applicableAssignmentsByMonth) {
+        const percentageValue = divideEqually && canDivideEqually
+          ? 1 / applicableAssignments.length
+          : capacity / 100
+        for (const assignment of applicableAssignments) {
           const existing = allocationsByAssignmentAndMonth.get(`${assignment.id}:${monthKey}`)
           maxAllocId += existing ? 0 : 1
           allocationsToSave.push({
@@ -315,7 +348,7 @@ export function ConfigureCapacityDialog({
               <input
                 type="number"
                 min={0}
-                max={200}
+                max={100}
                 value={capacity}
                 onChange={(e) => setCapacity(Number(e.target.value) || 0)}
                 className="flex-1 h-11 px-4 rounded-2xl bg-background border border-input text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
@@ -378,8 +411,7 @@ export function ConfigureCapacityDialog({
                   className="h-4 w-4 rounded accent-primary cursor-pointer"
                 />
                 <span className="flex items-center gap-1.5 text-primary font-semibold">
-                  <Divide className="h-3.5 w-3.5" /> Split capacity equally (
-                  {Math.round(100 / assignedProjects.length)}% each)
+                  <Divide className="h-3.5 w-3.5" /> Split 100% equally across projects active in each month
                 </span>
               </label>
             )}

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "@/db/schema"
 import {
@@ -24,7 +24,7 @@ import {
   DEFAULT_THRESHOLDS,
   type ThresholdSettings,
 } from "./manage-thresholds-dialog"
-import { exportToJSON, exportToXLSX, importDataFile } from "@/lib/data-io"
+import { exportToJSON, exportToXLSX, importDataFile, previewImportDataFile, type ImportPreview } from "@/lib/data-io"
 
 export function ManageDataView() {
   const staffList = useLiveQuery(() => db.staff.toArray(), []) ?? []
@@ -40,9 +40,19 @@ export function ManageDataView() {
   const [showImportMenu, setShowImportMenu] = useState(false)
   const [isClearing, setIsClearing] = useState(false)
   const [isTransferring, setIsTransferring] = useState(false)
+  const [pendingImport, setPendingImport] = useState<ImportPreview | null>(null)
+  const [pendingImportName, setPendingImportName] = useState("")
   const [dataMessage, setDataMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const openImportForTour = (event: Event) => {
+      if ((event as CustomEvent<string>).detail === "#sam-import") setShowImportMenu(true)
+    }
+    window.addEventListener("sam:tour-target", openImportForTour)
+    return () => window.removeEventListener("sam:tour-target", openImportForTour)
+  }, [])
 
   // Synchronized horizontal scroll hook
   const { register, handleScroll } = useSyncScroll()
@@ -94,8 +104,9 @@ export function ManageDataView() {
       setIsTransferring(true)
       setDataMessage(null)
       try {
-        const { count } = await importDataFile(file)
-        setDataMessage({ type: "success", text: `Imported ${count} records from ${file.name}.` })
+        const preview = await previewImportDataFile(file)
+        setPendingImport(preview)
+        setPendingImportName(file.name)
       } catch (error) {
         console.error("Import failed:", error)
         setDataMessage({ type: "error", text: (error as Error).message })
@@ -104,6 +115,20 @@ export function ManageDataView() {
       }
     }
     e.target.value = ""
+  }
+
+  const confirmImport = async () => {
+    if (!pendingImport) return
+    setIsTransferring(true)
+    try {
+      const { count } = await importDataFile(pendingImport)
+      setDataMessage({ type: "success", text: `Imported ${count} records from ${pendingImportName}.` })
+      setPendingImport(null)
+    } catch (error) {
+      setDataMessage({ type: "error", text: (error as Error).message })
+    } finally {
+      setIsTransferring(false)
+    }
   }
 
   const handleLoadSampleData = async () => {
@@ -351,6 +376,16 @@ export function ManageDataView() {
       />
 
       {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={Boolean(pendingImport)}
+        title="Replace workspace data?"
+        description={pendingImport ? `${pendingImportName} passed validation and contains ${pendingImport.count} records. Importing replaces the current local workspace.` : ""}
+        confirmLabel="Import data"
+        isDestructive
+        isLoading={isTransferring}
+        onConfirm={confirmImport}
+        onCancel={() => setPendingImport(null)}
+      />
       <ConfirmDialog
         open={showClearDataConfirm}
         title="Clear All Data?"
