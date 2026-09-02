@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import { db } from "@/db/schema"
+import { localSamRepository } from "@/infrastructure/local/sam-repository"
 import type { Staff, Designation } from "@/types/sam"
 
 export function useStaffTableState(
@@ -18,9 +18,7 @@ export function useStaffTableState(
 
   const handleToggleActive = async (s: Staff) => {
     try {
-      await db.staff.update(s.id, {
-        isActive: !(s.isActive ?? true),
-      })
+      await localSamRepository.saveStaff({ ...s, isActive: !(s.isActive ?? true) })
     } catch (err) {
       console.error("Failed to update staff status:", err)
     }

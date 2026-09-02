@@ -1,20 +1,16 @@
 // src/db/schema.ts
 import Dexie, { type Table } from "dexie"
 import seedData from "./seed.json"
-import type { Staff, Project, Assignment, Allocation } from "@/types/sam"
+import type { Staff, Project, Assignment, Allocation, Designation, EntityId, WorkspaceId } from "@/types/sam"
 
-export interface Designation {
-  id?: number
-  code: string
-  name: string
-}
+export const LOCAL_WORKSPACE_ID: WorkspaceId = "local-default"
 
 export class SamDatabase extends Dexie {
-  staff!: Table<Staff, number>
-  projects!: Table<Project, number>
-  assignments!: Table<Assignment, number>
-  allocations!: Table<Allocation, number>
-  designations!: Table<Designation, number>
+  staff!: Table<Staff, EntityId>
+  projects!: Table<Project, EntityId>
+  assignments!: Table<Assignment, EntityId>
+  allocations!: Table<Allocation, EntityId>
+  designations!: Table<Designation, EntityId>
 
   constructor() {
     super("SamDatabase")
@@ -25,6 +21,24 @@ export class SamDatabase extends Dexie {
       assignments: "id, staffId, projectId, role",
       allocations: "id, assignmentId, staffId, projectId, month",
       designations: "++id, &code, name",
+    })
+
+    // Add tenant and audit metadata without invalidating existing offline data.
+    this.version(3).stores({
+      staff: "id, workspaceId, name, designation, designationId, isActive",
+      projects: "id, workspaceId, name, isActive",
+      assignments: "id, workspaceId, staffId, projectId, [workspaceId+staffId], [workspaceId+projectId]",
+      allocations: "id, workspaceId, assignmentId, month, [workspaceId+assignmentId+month]",
+      designations: "++id, workspaceId, [workspaceId+code], name",
+    }).upgrade(async (tx) => {
+      const now = new Date().toISOString()
+      await Promise.all([
+        tx.table("staff").toCollection().modify({ workspaceId: LOCAL_WORKSPACE_ID, createdAt: now, updatedAt: now }),
+        tx.table("projects").toCollection().modify({ workspaceId: LOCAL_WORKSPACE_ID, createdAt: now, updatedAt: now }),
+        tx.table("assignments").toCollection().modify({ workspaceId: LOCAL_WORKSPACE_ID, createdAt: now, updatedAt: now }),
+        tx.table("allocations").toCollection().modify({ workspaceId: LOCAL_WORKSPACE_ID, createdAt: now, updatedAt: now }),
+        tx.table("designations").toCollection().modify({ workspaceId: LOCAL_WORKSPACE_ID }),
+      ])
     })
   }
 }
@@ -37,6 +51,6 @@ export async function initializeDatabase() {
 
   // Preserve existing installations while letting first-run onboarding own sample-data seeding.
   if (staffCount > 0 && designationCount === 0 && seedData.designations) {
-    await db.designations.bulkAdd(seedData.designations)
+    await db.designations.bulkAdd(seedData.designations.map((item) => ({ ...item, workspaceId: LOCAL_WORKSPACE_ID })))
   }
 }

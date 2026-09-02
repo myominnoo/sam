@@ -9,7 +9,10 @@ import {
   Trash2,
   FileJson,
   FileSpreadsheet,
+  Database,
 } from "lucide-react"
+import seedData from "@/db/seed.json"
+import type { Assignment, RoleType } from "@/types/sam"
 import { useSyncScroll } from "@/hooks/use-sync-scroll"
 import { StaffDirectorySection } from "./staff-directory-section"
 import { ProjectsDirectorySection } from "./projects-directory-section"
@@ -103,6 +106,38 @@ export function ManageDataView() {
     e.target.value = ""
   }
 
+  const handleLoadSampleData = async () => {
+    setShowImportMenu(false)
+    setDataMessage(null)
+    if (staffList.length > 0 || projectList.length > 0 || assignmentList.length > 0) {
+      setDataMessage({ type: "error", text: "Sample data can only be loaded into an empty workspace. Clear data first if you want to replace it." })
+      return
+    }
+
+    setIsTransferring(true)
+    try {
+      const assignments: Assignment[] = seedData.assignments.map((assignment) => ({
+        ...assignment,
+        role: assignment.role as RoleType,
+      }))
+      await db.transaction("rw", [db.staff, db.projects, db.assignments, db.allocations, db.designations], async () => {
+        await db.staff.bulkAdd(seedData.staff)
+        await db.projects.bulkAdd(seedData.projects)
+        await db.assignments.bulkAdd(assignments)
+        await db.allocations.bulkAdd(seedData.allocations)
+        await db.designations.bulkPut(seedData.designations)
+      })
+      localStorage.setItem("sam_onboarding_complete", "true")
+      const count = seedData.staff.length + seedData.projects.length + seedData.assignments.length + seedData.allocations.length + seedData.designations.length
+      setDataMessage({ type: "success", text: `Loaded ${count} sample records.` })
+    } catch (error) {
+      console.error("Failed to load sample data:", error)
+      setDataMessage({ type: "error", text: "Unable to load sample data. Please try again." })
+    } finally {
+      setIsTransferring(false)
+    }
+  }
+
   const handleExport = async (format: "json" | "xlsx") => {
     setIsTransferring(true)
     setDataMessage(null)
@@ -173,10 +208,10 @@ export function ManageDataView() {
                     <button
                       type="button"
                       onClick={() => triggerFileInput(".json")}
-                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl hover:bg-sky-500/10 hover:text-sky-600 dark:hover:text-sky-400 transition-colors w-full cursor-pointer group"
+                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl hover:bg-muted transition-colors w-full cursor-pointer group"
                     >
                       <div className="flex items-center gap-2">
-                        <FileJson className="h-4 w-4 shrink-0 text-sky-500" />
+                        <FileJson className="h-4 w-4 shrink-0 text-muted-foreground" />
                         <span>JSON</span>
                       </div>
                       <span className="text-[10px] text-muted-foreground/80 font-normal">
@@ -186,15 +221,25 @@ export function ManageDataView() {
                     <button
                       type="button"
                       onClick={() => triggerFileInput(".xlsx, .xls")}
-                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors w-full cursor-pointer group"
+                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl hover:bg-muted transition-colors w-full cursor-pointer group"
                     >
                       <div className="flex items-center gap-2">
-                        <FileSpreadsheet className="h-4 w-4 shrink-0 text-emerald-500" />
+                        <FileSpreadsheet className="h-4 w-4 shrink-0 text-muted-foreground" />
                         <span>XLSX</span>
                       </div>
                       <span className="text-[10px] text-muted-foreground/80 font-normal">
                         Excel
                       </span>
+                    </button>
+                    <div className="my-0.5 border-t border-border/60" />
+                    <button
+                      type="button"
+                      onClick={() => void handleLoadSampleData()}
+                      disabled={isTransferring || isClearing}
+                      className="flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl text-primary hover:bg-primary/10 transition-colors w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Database className="h-4 w-4 shrink-0 text-primary" />
+                      <span>Load Sample Data</span>
                     </button>
                   </div>
                 </>
@@ -223,10 +268,10 @@ export function ManageDataView() {
                     <button
                       type="button"
                       onClick={() => handleExport("json")}
-                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl hover:bg-purple-500/10 hover:text-purple-600 dark:hover:text-purple-400 transition-colors w-full cursor-pointer group"
+                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl hover:bg-muted transition-colors w-full cursor-pointer group"
                     >
                       <div className="flex items-center gap-2">
-                        <FileJson className="h-4 w-4 shrink-0 text-purple-500" />
+                        <FileJson className="h-4 w-4 shrink-0 text-muted-foreground" />
                         <span>JSON</span>
                       </div>
                       <span className="text-[10px] text-muted-foreground/80 font-normal">
@@ -236,10 +281,10 @@ export function ManageDataView() {
                     <button
                       type="button"
                       onClick={() => handleExport("xlsx")}
-                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors w-full cursor-pointer group"
+                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl hover:bg-muted transition-colors w-full cursor-pointer group"
                     >
                       <div className="flex items-center gap-2">
-                        <FileSpreadsheet className="h-4 w-4 shrink-0 text-emerald-500" />
+                        <FileSpreadsheet className="h-4 w-4 shrink-0 text-muted-foreground" />
                         <span>XLSX</span>
                       </div>
                       <span className="text-[10px] text-muted-foreground/80 font-normal">

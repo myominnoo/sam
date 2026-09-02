@@ -4,7 +4,7 @@ import { toTitleCase } from "@/lib/string-utils"
 import { RoleBadge } from "@/components/ui/role-badge"
 import { useMatrixTimeline } from "@/hooks/use-matrix-timeline"
 import { MatrixTooltip } from "@/components/dashboard/matrix-tooltip"
-import { MatrixColumnGroup, MatrixHeader } from "@/components/dashboard/matrix-header"
+import { getMonthBoundaryClass, MatrixColumnGroup, MatrixHeader } from "@/components/dashboard/matrix-header"
 import { useMatrixExpansion } from "@/hooks/use-matrix-expansion"
 import { useMatrixResponsiveLayout } from "@/hooks/use-matrix-responsive-layout"
 import { CollapseAllButton } from "@/components/ui/collapse-all-button"
@@ -168,9 +168,7 @@ export function ProjectTimelineMatrix({
                         return (
                           <td
                             key={m.key}
-                            className={`relative group/cell p-1 align-top text-center w-14 min-w-[56px] border-r border-border/20 transition-colors ${
-                              idx === 0 ? "border-l-2 border-l-primary/50" : ""
-                            } ${
+                            className={`relative group/cell p-1 align-top text-center w-14 min-w-[56px] border-r border-border/20 transition-colors ${getMonthBoundaryClass(m.key, idx)} ${
                               isProjectActiveInMonth
                                 ? "bg-emerald-500/15 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 font-bold"
                                 : "bg-transparent text-transparent"
@@ -247,9 +245,7 @@ export function ProjectTimelineMatrix({
                               return (
                                 <td
                                   key={m.key}
-                                  className={`p-1 align-top text-center w-14 min-w-[56px] border-r border-border/20 text-[10px] text-muted-foreground/80 ${
-                                    idx === 0 ? "border-l-2 border-l-primary/50" : ""
-                                  }`}
+                                  className={`p-1 align-top text-center w-14 min-w-[56px] border-r border-border/20 text-[10px] text-muted-foreground/80 ${getMonthBoundaryClass(m.key, idx)}`}
                                 >
                                   {pctVal > 0 ? `${Math.round(pctVal)}%` : ""}
                                 </td>

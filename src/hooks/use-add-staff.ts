@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { db } from "@/db/schema"
+import { localSamRepository } from "@/infrastructure/local/sam-repository"
 import { toTitleCase } from "@/lib/string-utils"
 import type { Staff } from "@/types/sam"
 
@@ -50,7 +50,7 @@ export function useAddStaff(staffList: Staff[]) {
       const maxId = staffList.reduce((max, s) => Math.max(max, Number(s.id) || 0), 0)
       const nextId = maxId > 0 ? maxId + 1 : Date.now()
 
-      await db.staff.add({
+      await localSamRepository.saveStaff({
         id: nextId,
         name: trimmedName,
         designation,

@@ -27,6 +27,7 @@ export function TimelineFilterBar({
   )
 
   const popoverRef = useRef<HTMLDivElement>(null)
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const monthOptions = generateMonthOptions()
 
   // Close popup on outside click
@@ -39,6 +40,19 @@ export function TimelineFilterBar({
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
+
+  useEffect(() => () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+  }, [])
+
+  const keepPopoverOpen = () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+    setIsOpen(true)
+  }
+
+  const schedulePopoverClose = () => {
+    closeTimerRef.current = setTimeout(() => setIsOpen(false), 150)
+  }
 
   const startMonthIndex = Math.max(0, monthOptions.findIndex((month) => month.value === startMonth))
   const endMonthIndex = Math.max(startMonthIndex, monthOptions.findIndex((month) => month.value === endMonth))
@@ -67,10 +81,16 @@ export function TimelineFilterBar({
     : []
 
   return (
-    <div className="relative inline-block text-left" ref={popoverRef}>
+    <div
+      className="relative inline-block text-left"
+      ref={popoverRef}
+      onPointerEnter={keepPopoverOpen}
+      onPointerLeave={schedulePopoverClose}
+    >
       {/* Trigger Filter Button */}
       <button
         type="button"
+        onPointerEnter={keepPopoverOpen}
         onClick={() => setIsOpen(!isOpen)}
         className="inline-flex items-center gap-1.5 px-3 h-8 rounded-xl bg-neutral-200/40 dark:bg-neutral-800/40 border border-neutral-300/60 dark:border-neutral-700/60 backdrop-blur-md text-xs font-semibold text-foreground hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition-all shadow-2xs cursor-pointer select-none"
       >
@@ -107,7 +127,12 @@ export function TimelineFilterBar({
                 onValueChange={handlePresetChange}
               >
                 {PRESET_OPTIONS.map((months) => (
-                  <ToggleGroupItem key={months} value={String(months)} aria-label={`${months} months`}>
+                  <ToggleGroupItem
+                    key={months}
+                    value={String(months)}
+                    aria-label={`${months} months`}
+                    className="data-pressed:bg-primary data-pressed:text-primary-foreground data-pressed:shadow-md data-pressed:ring-1 data-pressed:ring-primary/30"
+                  >
                     {months}M
                   </ToggleGroupItem>
                 ))}

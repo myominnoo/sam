@@ -6,6 +6,7 @@ import { db } from "@/db/schema"
 import { useAddStaff } from "@/hooks/use-add-staff"
 import { useStaffTableState } from "@/hooks/use-staff-table-state"
 import { ConfigureCapacityDialog } from "./configure-capacity-dialog"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { cn } from "@/lib/utils"
 import type { Staff, Assignment, Project, Designation, RoleType } from "@/types/sam"
 
@@ -44,6 +45,8 @@ export function StaffDirectorySection({
   const [editingStaffId, setEditingStaffId] = useState<number | null>(null)
   const [editDraft, setEditDraft] = useState<StaffEditDraft | null>(null)
   const [showInactiveStaff, setShowInactiveStaff] = useState(false)
+  const [staffPendingDeletion, setStaffPendingDeletion] = useState<Staff | null>(null)
+  const [isDeletingStaff, setIsDeletingStaff] = useState(false)
   const [isDirectoryCollapsed, setIsDirectoryCollapsed] = useState(
     () => localStorage.getItem(STAFF_DIRECTORY_COLLAPSED_KEY) === "true"
   )
@@ -142,6 +145,17 @@ export function StaffDirectorySection({
       await db.assignments.where("staffId").equals(staff.id).delete()
       await db.staff.delete(staff.id)
     })
+  }
+
+  const confirmDeleteStaff = async () => {
+    if (!staffPendingDeletion) return
+    setIsDeletingStaff(true)
+    try {
+      await deleteInactiveStaff(staffPendingDeletion)
+      setStaffPendingDeletion(null)
+    } finally {
+      setIsDeletingStaff(false)
+    }
   }
 
   return (
@@ -497,7 +511,7 @@ export function StaffDirectorySection({
                             type="button"
                             title="Delete Staff Member"
                             aria-label="Delete Staff Member"
-                            onClick={() => void deleteInactiveStaff(s)}
+                            onClick={() => setStaffPendingDeletion(s)}
                             disabled={isActive}
                             className="p-1 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer disabled:pointer-events-none disabled:opacity-35"
                           >
@@ -541,7 +555,35 @@ export function StaffDirectorySection({
                   </Fragment>
                 )
               })}
-              {inactiveStaff.length > 0 && !showInactiveStaff && (
+              {visibleStaff.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-4 py-12 text-center">
+                    <div className="mx-auto flex max-w-xs flex-col items-center gap-2.5 text-muted-foreground">
+                      <div className="flex size-9 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+                        <Users className="size-4" />
+                      </div>
+                      <p className="text-xs font-bold text-foreground">
+                        {staffList.length === 0 ? "No staff members yet" : "No staff members found"}
+                      </p>
+                      <p className="text-[11px] leading-relaxed">
+                        {staffList.length === 0
+                          ? "Add your first team member using the form above."
+                          : "Try a different search, or show inactive staff."}
+                      </p>
+                      {staffList.length > 0 && inactiveStaff.length > 0 && !showInactiveStaff && (
+                        <button
+                          type="button"
+                          onClick={() => setShowInactiveStaff(true)}
+                          className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+                        >
+                          Show inactive staff
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {inactiveStaff.length > 0 && !showInactiveStaff && visibleStaff.length > 0 && (
                 <tr className="bg-muted/30">
                   <td colSpan={6} className="px-3 py-2">
                     <button
@@ -570,6 +612,16 @@ export function StaffDirectorySection({
         assignmentList={assignmentList}
         projectList={projectList}
         onClose={() => setSelectedCapacityStaff(null)}
+      />
+      <ConfirmDialog
+        open={!!staffPendingDeletion}
+        title="Delete staff member?"
+        description={`This permanently deletes ${staffPendingDeletion ? toTitleCase(staffPendingDeletion.name) : "this staff member"}, along with their assignments and capacity allocations. This cannot be undone.`}
+        confirmLabel="Delete Staff"
+        isDestructive
+        isLoading={isDeletingStaff}
+        onConfirm={() => void confirmDeleteStaff()}
+        onCancel={() => setStaffPendingDeletion(null)}
       />
     </>
   )

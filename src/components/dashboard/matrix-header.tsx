@@ -19,6 +19,11 @@ interface MatrixColumnGroupProps {
   monthCount: number
 }
 
+/** Shared separator before every January. */
+export function getMonthBoundaryClass(monthKey: string, _index: number) {
+  return monthKey.endsWith("-01") ? "shadow-[inset_0.2px_0_0_var(--primary)]" : ""
+}
+
 export function MatrixColumnGroup({ monthCount }: MatrixColumnGroupProps) {
   return (
     <colgroup>
@@ -47,12 +52,12 @@ export function MatrixHeader({
         {/* Removed border-r here to avoid border doubling */}
         <th className="p-2 align-top text-center w-12 sm:w-16 sticky left-[120px] sm:left-[176px] z-20 bg-muted/90 backdrop-blur-md border-r-0"></th>
 
-        {yearGroups.map((g, idx) => (
+        {yearGroups.map((g, index) => (
           <th
             key={g.year}
             colSpan={g.span}
             className={`p-1.5 align-top text-center border-r border-border/40 tracking-widest bg-primary/10 dark:bg-primary/15 ${
-              idx === 0 ? "border-l-2 border-l-primary/50" : ""
+              index > 0 ? "shadow-[inset_0.2px_0_0_var(--primary)]" : ""
             }`}
           >
             {g.year}
@@ -74,8 +79,8 @@ export function MatrixHeader({
         {months.map((m, idx) => (
           <th
             key={m.key}
-            className={`p-2 align-top text-center w-14 min-w-[56px] border-r border-border/20 uppercase text-[10px] text-muted-foreground bg-primary/5 dark:bg-primary/10 ${
-              idx === 0 ? "border-l-2 border-l-primary/50" : ""
+            className={`p-2 align-top text-center w-14 min-w-[56px] border-r border-border/20 uppercase text-[10px] text-muted-foreground bg-primary/5 dark:bg-primary/10 ${getMonthBoundaryClass(m.key, idx)} ${
+              m.key.endsWith("-01") ? "bg-primary/10 dark:bg-primary/15 text-foreground" : ""
             }`}
           >
             {m.monthLabel}

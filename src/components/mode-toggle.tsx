@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Moon, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,6 +11,11 @@ import { useTheme } from "@/components/theme-provider"
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark")
+  }
 
   useEffect(() => {
     if (theme === "system") {
@@ -34,18 +39,23 @@ export function ModeToggle() {
   }, [theme])
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DropdownMenuTrigger
         render={(props) => (
           <Button
             {...props}
+            onPointerEnter={() => setIsMenuOpen(true)}
+            onClick={(event) => {
+              event.preventDefault()
+              toggleTheme()
+            }}
             variant="ghost"
             size="icon"
             className="relative h-7 w-7 rounded-lg border border-neutral-300/80 dark:border-neutral-700/80 bg-neutral-200/40 dark:bg-neutral-800/40 text-muted-foreground hover:text-foreground shrink-0 shadow-2xs backdrop-blur-xs cursor-pointer"
           >
             <Sun className="h-3.5 w-3.5 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
             <Moon className="absolute h-3.5 w-3.5 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-            <span className="sr-only">Toggle theme</span>
+            <span className="sr-only">Toggle light and dark theme; hover for theme options</span>
           </Button>
         )}
       />

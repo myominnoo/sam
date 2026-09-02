@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { RoleBadge } from "@/components/ui/role-badge"
 import { Slider } from "@/components/ui/slider"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { db } from "@/db/schema"
 import { calculateEndMonth, generateMonthRange, getCurrentYearMonth } from "@/lib/date-utils"
 import type { Project, Staff, Assignment, RoleType } from "@/types/sam"
@@ -30,7 +31,8 @@ interface ProjectEditDraft {
 
 function formatMonth(month: string) {
   const [year, monthNumber] = month.split("-")
-  return `${MONTH_NAMES[Number(monthNumber) - 1] ?? month} ${year}`
+  const monthName = MONTH_NAMES[Number(monthNumber) - 1]
+  return monthName && year ? `${monthName} ${year}` : "—"
 }
 
 interface ProjectsDirectorySectionProps {
@@ -56,6 +58,8 @@ export function ProjectsDirectorySection({
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null)
   const [editDraft, setEditDraft] = useState<ProjectEditDraft | null>(null)
   const [showInactiveProjects, setShowInactiveProjects] = useState(false)
+  const [projectPendingDeletion, setProjectPendingDeletion] = useState<Project | null>(null)
+  const [isDeletingProject, setIsDeletingProject] = useState(false)
   const [isDirectoryCollapsed, setIsDirectoryCollapsed] = useState(
     () => localStorage.getItem(PROJECT_DIRECTORY_COLLAPSED_KEY) === "true"
   )
@@ -205,11 +209,23 @@ export function ProjectsDirectorySection({
     })
   }
 
+  const confirmDeleteProject = async () => {
+    if (!projectPendingDeletion) return
+    setIsDeletingProject(true)
+    try {
+      await deleteInactiveProject(projectPendingDeletion)
+      setProjectPendingDeletion(null)
+    } finally {
+      setIsDeletingProject(false)
+    }
+  }
+
   const toggleProjectActive = async (project: Project) => {
     await db.projects.update(project.id, { isActive: !(project.isActive ?? true) })
   }
 
   return (
+    <>
     <section className="rounded-3xl border border-neutral-300 dark:border-neutral-700/80 bg-card/75 dark:bg-card/60 text-card-foreground shadow-xs overflow-hidden transition-all duration-300">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 gap-3 border-b border-border/60 bg-muted/40">
@@ -272,10 +288,14 @@ export function ProjectsDirectorySection({
               aria-label="New project duration preset"
               value={newProjectPreset ? [String(newProjectPreset)] : []}
               onValueChange={handleNewProjectPresetChange}
-              className="scale-90 origin-right"
             >
               {PRESET_OPTIONS.map((months) => (
-                <ToggleGroupItem key={months} value={String(months)} aria-label={`${months} months`}>
+                <ToggleGroupItem
+                  key={months}
+                  value={String(months)}
+                  aria-label={`${months} months`}
+                  className="data-pressed:bg-primary data-pressed:text-primary-foreground data-pressed:shadow-md data-pressed:ring-1 data-pressed:ring-primary/30"
+                >
                   {months}M
                 </ToggleGroupItem>
               ))}
@@ -400,7 +420,9 @@ export function ProjectsDirectorySection({
                         </div>
                       )
                     })() : (
-                      <span className="font-medium">{p.startMonth || "—"} → {p.endMonth || "—"}</span>
+                      <span className="font-medium whitespace-nowrap">
+                        {formatMonth(p.startMonth)} → {formatMonth(p.endMonth)}
+                      </span>
                     )}
                   </td>
                   <td className={cn("py-2 px-2 align-top", !isActive && "pointer-events-none")}>
@@ -494,7 +516,7 @@ export function ProjectsDirectorySection({
                         title="Delete Project"
                         aria-label="Delete project"
                         type="button"
-                        onClick={() => void deleteInactiveProject(p)}
+                        onClick={() => setProjectPendingDeletion(p)}
                         disabled={isActive}
                         className="p-1 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer disabled:pointer-events-none disabled:opacity-35"
                       >
@@ -523,7 +545,35 @@ export function ProjectsDirectorySection({
                 </Fragment>
               )
             })}
-            {inactiveProjects.length > 0 && !showInactiveProjects && (
+            {visibleProjects.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-4 py-12 text-center">
+                  <div className="mx-auto flex max-w-xs flex-col items-center gap-2.5 text-muted-foreground">
+                    <div className="flex size-9 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+                      <FolderKanban className="size-4" />
+                    </div>
+                    <p className="text-xs font-bold text-foreground">
+                      {projectList.length === 0 ? "No projects yet" : "No projects found"}
+                    </p>
+                    <p className="text-[11px] leading-relaxed">
+                      {projectList.length === 0
+                        ? "Create your first project using the form above."
+                        : "Try a different search, or show inactive projects."}
+                    </p>
+                    {projectList.length > 0 && inactiveProjects.length > 0 && !showInactiveProjects && (
+                      <button
+                        type="button"
+                        onClick={() => setShowInactiveProjects(true)}
+                        className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+                      >
+                        Show inactive projects
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )}
+            {inactiveProjects.length > 0 && !showInactiveProjects && visibleProjects.length > 0 && (
               <tr className="bg-muted/30">
                 <td colSpan={5} className="px-3 py-2">
                   <button
@@ -544,5 +594,16 @@ export function ProjectsDirectorySection({
         </>
       )}
     </section>
+    <ConfirmDialog
+      open={!!projectPendingDeletion}
+      title="Delete project?"
+      description={`This permanently deletes ${projectPendingDeletion ? toTitleCase(projectPendingDeletion.name) : "this project"}, along with its assignments and capacity allocations. This cannot be undone.`}
+      confirmLabel="Delete Project"
+      isDestructive
+      isLoading={isDeletingProject}
+      onConfirm={() => void confirmDeleteProject()}
+      onCancel={() => setProjectPendingDeletion(null)}
+    />
+    </>
   )
 }
