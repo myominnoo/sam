@@ -1,9 +1,15 @@
-export const Footer = () => {
+import { Info } from "lucide-react"
+
+interface FooterProps {
+  onStartOnboarding?: () => void
+}
+
+export const Footer = ({ onStartOnboarding }: FooterProps) => {
   return (
     <footer className="mt-2 border-t border-border/60 bg-card/45 backdrop-blur-md py-3.5 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 text-xs text-muted-foreground">
         {/* Left: GitHub Icon Link */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-1">
           <a
             href="https://github.com/myominnoo/sam"
             target="_blank"
@@ -24,6 +30,15 @@ export const Footer = () => {
               />
             </svg>
           </a>
+          <button
+            type="button"
+            onClick={onStartOnboarding}
+            aria-label="Learn how to use SAM"
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-all duration-150 cursor-pointer"
+            title="Learn how to use SAM"
+          >
+            <Info className="size-4" aria-hidden="true" />
+          </button>
         </div>
 
         {/* Center: Copyright */}

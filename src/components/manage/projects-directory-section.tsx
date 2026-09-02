@@ -226,7 +226,7 @@ export function ProjectsDirectorySection({
 
   return (
     <>
-    <section className="rounded-3xl border border-neutral-300 dark:border-neutral-700/80 bg-card/75 dark:bg-card/60 text-card-foreground shadow-xs overflow-hidden transition-all duration-300">
+    <section id="sam-project-directory" className="rounded-3xl border border-neutral-300 dark:border-neutral-700/80 bg-card/75 dark:bg-card/60 text-card-foreground shadow-xs overflow-hidden transition-all duration-300">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 gap-3 border-b border-border/60 bg-muted/40">
         <div className="flex items-center gap-2">
@@ -270,7 +270,7 @@ export function ProjectsDirectorySection({
       {!isDirectoryCollapsed && (
         <>
       {/* Add Project Quick Form Row */}
-      <div className="p-3.5 bg-muted/20 border-b border-border/60 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center">
+      <div id="sam-add-project" className="p-3.5 bg-muted/20 border-b border-border/60 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center">
         <input
           type="text"
           placeholder="New Project Name..."

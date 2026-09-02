@@ -170,6 +170,7 @@ export function ManageDataView() {
           {/* Left: Configuration Buttons */}
           <div className="flex items-center gap-2 flex-wrap">
             <ActionButton
+              id="sam-designations"
               icon={IdCard}
               label="Designations"
               color="primary"
@@ -186,7 +187,7 @@ export function ManageDataView() {
           {/* Right: Data Management & Danger Zone */}
           <div className="flex items-center gap-2 flex-wrap">
             {/* IMPORT DROPDOWN */}
-            <div className="relative">
+            <div id="sam-import" className="relative">
               <ActionButton
                 icon={Upload}
                 label="Import"

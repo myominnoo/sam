@@ -5,12 +5,14 @@ import { ManageDataView } from "@/components/manage/manage-data-view"
 import { SeedDialog } from "@/components/dashboard/seed-dialog"
 import { Footer } from "@/components/layout/footer"
 import { initializeDatabase } from "@/db/schema"
+import { useSamTour } from "@/hooks/use-sam-tour"
 
 export function App() {
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     const saved = localStorage.getItem("sam_active_tab") as TabType
     return saved === "manage" ? "manage" : "dashboard"
   })
+  const startSamTour = useSamTour(setActiveTab)
 
   // Ensure IndexedDB is initialized with seed data on boot
   useEffect(() => {
@@ -33,7 +35,7 @@ export function App() {
         {activeTab === "dashboard" ? <DashboardView /> : <ManageDataView />}
       </main>
 
-      <Footer />
+      <Footer onStartOnboarding={startSamTour} />
 
       <SeedDialog />
     </div>

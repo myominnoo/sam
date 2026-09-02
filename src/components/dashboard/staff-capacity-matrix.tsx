@@ -85,6 +85,7 @@ export function StaffCapacityMatrix({
 
   return (
     <section
+      id="sam-staff-capacity-matrix"
       ref={containerRef}
       className={`${containerMaxWidthClass} rounded-3xl border border-neutral-300 dark:border-neutral-700/80 bg-card/75 dark:bg-card/60 text-card-foreground shadow-xs overflow-hidden transition-all duration-300`}
     >

@@ -200,3 +200,36 @@
 .staff-directory-table td {
   vertical-align: top !important;
 }
+
+.sam-driver-popover {
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+  color: var(--card-foreground);
+  box-shadow: var(--shadow-xl);
+}
+
+.sam-driver-popover .driver-popover-title {
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.sam-driver-popover .driver-popover-description,
+.sam-driver-popover .driver-popover-progress-text {
+  color: var(--muted-foreground);
+}
+
+.sam-driver-popover .driver-popover-next-btn,
+.sam-driver-popover .driver-popover-done-btn {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  text-shadow: none;
+}
+
+.sam-driver-popover .driver-popover-prev-btn {
+  border-color: var(--border);
+  color: var(--foreground);
+  text-shadow: none;
+}

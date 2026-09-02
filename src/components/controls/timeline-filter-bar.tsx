@@ -82,6 +82,7 @@ export function TimelineFilterBar({
 
   return (
     <div
+      id="sam-timeline-filter"
       className="relative inline-block text-left"
       ref={popoverRef}
       onPointerEnter={keepPopoverOpen}

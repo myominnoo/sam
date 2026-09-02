@@ -206,6 +206,7 @@ export function StaffDirectorySection({
         {/* Add Staff Quick Form Row */}
         <div className="p-3.5 bg-muted/20 border-b border-border/60 flex flex-col gap-2">
           <form
+            id="sam-add-staff"
             onSubmit={addStaff}
             className="flex flex-wrap sm:flex-nowrap items-center gap-2.5"
           >
