@@ -5,12 +5,19 @@ import type { Staff, Project, Assignment, Allocation, Designation, EntityId, Wor
 
 export const LOCAL_WORKSPACE_ID: WorkspaceId = "local-default"
 
+export interface ExportFolderSetting {
+  id: "default"
+  handle: FileSystemDirectoryHandle
+  name: string
+}
+
 export class SamDatabase extends Dexie {
   staff!: Table<Staff, EntityId>
   projects!: Table<Project, EntityId>
   assignments!: Table<Assignment, EntityId>
   allocations!: Table<Allocation, EntityId>
   designations!: Table<Designation, EntityId>
+  exportSettings!: Table<ExportFolderSetting, "default">
 
   constructor() {
     super("SamDatabase")
@@ -39,6 +46,15 @@ export class SamDatabase extends Dexie {
         tx.table("allocations").toCollection().modify({ workspaceId: LOCAL_WORKSPACE_ID, createdAt: now, updatedAt: now }),
         tx.table("designations").toCollection().modify({ workspaceId: LOCAL_WORKSPACE_ID }),
       ])
+    })
+
+    this.version(4).stores({
+      staff: "id, workspaceId, name, designation, designationId, isActive",
+      projects: "id, workspaceId, name, isActive",
+      assignments: "id, workspaceId, staffId, projectId, [workspaceId+staffId], [workspaceId+projectId]",
+      allocations: "id, workspaceId, assignmentId, month, [workspaceId+assignmentId+month]",
+      designations: "++id, workspaceId, [workspaceId+code], name",
+      exportSettings: "id",
     })
   }
 }

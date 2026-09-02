@@ -354,6 +354,20 @@
   line-height: 1.4;
 }
 
+/* Sonner's built-in status glyphs otherwise inherit its neutral ink color. */
+[data-sonner-toaster] [data-sonner-toast][data-type="success"].sam-toast [data-icon],
+[data-sonner-toaster] [data-sonner-toast][data-type="info"].sam-toast [data-icon] {
+  color: var(--primary) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="error"].sam-toast [data-icon] {
+  color: var(--destructive) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"].sam-toast [data-icon] {
+  color: var(--foreground) !important;
+}
+
 [data-sonner-toaster] [data-sonner-toast].sam-toast [data-close-button],
 [data-sonner-toaster] [data-sonner-toast].sam-toast .sam-toast-close {
   border: 1px solid var(--border) !important;

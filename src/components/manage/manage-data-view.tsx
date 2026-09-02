@@ -10,6 +10,8 @@ import {
   FileJson,
   FileSpreadsheet,
   Database,
+  FolderOpen,
+  X,
 } from "lucide-react"
 import seedData from "@/db/seed.json"
 import type { Assignment, RoleType } from "@/types/sam"
@@ -24,7 +26,7 @@ import {
   DEFAULT_THRESHOLDS,
   type ThresholdSettings,
 } from "./manage-thresholds-dialog"
-import { exportToJSON, exportToXLSX, importDataFile, previewImportDataFile, type ImportPreview } from "@/lib/data-io"
+import { clearExportFolder, exportToJSON, exportToXLSX, getExportFolderName, importDataFile, previewImportDataFile, setExportFolder, supportsExportFolder, type ImportPreview } from "@/lib/data-io"
 import { toast } from "sonner"
 
 export function ManageDataView() {
@@ -43,6 +45,7 @@ export function ManageDataView() {
   const [isTransferring, setIsTransferring] = useState(false)
   const [pendingImport, setPendingImport] = useState<ImportPreview | null>(null)
   const [pendingImportName, setPendingImportName] = useState("")
+  const [exportFolderName, setExportFolderName] = useState<string | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -52,6 +55,10 @@ export function ManageDataView() {
     }
     window.addEventListener("sam:tour-target", openImportForTour)
     return () => window.removeEventListener("sam:tour-target", openImportForTour)
+  }, [])
+
+  useEffect(() => {
+    void getExportFolderName().then(setExportFolderName)
   }, [])
 
   // Synchronized horizontal scroll hook
@@ -168,14 +175,34 @@ export function ManageDataView() {
     setIsTransferring(true)
     setShowExportMenu(false)
     try {
-      await (format === "json" ? exportToJSON() : exportToXLSX())
-      toast.success("Export ready", { description: `Your ${format.toUpperCase()} file has been downloaded.` })
+      const result = await (format === "json" ? exportToJSON() : exportToXLSX())
+      toast.success("Export ready", { description: result.destination === "folder" ? `${result.filename} was saved to ${result.folderName}.` : `Your ${format.toUpperCase()} file has been downloaded.` })
     } catch (error) {
       console.error("Export failed:", error)
       toast.error("Could not export data", { description: `Unable to create the ${format.toUpperCase()} file. Please try again.` })
     } finally {
       setIsTransferring(false)
     }
+  }
+
+  const handleSetExportFolder = async () => {
+    if (!supportsExportFolder()) {
+      toast.error("Export folders need a Chromium browser", { description: "Use Chrome or Edge, or continue exporting to browser downloads." })
+      return
+    }
+    try {
+      const name = await setExportFolder()
+      setExportFolderName(name)
+      toast.success("Export folder saved", { description: `Future exports will be saved to ${name}.` })
+    } catch (error) {
+      if ((error as Error).name !== "AbortError") toast.error("Could not set export folder", { description: (error as Error).message })
+    }
+  }
+
+  const handleClearExportFolder = async () => {
+    await clearExportFolder()
+    setExportFolderName(null)
+    toast.success("Browser downloads restored", { description: "Future exports will use your browser's default download location." })
   }
 
   return (
@@ -290,7 +317,7 @@ export function ManageDataView() {
                     className="fixed inset-0 z-40"
                     onClick={() => setShowExportMenu(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-border/60 bg-card text-card-foreground shadow-xl z-50 p-1.5 flex flex-col gap-1 animate-in fade-in-50 zoom-in-95 duration-150">
+                  <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-border/60 bg-card text-card-foreground shadow-xl z-50 p-1.5 flex flex-col gap-1 animate-in fade-in-50 zoom-in-95 duration-150">
                     <button
                       type="button"
                       onClick={() => handleExport("json")}
@@ -317,6 +344,26 @@ export function ManageDataView() {
                         Excel
                       </span>
                     </button>
+                    <div className="my-0.5 border-t border-border/60" />
+                    <button
+                      type="button"
+                      onClick={() => void handleSetExportFolder()}
+                      disabled={isTransferring}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-semibold transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <FolderOpen className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span>{exportFolderName ? "Change export folder" : "Set export folder"}</span>
+                    </button>
+                    {exportFolderName ? (
+                      <div className="mx-1 rounded-xl border border-primary/15 bg-primary/5 px-2.5 py-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="min-w-0 truncate text-[11px] font-semibold text-primary" title={exportFolderName}>Saving to: {exportFolderName}</p>
+                          <button type="button" onClick={() => void handleClearExportFolder()} className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-background hover:text-foreground" aria-label="Use browser downloads" title="Use browser downloads"><X className="h-3.5 w-3.5" /></button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="px-3 pb-1 text-[10px] leading-4 text-muted-foreground">Files download through your browser by default.</p>
+                    )}
                   </div>
                 </>
               )}

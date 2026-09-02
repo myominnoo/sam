@@ -18,6 +18,32 @@ export interface ImportPreview {
   count: number
 }
 
+const EXPORT_FOLDER_KEY = "default" as const
+type WritableDirectoryHandle = FileSystemDirectoryHandle & {
+  queryPermission: (descriptor: { mode: "readwrite" }) => Promise<PermissionState>
+  requestPermission: (descriptor: { mode: "readwrite" }) => Promise<PermissionState>
+}
+type DirectoryPickerWindow = Window & typeof globalThis & {
+  showDirectoryPicker: (options: { mode: "readwrite" }) => Promise<WritableDirectoryHandle>
+}
+
+export const supportsExportFolder = () => "showDirectoryPicker" in window
+
+export async function getExportFolderName() {
+  return (await db.exportSettings.get(EXPORT_FOLDER_KEY))?.name ?? null
+}
+
+export async function setExportFolder() {
+  if (!supportsExportFolder()) throw new Error("This browser does not support choosing an export folder. Use Chrome, Edge, or another Chromium-based browser.")
+  const handle = await (window as DirectoryPickerWindow).showDirectoryPicker({ mode: "readwrite" })
+  await db.exportSettings.put({ id: EXPORT_FOLDER_KEY, handle, name: handle.name })
+  return handle.name
+}
+
+export async function clearExportFolder() {
+  await db.exportSettings.delete(EXPORT_FOLDER_KEY)
+}
+
 /**
  * Exports database content as JSON file
  */
@@ -25,7 +51,8 @@ export async function exportToJSON() {
   const payload = await getAllData()
   const jsonString = JSON.stringify(payload, null, 2)
   const blob = new Blob([jsonString], { type: "application/json" })
-  downloadBlob(blob, `sam-data-${formatDate()}.json`)
+  const filename = `sam-data-${formatDate()}.json`
+  return saveExport(blob, filename)
 }
 
 /**
@@ -46,7 +73,8 @@ export async function exportToXLSX() {
   // Generate binary output and download
   const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" })
   const blob = new Blob([wbout], { type: "application/octet-stream" })
-  downloadBlob(blob, `sam-data-${formatDate()}.xlsx`)
+  const filename = `sam-data-${formatDate()}.xlsx`
+  return saveExport(blob, filename)
 }
 
 /**
@@ -143,6 +171,23 @@ function validateImportPayload(payload: Partial<ExportDataPayload>): asserts pay
       throw new Error(`Invalid import: the ${table} table is missing or malformed.`)
     }
   }
+}
+
+async function saveExport(blob: Blob, filename: string) {
+  const folder = await db.exportSettings.get(EXPORT_FOLDER_KEY)
+  if (folder) {
+    const handle = folder.handle as WritableDirectoryHandle
+    const permission = await handle.queryPermission({ mode: "readwrite" })
+    const granted = permission === "granted" || await handle.requestPermission({ mode: "readwrite" }) === "granted"
+    if (!granted) throw new Error(`SAM needs permission to write to ${folder.name}. Choose the export folder again or use browser downloads.`)
+    const file = await handle.getFileHandle(filename, { create: true })
+    const writable = await file.createWritable()
+    await writable.write(blob)
+    await writable.close()
+    return { filename, destination: "folder" as const, folderName: folder.name }
+  }
+  downloadBlob(blob, filename)
+  return { filename, destination: "downloads" as const }
 }
 
 function downloadBlob(blob: Blob, filename: string) {
