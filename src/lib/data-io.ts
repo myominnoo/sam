@@ -18,6 +18,17 @@ export interface ImportPreview {
   count: number
 }
 
+interface SyncFileHandle {
+  getFile(): Promise<File>
+  createWritable(): Promise<{ write(data: Blob): Promise<void>; close(): Promise<void> }>
+}
+
+interface SyncDirectoryHandle {
+  getFileHandle(name: string, options?: { create?: boolean }): Promise<SyncFileHandle>
+}
+
+const SYNC_FILENAME = "sam-workspace.json"
+
 /**
  * Exports database content as JSON file
  */
@@ -26,6 +37,28 @@ export async function exportToJSON() {
   const jsonString = JSON.stringify(payload, null, 2)
   const blob = new Blob([jsonString], { type: "application/json" })
   downloadBlob(blob, `sam-data-${formatDate()}.json`)
+}
+
+/** Writes a portable snapshot into a user-selected OneDrive/Google Drive desktop-sync folder. */
+export async function exportToSyncFolder() {
+  const picker = (window as Window & { showDirectoryPicker?: (options?: { mode: "readwrite" }) => Promise<SyncDirectoryHandle> }).showDirectoryPicker
+  if (!picker) throw new Error("Folder sync is supported in Chromium-based browsers. Use JSON export in this browser.")
+  const directory = await picker({ mode: "readwrite" })
+  const file = await directory.getFileHandle(SYNC_FILENAME, { create: true })
+  const writable = await file.createWritable()
+  await writable.write(new Blob([JSON.stringify(await getAllData(), null, 2)], { type: "application/json" }))
+  await writable.close()
+  return SYNC_FILENAME
+}
+
+/** Reads a snapshot from a user-selected desktop-sync folder for normal validation and confirmation. */
+export async function previewImportFromSyncFolder() {
+  const picker = (window as Window & { showDirectoryPicker?: () => Promise<SyncDirectoryHandle> }).showDirectoryPicker
+  if (!picker) throw new Error("Folder sync is supported in Chromium-based browsers. Use JSON import in this browser.")
+  const directory = await picker()
+  const file = await directory.getFileHandle(SYNC_FILENAME)
+  const sourceFile = await file.getFile()
+  return { file: sourceFile, preview: await previewImportDataFile(sourceFile) }
 }
 
 /**

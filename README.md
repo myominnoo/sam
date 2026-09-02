@@ -24,6 +24,7 @@ It runs entirely in the browser. Workspace data is stored in IndexedDB; SAM does
 
 - Load a ready-made sample workspace or begin with a blank slate.
 - Import/export complete workspaces as JSON or Excel (`.xlsx`).
+- Use **To Sync Folder** and **From Sync Folder** with a OneDrive or Google Drive desktop-synced folder. SAM reads and writes a validated `sam-workspace.json` snapshot; this manual browser workflow is currently available in Chromium-based browsers.
 - Import files are validated before replacement: SAM checks record structure, IDs, references, duplicate assignments/allocation months, valid dates, project timelines, and monthly workload totals.
 - An import preview shows its record count and requires confirmation before replacing local data.
 - Export before using **Clear Data** or moving to a different browser. Clearing data permanently removes the local workspace and SAM preferences.
